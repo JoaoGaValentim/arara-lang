@@ -849,12 +849,51 @@ macOS arm64.
 
 ### 9d.3 Result
 
+Reproduced in the Directive 001-R5 session on `javac 21.0.12.1` (Corretto
+21.0.12.12.1, macOS arm64) with the same harness and the same five compiling
+controls:
+
 | Group | n | Exit 0 | Exit 1 |
 | --- | --- | --- | --- |
 | Reserved keywords | 51 | 0 | **51** |
-| Contextual keywords | 17 | **11** | 6 |
+| Contextual keywords | 17 | **11** | **6** |
 | Literals `true`/`false`/`null` | 3 | 0 | **3** |
-| Controls | 5 | **5** | 0 |
+| Controls | 5 | **5** | **0** |
+| **Total** | **76** | **16** | **60** |
+
+Of the 76 candidates, 60 are rejected and 16 are accepted. Removing the 5
+controls leaves the 71 Arara-list names: **60 rejected + 11 accepted = 71**.
+The boundary is checked programmatically over the raw `group|name|status` rows,
+not by eye:
+
+```python
+import collections
+rows = [l.strip().split('|') for l in open('out.txt') if l.strip()]
+groups = collections.defaultdict(lambda: [0, 0])
+for group, name, rc in rows:
+    assert rc in ('0', '1')
+    groups[group][0 if rc == '0' else 1] += 1
+cands = [r for r in rows if r[0] != 'control']
+accepted = sum(1 for r in cands if r[2] == '0')
+rejected = sum(1 for r in cands if r[2] == '1')
+assert accepted + rejected == len(cands) == 71
+assert accepted == 11 and rejected == 60
+assert groups['control'] == [5, 0]
+```
+
+Observed output of that check in the D001-R5 session:
+
+```text
+group counts (accepted, rejected):
+  reserved      0  51  n=51
+  contextual   11   6  n=17
+  literal       0   3  n=3
+  control       5   0  n=5
+candidates = 71 accepted = 11 rejected = 60
+ASSERTIONS PASSED: accepted + rejected == candidates == 71; 11 + 60
+accepted contextual names: exports opens requires to uses provides with transitive open module when
+rejected contextual names: var yield record sealed permits non-sealed
+```
 
 The 6 rejected contextual keywords are `var`, `yield`, `record`, `sealed`,
 `permits` (`'…' not allowed here`) and `non-sealed` (`'{' expected`; also outside
@@ -877,9 +916,19 @@ module.java: (no output; exit 0)
 open.java: (no output; exit 0)
 ```
 
-Conclusion: `javac` refuses **59** of the 71 names in the Arara list. The
-remaining 11 are excluded by Arara policy (`semantics.md` §1.2b rule 2), not by
-`javac`.
+Conclusion: `javac` refuses **60** of the 71 names in the Arara list — the 51
+reserved keywords, `true`/`false`/`null`, and 6 of the 17 contextual keywords
+(`var`, `yield`, `record`, `sealed`, `permits`, `non-sealed`). The remaining 11
+are excluded by Arara policy (`semantics.md` §1.2b rule 2), not by `javac`.
+
+**Correction, Directive 001-R5:** D001-R4 reported 59 rejected. That figure
+subtracted `non-sealed` on the grounds that §1.2b rule 1 rejects it on the pattern
+before rule 2 runs. The subtraction is true of the *rule order* but false of the
+*experiment*: `non-sealed` was one of the 71 candidates actually compiled, and
+`javac` rejected it. Reporting it as untested broke the invariant
+accepted + rejected = candidates. The count is now 60/11, the experiment was rerun
+in the D001-R5 session, and the rule-order note
+is stated separately so the two facts cannot be conflated again.
 
 ## 9e. Directive 001-R4 — JVM internal names and shadowing
 

@@ -4,21 +4,23 @@ Machine-readable recovery ledger. Update after every completed work unit. Facts
 only; no intentions, no forecasts.
 
 ```yaml
-active_directive: D001-R4 (public repository, Apache-2.0, Copilot migration); milestone D001
+active_directive: D001-R5 (Copilot activation, publication, final foundation verification); milestone D001
 active_milestone: D001 — Foundation (documentation and configuration only)
 milestone_authorization: D001-01 and D001-06 (docs/progress/DECISIONS.md)
 process_authorization: D001-07 (English-only communication, closed gate status vocabulary)
 visibility_and_license_authorization: D001-08 (public visibility, Apache-2.0, Copilot migration)
 gate_correction_authorization: D001-09 (D001-G9 is BLOCKED; G9-A not operative)
-current_task: D001-R4 complete — F-R4-01/F-R4-02/F-R4-03 corrected, Apache-2.0 adopted, repository public, Copilot configuration created; Copilot agent loading and fresh-session recovery remain UNVERIFIED
-current_subtask: none — awaiting owner rulings on G9-A, OQ-3, OQ-10, OQ-11
-last_completed_unit: D001-R4 — R3 corrections, license adoption, public visibility, Copilot migration files, final report
+r5_authorization: D001-10 (R5 operations, G9-A conditional ratification, publication)
+gate_ratification: D001-11 (G9-A ratified; D001-G9 reclassified BLOCKED -> PASS)
+current_task: D001-R5 complete — numerical defect corrected, agents and allowlists verified by execution, DeepSeek limits validated, Copilot recovery verified, foundation published, Draft PR open
+current_subtask: none — awaiting owner rulings on OQ-3, OQ-10, OQ-11, and D001 acceptance
+last_completed_unit: D001-R5 — R5 corrections, agent verification, publication, branch protection, report
 branch: infra/d001-r4-copilot-migration
-last_verified_commit: 32884b4
-audit_commit: 32884b4 (D001-R4); previous audit 49ad593 (D001-R3)
+last_verified_commit: 2607608
+audit_commit: 2607608 (D001-R4); previous audit 49ad593 (D001-R3); R5 record in docs/progress/audit/D001-R5.md
 commit_convention: this ledger is edited before each commit, so last_verified_commit is always the commit immediately preceding the one containing this line; verify with `git log --oneline -3`
-remote: origin https://github.com/JoaoGaValentim/arara-lang.git (public after D001-R4, still zero pushed refs until separately authorized)
-working_tree: clean at 32884b4 before this checkpoint commit; nothing pushed
+remote: origin https://github.com/JoaoGaValentim/arara-lang.git (public; `main` published 2026-10-20, default branch `main`)
+working_tree: see the D001-R5 section below; the tree holds uncommitted R5 work at the time of writing
 ```
 
 ## D001-R1 changed paths
@@ -243,7 +245,7 @@ Three R2 claims were wrong. Each is corrected at its source, not merely noted.
 | R2 claim | Reality | Cause |
 | --- | --- | --- |
 | JLS 21 declares 52 reserved keywords | **51** | a regex captured the gloss word `underscore` from `_ (underscore)` |
-| `javac` rejects 5 contextual keywords as class names | ~~`javac` rejects all 68 keyword names, plus `true`/`false`/`null`~~ — **wrong; corrected by 001-R4:** `javac` rejects 59 names and accepts 11 contextual keywords | generalized from a five-name probe, then measured with a harness that wrote every candidate to `t.java` |
+| `javac` rejects 5 contextual keywords as class names | ~~`javac` rejects all 68 keyword names, plus `true`/`false`/`null`~~ — **wrong; corrected by 001-R4, count fixed by 001-R5:** `javac` rejects 60 names and accepts 11 contextual keywords | generalized from a five-name probe, then measured with a harness that wrote every candidate to `t.java` |
 | 54 lines carry a diagnostic shorthand | **83 occurrences over 35 numbers** | the counter matched only some patterns |
 
 The second row is deliberately kept with its wrong value struck through: R3
@@ -326,11 +328,16 @@ file name, so the experiment failed for every candidate, legal or not. A harness
 whose controls fail cannot support a conclusion.
 
 Corrected result on `javac 21.0.12.1` / Corretto 21.0.12.12.1 / macOS arm64, with
-five compiling controls: **59 rejected** (51 reserved keywords,
-`true`/`false`/`null`, and `var`/`yield`/`record`/`sealed`/`permits`), **11
-contextual keywords accepted** (`exports`, `opens`, `requires`, `to`, `uses`,
-`provides`, `with`, `transitive`, `open`, `module`, `when`). `non-sealed` is
-rejected by rule 1 on the pattern.
+five compiling controls: **60 rejected** (51 reserved keywords,
+`true`/`false`/`null`, `var`/`yield`/`record`/`sealed`/`permits`, and
+`non-sealed`), **11 contextual keywords accepted** (`exports`, `opens`,
+`requires`, `to`, `uses`, `provides`, `with`, `transitive`, `open`, `module`,
+`when`). 60 + 11 = 71.
+
+D001-R4 first reported 59 by subtracting `non-sealed` as "rejected by rule 1 on
+the pattern". That is true of rule order and false of the experiment: it was
+compiled and `javac` rejected it. Directive 001-R5 found the arithmetic defect;
+`REPRODUCIBILITY.md` §9d.3 now asserts accepted + rejected = candidates.
 
 `OQ-10` was **not** ratified automatically. The 71-name list remains as a
 documented policy choice, explicitly labelled broader than `javac` requires, and
@@ -373,11 +380,161 @@ as `JoaoGaValentim`.
 - **UNVERIFIED:** Copilot recovery in a fresh session; Copilot context management;
   whether VS Code forwards `reasoning_effort: max`; Kilo compaction events.
 
+## D001-R5 — Copilot activation, publication, final verification (2026-10-20)
+
+Documentation, configuration, and repository administration only. No compiler
+source, build file, test, or CI workflow. No merge, tag, or release.
+
+### Baseline
+
+| Check | Value | Class |
+| --- | --- | --- |
+| Branch at start | `infra/d001-r4-copilot-migration` | VERIFIED |
+| HEAD at start | `26076083700b53a56d40ce454d7accea54a66da3` | VERIFIED |
+| Reported R4 commits | `2607608`, `175541d`, `32884b4` present in that order | VERIFIED |
+| Working tree at start | 9 modified tracked paths, 2 untracked skill files — all R5 work from an interrupted earlier attempt, none of it foreign | VERIFIED |
+| `LICENSE` | Apache-2.0, SHA-256 `cfc7749b…3d30`, unmodified | VERIFIED |
+| Remote refs before | none; `gh repo view` reported `isEmpty: true` | VERIFIED |
+| D002 implementation | none: no `*.java`, `*.kt`, `*.rs`, `*.py`, `*.class`, `src/`, `build.gradle*`, `pom.xml` | VERIFIED |
+
+The dirty tree was **not** foreign work: every modified path was a D001-R5
+correction described in this section. It was preserved and continued rather than
+discarded. No reset, rewrite, or stash operation was performed.
+
+### Numerical defect corrected (directive §3)
+
+The D001-R4 report stated 59 rejected `javac` class names. The correct figure is
+**60**, because 51 reserved keywords + 3 literals + 5 restricted identifiers + 1
+`non-sealed` = 60 rejected, and 11 contextual keywords are accepted, totalling the
+71 tested candidates. The earlier figure deducted `non-sealed` as untested even
+though it had been compiled and rejected.
+
+The experiment was **rerun in this session** rather than trusted from the report.
+Result, identical to the corrected R4 measurement:
+
+| Group | n | Accepted | Rejected |
+| --- | --- | --- | --- |
+| Reserved keywords | 51 | 0 | 51 |
+| Contextual keywords | 17 | 11 | 6 |
+| Literals | 3 | 0 | 3 |
+| Controls | 5 | 5 | 0 |
+| **Total** | **76** | **16** | **60** |
+
+Programmatic assertions over the raw rows (not by eye):
+`accepted + rejected == len(candidates) == 71`, `accepted == 11`,
+`rejected == 60`, `controls == [5, 0]`. All passed. The check and its observed
+output are recorded in `REPRODUCIBILITY.md` §9d.3. Language semantics were not
+changed to fit the arithmetic: only the reported count and the explanation
+changed.
+
+Corrected at their source: `D001-R3.md` §3.2, `REPRODUCIBILITY.md` §9d.3,
+`DECISIONS.md` `OQ-10`, `STATE.md` §"Corrections to the D001-R2 audit",
+`semantics.md` §1.2b, `conformance-plan.md`, and `arara-auditor.agent.md`.
+Historical claims in the two verbatim report archives were **not** edited; they are
+archived deliverables and remain as delivered.
+
+### Copilot custom agents verified by execution (directive §4)
+
+Discovery and effective permissions were tested with real agent invocations under
+the Copilot harness, not by YAML parsing alone. All three agents were discovered
+and each was invoked:
+
+| Agent | Tools actually available | Write attempt | Shell attempt |
+| --- | --- | --- | --- |
+| `arara-auditor` | `view` only | no mechanism available | no terminal available |
+| `arara-recovery` | `view` only | no mechanism available | not attempted; no terminal |
+| `arara-engineer` | `view`, `create`, `edit`, `bash`, `read_bash`, `stop_bash`, `list_bash`, `task`, `read_agent`, `list_agents`, `write_agent` | succeeded (`/tmp/arara-agent-permission-probe-engineer.txt`) | `bash` present |
+
+No agent modified a repository file during the probes. The read-only allowlists
+are therefore **enforced**, not merely declared: `tools: ['read', 'search']`
+collapses to a single read-only `view` tool, and the write/execute/delegate tools
+appear only for the agent whose frontmatter lists them. The auditor's probe also
+recorded that it could not run `git`, `curl`, or `gh` despite the environment
+metadata naming them — the allowlist wins over the ambient environment.
+
+Residual limitation: this verifies the harness behaviour observed in this VS Code
+version. A different client version could change the tool-name mapping, and no
+mechanism here detects that.
+
+### DeepSeek configuration validated (directive §5)
+
+| Check | Result | Class |
+| --- | --- | --- |
+| Config file | `~/Library/Application Support/Code/User/chatLanguageModels.json` (user level, outside the repository) | VERIFIED |
+| Backup before change | `chatLanguageModels.json.bak-d001-r5-20261020T1636`, mode `600` | VERIFIED |
+| Limits | `maxInputTokens` 1018576 + `maxOutputTokens` 30000 = 1048576, exactly the provider context window | VERIFIED |
+| JSON syntax | `json.load` succeeds; unrelated groups and keys preserved | VERIFIED |
+| Reasoning effort | `max` selected in both the model entry and the Copilot group's `thinkingLevel` | VERIFIED (config) |
+| Provider accepts `max` | `reasoning_effort: max` → HTTP 200 with `reasoning_tokens` present | VERIFIED |
+| Tool calling at `max` | HTTP 200, `finish_reason: tool_calls`, arguments `{"x":"hello"}` | VERIFIED |
+| Reasoning is really active | `reasoning_content` and `completion_tokens_details.reasoning_tokens` non-zero for every effort value | VERIFIED |
+| Effort changes behaviour | The provider returns 200 for **any** effort string, including a bogus one, so HTTP status cannot prove the setting is applied | VERIFIED limitation |
+| VS Code forwards `max` to the provider | Not observable from inside the client; the copilot extension filters against the declared `supportsReasoningEffort` list and only then writes `reasoning_effort` | UNVERIFIED |
+
+No endpoint address or credential is recorded in this repository. The provider URL
+lives only in the user-level file.
+
+### Fresh-session recovery verified (directive §6)
+
+`arara-recovery` was invoked as a subagent process with no access to this
+conversation's history and reconstructed, from files alone: active directive,
+active milestone, authorized work, branch `infra/d001-r4-copilot-migration`, HEAD
+`2607608…`, the full open-decision list, the next safe action, and the forbidden
+actions. It correctly reported `working tree: UNVERIFIED` rather than guessing,
+because its allowlist has no terminal.
+
+It also found a real defect that this section corrects: `STATE.md` recorded
+`last_verified_commit: 32884b4` while HEAD was `2607608`, and `.git/packed-refs`
+was stale for the current branch. The first is the normal ledger lag of one
+commit that `commit_convention` describes and `G9-A` permits; the second is
+ordinary Git behaviour that the recovery procedure did not explain, causing it to
+report a false discrepancy. Both are now documented:
+
+- `STATE.md` `last_verified_commit` and `audit_commit` are pinned to `2607608`.
+- `arara-recovery.agent.md` explains loose-ref precedence and stale
+  `packed-refs`, and tells the agent to take the commit from the loose ref and the
+  reflog.
+
+The Copilot-native entry point is now the `resume`/`checkpoint` **skills** plus
+`arara-recovery.agent.md`. The `.github/prompts/*.prompt.md` files are retained
+for Local-harness compatibility and are explicitly not assumed to run under
+Copilot.
+
+### Publication (directive §8)
+
+Pre-publication scan before the first push: tracked content, all reachable
+history, and every dangling blob were searched for key/token/private-key
+patterns, personal paths, and endpoint addresses. No credential found. No
+`.java`/`.kt`/`.rs`/`.py`/`.class`/`.jar`/build file has ever been committed
+(`git log --all --name-only`), so no implementation was published.
+
+`main` was published from the reviewed local baseline without rewriting history:
+
+```sh
+git push origin refs/heads/main:refs/heads/main
+```
+
+Result: `* [new branch] main -> main`; remote refs then showed
+`717fcc6… HEAD` and `717fcc6… refs/heads/main`, and the provider's default branch
+is `main`. The migration branch is pushed separately and is **not** the default
+branch.
+
+### Kilo status (directive §10)
+
+**Retained.** All ten migration criteria are now met except the two explicitly
+`UNVERIFIED` client-side items (whether VS Code forwards `max`, and Copilot
+context management). Retiring Kilo is therefore permitted but **not performed**:
+the directive requires a separate, minimal, reversible commit, and removing a
+working fallback is not part of the foundation-verification scope. `.kilo/` is
+untouched and still tracked.
+
 ## Authorized scope
 
-D001 only: governance, Kilo configuration, recovery mechanism, architecture,
-roadmap, ADRs, language specification drafts, conformance plan, and a formal
-report. Local commits are permitted. Nothing has been pushed.
+D001 only: governance, agent configuration, recovery mechanism, architecture,
+roadmap, ADRs, language specification drafts, conformance plan, repository
+publication and branch protection, and formal reports. `D001-10` authorizes the
+D001-R5 operations, including the one-time bootstrap publication of `main` and a
+separate push of the migration branch. No merge and no D002 work.
 
 ## Forbidden now
 
@@ -386,9 +543,14 @@ report. Local commits are permitted. Nothing has been pushed.
   compiler source tree.
 - Tests or CI configuration.
 - Starting D002.
-- Pushing to any remote, merging, releasing, tagging, or publishing.
+- **Merging** the Draft PR, creating a release or tag, or publishing an artifact.
+  Publishing `main` once and opening the Draft PR were authorized; merging was not.
+- Force-pushing, rewriting published history, or pushing directly to `main` after
+  the initial bootstrap.
 - Weakening `AGENTS.md`, `.kilo/rules/*`, or `docs/progress/GATES.md`.
 - Introducing any feature from `docs/charter.md` §4.
+- Marking `OQ-3`, `OQ-10`, `OQ-11`, or any other open item accepted because the
+  infrastructure migration succeeded.
 
 ## Files created in D001
 
@@ -607,46 +769,52 @@ dispositions:
 
 ## Blocking decisions
 
-**D001 is `BLOCKED`, not accepted** (`D001-09`). Fourteen gates are `PASS`;
-`D001-G9` is `BLOCKED` because the only criterion that could settle it, `G9-A`,
-has never been approved. A gate cannot be `PASS` against an unratified criterion.
+**D001 is `BLOCKED`, not accepted** — but no longer because of a gate. After
+Directive 001-R5, fifteen gates are `PASS` and none is `BLOCKED`; `G9-A` was
+ratified in `D001-11` and `D001-G9` was re-evaluated against it. The milestone
+verdict is still `BLOCKED` because three substantive owner decisions that gate
+acceptance are unresolved. A gate cannot be `PASS` against an unratified
+criterion, and acceptance cannot be `PASS` without the owner's contract decision.
 
-| # | Decision | Gates acceptance? | Gates D002? | Status after D001-R4 |
+| # | Decision | Gates acceptance? | Gates D002? | Status after D001-R5 |
 | --- | --- | --- | --- | --- |
-| `OQ-3` | Accept `docs/spec/*` as the D001 contract | yes — this *is* acceptance | yes | open |
-| `OQ-10` | Ratify the 71-name unit-name rule (§1.2b rule 2) | yes | yes | open; the `javac` basis was corrected |
-| `OQ-11` | Ratify the five shadowing names (§1.2b rule 3, `ARA-SRC-0005`) | yes | yes | open; the internal-name claim was corrected |
-| `G9-A` | Approve the amended G9 criterion | yes — currently blocks the milestone verdict | no | **PROPOSED, not operative** |
+| `OQ-3` | Accept `docs/spec/*` as the D001 contract | yes — this *is* acceptance | yes | open; prepared for decision, not accepted |
+| `OQ-10` | Ratify the 71-name unit-name rule (§1.2b rule 2) | yes | yes | open; `javac` basis corrected to 60/11 and rerun |
+| `OQ-11` | Ratify the five shadowing names (§1.2b rule 3, `ARA-SRC-0005`) | yes | yes | open; scope limitation now recorded |
+| `G9-A` | Approve the amended G9 criterion | no longer blocking | no | **RATIFIED (`D001-11`); `D001-G9` `PASS`** |
 | `OQ-1` | Repository visibility | no | no | **RESOLVED — public (`D001-08`)** |
 | `OQ-9` | License | no | no | **RESOLVED — Apache-2.0 (`D001-08`)** |
-| `OQ-2` | Push authorization | no | no | open; still zero pushed refs |
+| `OQ-2` | Push authorization | no | no | **RESOLVED — `D001-10`; `main` and the branch published** |
 | `OQ-8` | Ratify `.ara` | no — D001 holds either way | yes | open |
 | `OQ-7` | Ratify the 28 reserved words | no | yes | open |
 | `OQ-4`, `OQ-5`, `OQ-6` | Division by zero; shadowing ban; multi-unit | no | yes | open |
 | `OQ-12` | Ratify the diagnostic rewrite (already applied) | no | yes | open |
 | `OQ-13` | Keep the vocabulary split | no | no | open |
+| `OQ-14` | Retire Kilo, keeping it as fallback until then | no | no | open; retention is the current default |
 
-Eleven items remain open. The consolidated matrix with alternatives,
-recommendation, justification, compatibility impact, and D002 effect is
-`docs/progress/audit/D001-R3.md` §9; `docs/progress/audit/D001-R4.md` §8 records
-the R3 corrections. Recommendations are **not** approvals.
+Nine items remain open, of which three gate D001 acceptance. The consolidated
+matrix with alternatives, recommendation, justification, compatibility impact, and
+D002 effect is `docs/progress/audit/D001-R3.md` §9; `docs/progress/audit/D001-R4.md`
+§8 records the R3 corrections, and `docs/progress/audit/D001-R5.md` §M records the
+R5 status. Recommendations are **not** approvals.
 
 ## Next executable action
 
-1. Owner rules on `G9-A`. It is the only item that changes the D001 verdict from
-   `BLOCKED` without new evidence.
-2. Owner records decisions on `OQ-3`, `OQ-10`, and `OQ-11`. These gate D001
-   acceptance. Any reversal of a decision already applied to the specification is
-   made in the same commit as the decision that authorizes it.
-3. Owner records decisions on the D002-facing questions: `OQ-4`, `OQ-5`, `OQ-6`,
+1. Owner records decisions on `OQ-3`, `OQ-10`, and `OQ-11`. These are the only
+   remaining obstacles to D001 acceptance. Any reversal of a decision already
+   applied to the specification is made in the same commit as the decision that
+   authorizes it.
+2. Owner records decisions on the D002-facing questions: `OQ-4`, `OQ-5`, `OQ-6`,
    `OQ-7`, `OQ-8`, `OQ-12`, and `OQ-13`. These do not block D001 acceptance.
-4. Owner records D001 acceptance or rejection in `docs/progress/DECISIONS.md`.
-5. Only then may Directive 002 be issued.
+3. Owner records D001 acceptance or rejection in `docs/progress/DECISIONS.md`.
+4. Only then may Directive 002 be issued.
+5. Optional and non-blocking: review and merge the Draft PR, or rule on `OQ-14`
+   (Kilo retirement). Neither is authorized by Directive 001-R5.
 
-Separately, and not blocking D001: authorize a push of
-`infra/d001-r4-copilot-migration` if the branch is to be published. The directive
-that authorized the visibility change explicitly did **not** authorize pushing
-unreviewed branches.
+The foundation is published: remote `main` is `717fcc6` and is the default branch;
+`infra/d001-r4-copilot-migration` is pushed separately for review. Nothing was
+merged. The Draft PR URL and exact head revision are recorded in
+`docs/progress/audit/D001-R5.md` §H.
 
 Two D002 obligations were closed by Directive 001-R3 rather than carried forward:
 `ARA-SRC-0002` and `ARA-PARSE-0199` now have explicit obligations in

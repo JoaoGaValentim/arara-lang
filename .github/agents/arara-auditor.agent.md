@@ -24,7 +24,7 @@ what it would prove, and label the finding `UNVERIFIED` until someone runs it.
 - Any claim about `javac`, the JVM verifier, class-file names, or `defineClass` must
   cite a probe that had a **control that compiled**. An experiment whose control
   failed proves nothing.
-- JLS 21 §3.9 is 51 reserved and 17 contextual keywords. `javac` refuses 59 of the
+- JLS 21 §3.9 is 51 reserved and 17 contextual keywords. `javac` refuses 60 of the
   Arara 71-name list and accepts 11 contextual keywords (`exports`, `opens`,
   `requires`, `to`, `uses`, `provides`, `with`, `transitive`, `open`, `module`,
   `when`). Excluding those 11 is Arara policy, not a `javac` requirement.

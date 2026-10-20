@@ -62,12 +62,18 @@ ordinary identifiers were compiled as controls.
 | 51 reserved keywords of JLS 21 §3.9 | 51 | all rejected |
 | `true`, `false`, `null` | 3 | all rejected |
 | `var`, `yield`, `record`, `sealed`, `permits` | 5 | all rejected (`not allowed here`) |
+| `non-sealed` | 1 | rejected (`'{' expected`) |
 | `exports`, `opens`, `requires`, `to`, `uses`, `provides`, `with`, `transitive`, `open`, `module`, `when` | 11 | **all accepted** |
 | controls (`Arara`, `Foo`, `_arara`, `AraraLang`, `x1`) | 5 | all accepted |
 
-`non-sealed` is rejected by rule 1 before rule 2 applies, because `-` is outside
-the pattern. So the set that `javac` itself refuses is 59 names, and 11
-contextual keywords are legal class names — `module` and `open` among them.
+The 71 Arara-list names therefore split **60 rejected + 11 accepted**. `non-sealed`
+is counted among the 60 because it was compiled and rejected; it is *also*
+ineligible under rule 1, because `-` is outside the pattern. Those are two
+independent facts about the same name, and the count must not absorb one into the
+other.
+
+The 11 accepted contextual keywords are legal class names in Java 21 — `module`
+and `open` among them — so excluding them is a choice, not a constraint.
 
 The rule still excludes those 11, but as an **explicit policy choice pending
 owner ratification (`OQ-10`)**, not as an inherited `javac` restriction:

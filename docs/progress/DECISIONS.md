@@ -228,6 +228,89 @@ Format: `Dxxx-yy` where `xxx` is the directive number and `yy` is a sequence.
 
 ---
 
+## D001-10 — Directive 001-R5: foundation verification and publication
+
+- **Date:** 2026-10-20
+- **Decider:** Repository owner (`JoaoGaValentim`)
+- **Status:** ACTIVE
+- **Scope:** Authorizes the operational actions in Directive 001-R5:
+  - Correcting defects found in D001-R4 review, including the numerical defect in
+    the `javac` experiment report (59 → 60 rejected).
+  - Validating and correcting the user-level VS Code DeepSeek model
+    configuration, with a local backup created before modification. The
+    configuration is user-level and outside version control; no credential or
+    endpoint address is recorded in this repository.
+  - Testing GitHub Copilot custom agents, their tool allowlists, and
+    fresh-session recovery under the Copilot harness.
+  - Publishing the reviewed foundation: initializing remote `main` from the
+    existing baseline, pushing `infra/d001-r4-copilot-migration` separately,
+    and opening a Draft PR into `main`.
+  - Configuring default-branch protections appropriate to a single maintainer.
+  - Recording administrative decisions and verification evidence, and making
+    documentation-only corrections required by these tasks.
+- **Ratifies `G9-A` within its stated scope.** The replacement criterion text
+  already in `docs/progress/GATES.md` ("`STATE.md` records the branch, the commit
+  preceding this ledger, the audit commit, and the working-tree state, and each is
+  verifiable by a named command") is ratified as written, but only because it
+  satisfies the directive's condition: it drops the impossible requirement that a
+  commit contain its own SHA and replaces it with independently observable Git
+  state. The original criterion remains quoted verbatim and unedited as history.
+  No other gate is reworded or re-evaluated by this entry.
+- **Explicitly not authorized:**
+  - Starting D002 or any later milestone; writing lexer, parser, type checker, IR,
+    or backend code.
+  - Bypassing a failed acceptance criterion, or inventing unreviewed semantic
+    decisions.
+  - Force-pushing, rewriting published history, merging the Draft PR, creating a
+    release or tag, or publishing an artifact.
+  - Marking `OQ-3`, `OQ-10`, `OQ-11`, or any other open item accepted merely
+    because this directive authorized operational corrections.
+- **Rationale:** The foundation was complete on one machine but unverifiable to
+  anyone else, and an unverified agent migration cannot be trusted as the primary
+  environment. Publication and independent verification are prerequisites for a
+  reviewable D001 acceptance decision.
+- **Evidence of authority:** Owner directive "DIRECTIVE 001-R5 — Copilot
+  Activation, Repository Publication & Final Foundation Verification",
+  2026-10-20, §1 "Owner authorization: GRANTED FOR THE OPERATIONS SPECIFIED
+  BELOW", §7 `G9-A` conditional ratification, and §8 publication authorization.
+  The directive states "No merge is authorized under this directive" and "No D002
+  implementation is authorized."
+
+---
+
+## D001-11 — `G9-A` ratified; `D001-G9` reclassified
+
+- **Date:** 2026-10-20
+- **Decider:** Repository owner (`JoaoGaValentim`), via Directive 001-R5 §7
+- **Status:** ACTIVE
+- **Supersedes:** The `PROPOSED` status of `G9-A` only. `D001-09` (which recorded
+  `D001-G9` as `BLOCKED` against the original criterion) is retained unmodified
+  as history.
+- **Scope:** `G9-A` is **RATIFIED** and operative. `D001-G9` is evaluated against
+  the replaced criterion and is reclassified from `BLOCKED` to `PASS` on
+  verification, not on assertion: `STATE.md` records the branch, the commit
+  preceding the ledger, the audit commit, and the working-tree state, and each is
+  checkable with a named command. The original criterion text is preserved in
+  `GATES.md` and is not deleted.
+- **Condition satisfied:** Directive 001-R5 §7 permits ratification only if the
+  replacement "verify real ledger consistency using independently observable Git
+  state, rather than requiring a commit to contain its own hash before that
+  commit exists", and only if it "does not weaken any other gate." The ratified
+  text names branch, preceding commit, audit commit, and working-tree state, and
+  requires a named command for each. It does not relax `D001-G14`, `D001-G15`, or
+  any other gate.
+- **Explicitly not authorized:** deleting the original criterion; treating this
+  ratification as D001 acceptance; using it to authorize D002.
+- **Rationale:** The original criterion was unsatisfiable by construction for any
+  accurate ledger, so the gate could never be settled by evidence. The
+  replacement measures the same property — ledger consistency — using state an
+  observer can recompute.
+- **Consequence:** With `D001-G9` at `PASS`, no D001 gate is `BLOCKED`. The D001
+  verdict still cannot be `PASS` while `OQ-3`, `OQ-10`, `OQ-11`, and the other
+  open items are unresolved; see the D001-R5 report for the current verdict.
+
+---
+
 ## Open decisions requested from the owner
 
 These are recorded here so they are not lost; they are **not** decisions yet.
@@ -239,6 +322,19 @@ D002.
    creating `develop`, or keep the bootstrap local.
 3. **OQ-3 — Specification acceptance.** Accept, reject, or request changes to
    `docs/spec/*` as the D001 contract.
+   *Prepared for owner acceptance by Directive 001-R5; not accepted by it.* The
+   contract is ready to be accepted, rejected, or amended as one decision, and
+   the R5 work does not change its status. Acceptance is a separate owner act
+   with these consequences:
+   - Accepting freezes `docs/spec/{lexical.md,syntax.ebnf,semantics.md,conformance-plan.md}`
+     as the D002 entry contract, so a later semantic change requires a new
+     decision that names the superseded rule.
+   - Accepting does **not** ratify `OQ-4`–`OQ-8`, `OQ-10`–`OQ-13`, or `G9-A`;
+     those stay separate decisions.
+   - Accepting does **not** authorize D002. That needs its own directive after
+     `D001-G9` is settled.
+   - Rejecting or amending leaves the specification `DRAFT`/`PROPOSED` and must
+     name the sections that change.
 4. **OQ-4 — `Int` division by zero.** The draft specifies a runtime
    `ArithmeticException`. Confirm or request a different behavior.
 5. **OQ-5 — Shadowing prohibition.** The draft forbids all shadowing, which is
@@ -267,13 +363,16 @@ D002.
     class names. **Corrected 2026-10-20 by F-R4-01:** the R3 claim that `javac`
     rejects all 71 names came from an experiment that wrote every source to
     `t.java` while declaring `public class <candidate>`, which fails for every
-    candidate including legal ones. The corrected experiment, with five
-    compiling controls, shows `javac` rejects **59** names — the 51 reserved,
-    `true`/`false`/`null`, and `var`/`yield`/`record`/`sealed`/`permits` — and
-    **accepts 11 contextual keywords**: `exports`, `opens`, `requires`, `to`,
-    `uses`, `provides`, `with`, `transitive`, `open`, `module`, `when`.
-    Excluding those 11 is an Arara policy choice for stability, not a `javac`
-    requirement. Evidence: `REPRODUCIBILITY.md` §9d.
+    candidate including legal ones. **Arithmetic corrected by Directive
+    001-R5:** the corrected experiment, with five compiling controls, shows
+    `javac` rejects **60** names — the 51 reserved, `true`/`false`/`null`,
+    `var`/`yield`/`record`/`sealed`/`permits`, and `non-sealed`
+    (51 + 3 + 5 + 1 = 60) — and **accepts 11 contextual keywords**: `exports`,
+    `opens`, `requires`, `to`, `uses`, `provides`, `with`, `transitive`, `open`,
+    `module`, `when`. 60 + 11 = 71, which is the tested candidate count; D001-R4
+    reported 59 because it deducted `non-sealed` as untested although `javac` had
+    rejected it. Excluding those 11 is an Arara policy choice for stability, not
+    a `javac` requirement. Evidence: `REPRODUCIBILITY.md` §9d.
 11. **OQ-11 — Units that shadow `java.lang`.** RESOLVED IN THE SPECIFICATION,
     PENDING RATIFICATION. `semantics.md` §1.2b rule 3 forbids `java`, `String`,
     `System`, `Object`, and `Math` as unit names, reported as `ARA-SRC-0005`.
@@ -290,6 +389,14 @@ D002.
     class file that compiles, verifies under `-Xverify:all`, and runs. Loading
     `java/lang/String` via `defineClass` fails with `IllegalName`, while `String`
     loads. Shadowing is therefore a Java *source* resolution issue only.
+    *Scope limitation, recorded by Directive 001-R5:* the five names are the
+    measured set that breaks **this** initial subset against **Java 21** source on
+    the same classpath. That is not an exhaustive collision analysis of the
+    entire Java platform. Names in packages other than `java.lang`, names that
+    collide only under `import`, and names introduced by future JDK releases
+    were not tested. The rule is therefore a documented, measured restriction for
+    the current subset, and no document may present it as a complete account of
+    Java name collisions. Testing the wider platform is D005 work.
 12. **OQ-12 — Diagnostic shorthand in the conformance plan.** RESOLVED, PENDING
     RATIFICATION OF THE REWRITE. Every normative obligation in
     `conformance-plan.md`, `lexical.md`, and `semantics.md` now uses a full
