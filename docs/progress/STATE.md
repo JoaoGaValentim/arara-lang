@@ -9,11 +9,11 @@ active_milestone: D001 — Foundation (documentation and configuration only)
 milestone_authorization: D001-01 (docs/progress/DECISIONS.md)
 current_task: D001 execution complete; awaiting owner review
 current_subtask: none
-last_completed_unit: D001 bootstrap authored and independently audited; bootstrap commit pending
+last_completed_unit: D001 bootstrap committed and recovery-validated (c5f376a)
 branch: main
-last_verified_commit: none (zero commits at time of writing; updated after the bootstrap commit)
+last_verified_commit: c5f376af28ea76c9f802e258331185aab666cde4
 remote: origin https://github.com/JoaoGaValentim/arara-lang.git (private, no push)
-working_tree: all D001 files untracked until the bootstrap commit; see git status
+working_tree: clean at c5f376a (this ledger update is the only later change)
 ```
 
 ## Authorized scope
@@ -122,11 +122,45 @@ not D002 implementation.
    ADR 0003.
 4. **Remaining context** is not exposed by a documented provider endpoint; the
    boundary was established by binary probing of `max_tokens`.
-5. **Independent recovery test.** A separate `kilo run` process was started in
-   this repository with a read-only recovery prompt. Its output is recorded in
-   the D001 report §D. It is a real fresh-context process, but it uses the same
-   installed client and model, so it does not prove recovery under a different
-   client.
+5. **Independent recovery test.** Two separate `kilo run` processes were started
+   in this repository with read-only recovery prompts. Their outputs are recorded
+   below. They are real fresh-context processes, but they use the same installed
+   client and model, so they do not prove recovery under a different client.
+6. **No report file in the repository.** The D001 execution report is delivered in
+   the response, not committed, because it contains environment and session
+   details that are not project records. `GATES.md` therefore cites `STATE.md`
+   sections rather than report sections. If the owner wants the report archived,
+   that requires a decision.
+
+## Independent recovery validation
+
+Two separate `kilo run --agent plan` processes were started in this repository
+with read-only instructions and no access to this session's transcript.
+
+Run 1 (before the bootstrap commit) correctly reported:
+`GIT_HEAD=none`, 24 untracked files, and a discrepancy between the ledger and
+Git. That discrepancy was accurate and was fixed by committing.
+
+Run 2 (after commit `c5f376a`) reported:
+
+```text
+ACTIVE_MILESTONE=D001 — Foundation (documentation and configuration only)
+GIT_BRANCH=main
+GIT_HEAD=c5f376af28ea76c9f802e258331185aab666cde4
+WORKTREE_CLEAN=true
+DISCREPANCIES=Minor stale ledger only: STATE.md still records "zero commits..."
+```
+
+Assessments:
+
+- Directive, authorized scope, current task, next safe action, and forbidden
+  actions were reconstructed correctly from files alone. `VERIFIED`.
+- Git state was read correctly. `VERIFIED`.
+- The stale-ledger discrepancy in run 2 is the expected consequence of running
+  recovery before this ledger update; this update closes it. `VERIFIED` as a
+  self-detection capability.
+- Limitation: both runs used the same installed Kilo client and model. Recovery
+  under a different client, model, or machine is `UNVERIFIED`.
 
 ## Verification runs (this session)
 
@@ -146,7 +180,7 @@ not D002 implementation.
 | Diagnostic codes | cross-check over lexical/syntax/semantics | PASS — 67 used, 67 defined, 0 duplicates |
 | Grammar structure | ad-hoc parse of the EBNF block | PASS — 27 productions, 0 undefined, 0 unused, 0 duplicate |
 | FIRST/FOLLOW | ad-hoc LL(1) analysis | PASS — no selection conflict |
-| Fresh-process recovery | `kilo run` read-only recovery prompt | PASS with limitation — see §Known limitations 5 |
+| Fresh-process recovery | `kilo run --agent plan`, twice, read-only | PASS with limitation — §Independent recovery validation |
 
 ## Blocking decisions
 

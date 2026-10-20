@@ -30,17 +30,18 @@ recorded in `docs/adr/0002-compiler-host.md`, `docs/adr/0003-model-limits.md`, a
 | D001-G6 | Model limits | Non-zero context and output limits appear in resolved model metadata | PASS | ADR 0003; `kilo models hive --verbose` |
 | D001-G7 | Reasoning effort | The strongest declared variant is selected and accepted by the provider | PASS | ADR 0003; `kilo debug agent code` → `variant: max` |
 | D001-G8 | Recovery completeness | `resume.md` reconstructs directive, scope, state, decisions, pending work, and next action from repository files alone | PASS | `STATE.md` §Independent recovery simulation |
-| D001-G9 | Ledger accuracy | `STATE.md` matches actual branch, HEAD, and working tree at report time | BLOCKED | Requires the bootstrap commit; status recorded after commit in §Final verification |
+| D001-G9 | Ledger accuracy | `STATE.md` matches actual branch, HEAD, and working tree at report time | PASS | Branch `main`, HEAD `c5f376a`, clean tree; see `STATE.md` §Independent recovery validation |
 | D001-G10 | Specification consistency | No two normative documents conflict; every diagnostic code defined exactly once | PASS | `STATE.md` §Audit findings, cross-check results |
 | D001-G11 | Grammar derivability | Every example in the specification is derivable from `syntax.ebnf`; FIRST/FOLLOW analysis shows no selection conflict | PASS | `syntax.ebnf` §5, §6.3; `STATE.md` §Audit findings |
 | D001-G12 | Traceability | Every normative rule has a test obligation or an explicit `MANUAL` marker | PASS | `conformance-plan.md` §3–§6a |
 | D001-G13 | No unverified claims | Every environment claim carries a command and result | PASS | ADRs 0002–0003; `STATE.md` §Verification runs |
-| D001-G14 | Git state | Work is committed locally on the recorded branch; no unauthorized push | BLOCKED | Requires the bootstrap commit; status recorded after commit in §Final verification |
-| D001-G15 | Independent recovery | A fresh session reconstructs state without the transcript | CONDITIONAL | Simulation performed in-session from files only; no separate process was spawned. See `STATE.md` §Known limitations item 5. |
+| D001-G14 | Git state | Work is committed locally on the recorded branch; no unauthorized push | PASS | `git log` shows `c5f376a` on `main`; `git status` clean; `git remote -v` shows only `origin` and no push occurred |
+| D001-G15 | Independent recovery | A fresh session reconstructs state without the transcript | PASS | Two separate `kilo run` processes reconstructed milestone, scope, next action, forbidden actions, and Git state from files alone; the first correctly flagged the missing commit. See `STATE.md` §Independent recovery validation. Limitation: same client and model. |
 
-**D001 verdict:** `CONDITIONAL` until G9 and G14 are satisfied by the bootstrap
-commit and G15 is either accepted with the stated limitation or re-run in a fresh
-process. No row above is milestone acceptance.
+**D001 self-assessment:** all D001 gates are `PASS` with recorded evidence.
+Verdict for owner review: `PASS — READY FOR OWNER REVIEW`. This is not milestone
+acceptance: only the owner can accept D001, and acceptance must be recorded in
+`docs/progress/DECISIONS.md`.
 
 ## D002 — Lexer and parser
 
