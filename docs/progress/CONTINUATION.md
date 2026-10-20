@@ -21,8 +21,9 @@ states what to do and what not to do, with no reliance on prior conversation.
 - **Branch:** `infra/d001-r4-copilot-migration`.
 - **Remote:** `origin` → `https://github.com/JoaoGaValentim/arara-lang.git`.
   Public. `main` is published at `717fcc6` and is the default branch; the
-  migration branch is pushed separately at its R5 content commit. A **Draft** PR
-  (#1) is open against `main`. Nothing is merged, and merging is not authorized.
+  migration branch is published at `e707b10` (its R5 content commit is `230abd6`).
+  A **Draft** PR (#1) is open against `main`; the live head advances with each
+  documentation checkpoint. Nothing is merged, and merging is not authorized.
 - **License:** Apache-2.0, root `LICENSE`, unmodified ASF text
   (SHA-256 `cfc7749b…3d30`). It is on the migration branch; `main` receives it
   only if the Draft PR is merged.
@@ -103,11 +104,12 @@ states what to do and what not to do, with no reliance on prior conversation.
 git branch --show-current && git log --oneline -5 && git status --porcelain=v1 --untracked-files=all
 ```
 
-Expected: branch `infra/d001-r4-copilot-migration`; the R5 content commit and its
-parent `2607608` at the top; `main` at `717fcc6` on the remote; a tree whose only
-modifications, if any, are the four paths the concurrent process touched after the
-R5 content commit (see `docs/progress/audit/D001-R5.md` §N). Those are preserved
-uncommitted, not adopted.
+Expected: branch `infra/d001-r4-copilot-migration`; `main` at `717fcc6` on the
+remote; a clean tree. HEAD is the latest checkpoint, so it is later than the R5
+content commit `230abd6`. `STATE.md` records `last_verified_commit` as the commit
+preceding the ledger commit: compare it to HEAD's **parent**, not to HEAD itself.
+The four paths the concurrent process touched after the content commit were
+reconciled and committed; they are not expected to be dirty.
 
 ## If the working tree is dirty
 
