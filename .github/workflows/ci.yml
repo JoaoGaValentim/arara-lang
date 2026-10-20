@@ -1,0 +1,110 @@
+name: CI
+
+# Required checks: build and test on every pull request and on every push to main.
+# A missing or skipped run is NOT a pass; this workflow is the evidence D002 gates cite.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build and test (JDK 21)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out the exact revision under review
+        uses: actions/checkout@v5
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+
+      - name: Verify the frozen D001 contract is unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected_lexical=70b0f8dd1a01d85391e2d9f75b240b2b60390e5c94092a56fc0d1d0293f2d8ea
+          expected_syntax=2d4dcf73159033a8cdefa5a09eaff1344b7be586a5f5f78af1d9fa5c280a7f1a
+          expected_semantics=e2ac89c58a24d3d01c14755ada3b80c914ac6bafb5c16b7c50815533f623f106
+          expected_conformance=2024d51c86e1b768ba712175c0f9a15adf65fbe1963e02f66d855fd20f5dd2e3
+
+          actual_lexical=$(sha256sum docs/spec/lexical.md | cut -d' ' -f1)
+          actual_syntax=$(sha256sum docs/spec/syntax.ebnf | cut -d' ' -f1)
+          actual_semantics=$(sha256sum docs/spec/semantics.md | cut -d' ' -f1)
+          actual_conformance=$(sha256sum docs/spec/conformance-plan.md | cut -d' ' -f1)
+
+          fail=0
+          check() {
+            if [ "$2" != "$3" ]; then
+              echo "::error file=$1::frozen hash mismatch: expected $3, found $2"
+              fail=1
+            else
+              echo "OK $1 $2"
+            fi
+          }
+          check docs/spec/lexical.md "$actual_lexical" "$expected_lexical"
+          check docs/spec/syntax.ebnf "$actual_syntax" "$expected_syntax"
+          check docs/spec/semantics.md "$actual_semantics" "$expected_semantics"
+          check docs/spec/conformance-plan.md "$actual_conformance" "$expected_conformance"
+          exit $fail
+
+      - name: Validate the Gradle wrapper checksum
+        shell: bash
+        run: |
+          set -euo pipefail
+          pinned=$(grep '^distributionSha256Sum=' gradle/wrapper/gradle-wrapper.properties | cut -d= -f2)
+          if [ -z "$pinned" ]; then
+            echo "::error::gradle-wrapper.properties has no distributionSha256Sum"
+            exit 1
+          fi
+          echo "pinned distribution checksum: $pinned"
+
+      - name: Build and test
+        run: ./gradlew --no-daemon --console=plain build
+
+      - name: Verify determinism of token dumps
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew --no-daemon --console=plain test --tests 'arara.lex.TokenDumpTest'
+          echo "Determinism tests executed."
+
+      - name: Confirm no unauthorized stage leaked into the tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          # D002 forbids name resolution, typing, IR, and bytecode emission.
+          if find src -type f \( -name '*Resolver*.java' -o -name '*TypeChecker*.java' \
+               -o -name '*TypeCheck*.java' -o -name '*Ir*.java' -o -name '*Emitter*.java' \
+               -o -name '*Bytecode*.java' -o -name '*ClassWriter*.java' \) | grep -q .; then
+            echo "::error::a file belonging to a later milestone is present"
+            exit 1
+          fi
+          if grep -rn --include='*.java' 'org\.objectweb\.asm' src; then
+            echo "::error::ASM is not authorized in D002"
+            exit 1
+          fi
+          echo "No D003/D004 stage present."
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: build/reports/tests/test
+          retention-days: 14
