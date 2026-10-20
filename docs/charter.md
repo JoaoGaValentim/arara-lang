@@ -115,8 +115,11 @@ See `docs/adr/0001-jvm-target.md`.
   must match `[A-Za-z_][A-Za-z0-9_]*`, must not be any of the 51 reserved or 17
   contextual keywords of JLS 21 §3.9, must not be `true`, `false`, or `null`
   (`ARA-SRC-0004`), and must not shadow `java` or a `java.lang` type in the
-  emitted subset (`ARA-SRC-0005`). The normative statement and the probe evidence
-  are in `semantics.md` §1.2a–§1.5a; `OQ-10` records the ratification question.
+  emitted subset (`ARA-SRC-0005`). The 71-name exclusion is broader than `javac`
+  requires: 11 contextual keywords, including `module` and `open`, are legal
+  class names, and Arara excludes them by policy. The normative statement and the
+  probe evidence are in `semantics.md` §1.2a–§1.5a; `OQ-10` records the
+  ratification question.
 - There are no package declarations in the initial subset. All classes are in the
   unnamed package.
 - Multiple compilation units may be compiled together. Function names share one

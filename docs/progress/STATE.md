@@ -4,19 +4,21 @@ Machine-readable recovery ledger. Update after every completed work unit. Facts
 only; no intentions, no forecasts.
 
 ```yaml
-active_directive: D001-R3 (contract closure, gate integrity, final owner review); milestone D001
+active_directive: D001-R4 (public repository, Apache-2.0, Copilot migration); milestone D001
 active_milestone: D001 — Foundation (documentation and configuration only)
 milestone_authorization: D001-01 and D001-06 (docs/progress/DECISIONS.md)
 process_authorization: D001-07 (English-only communication, closed gate status vocabulary)
-current_task: D001-R3 complete — all 15 gates PASS, verdict CONDITIONAL pending owner ratification of 5 decisions and 1 criterion amendment
-current_subtask: none
-last_completed_unit: D001-R3 — gate reassessment, Java 21 naming policy, diagnostic traceability closure, grammar revalidation, owner decision package
-branch: docs/d001-r1-arara-identity
-last_verified_commit: e408966
-audit_commit: 49ad593 (D001-R3); previous audit 15f25b2 (D001-R2)
+visibility_and_license_authorization: D001-08 (public visibility, Apache-2.0, Copilot migration)
+gate_correction_authorization: D001-09 (D001-G9 is BLOCKED; G9-A not operative)
+current_task: D001-R4 in progress — F-R4-01/F-R4-02/F-R4-03 corrected, license adopted, Copilot config created; visibility change and final commit pending
+current_subtask: final verification, visibility change, and checkpoint commit
+last_completed_unit: D001-R4 §3 corrections and §4 license adoption
+branch: infra/d001-r4-copilot-migration
+last_verified_commit: 78ca162
+audit_commit: pending (this branch, first commit)
 commit_convention: this ledger is edited before each commit, so last_verified_commit is always the commit immediately preceding the one containing this line; verify with `git log --oneline -3`
-remote: origin https://github.com/JoaoGaValentim/arara-lang.git (private, empty, no push)
-working_tree: clean after 49ad593; nothing pushed
+remote: origin https://github.com/JoaoGaValentim/arara-lang.git (public after D001-R4, still zero pushed refs until separately authorized)
+working_tree: dirty — D001-R4 changes staged for the first commit on this branch
 ```
 
 ## D001-R1 changed paths
@@ -241,8 +243,13 @@ Three R2 claims were wrong. Each is corrected at its source, not merely noted.
 | R2 claim | Reality | Cause |
 | --- | --- | --- |
 | JLS 21 declares 52 reserved keywords | **51** | a regex captured the gloss word `underscore` from `_ (underscore)` |
-| `javac` rejects 5 contextual keywords as class names | `javac` rejects all 68 keyword names, plus `true`/`false`/`null` | generalized from a five-name probe |
+| `javac` rejects 5 contextual keywords as class names | ~~`javac` rejects all 68 keyword names, plus `true`/`false`/`null`~~ — **wrong; corrected by 001-R4:** `javac` rejects 59 names and accepts 11 contextual keywords | generalized from a five-name probe, then measured with a harness that wrote every candidate to `t.java` |
 | 54 lines carry a diagnostic shorthand | **83 occurrences over 35 numbers** | the counter matched only some patterns |
+
+The second row is deliberately kept with its wrong value struck through: R3
+replaced one unmeasured claim with another invalid measurement, and 001-R4 found
+it. The corrected counts and the reproduced listing are in
+`docs/progress/audit/REPRODUCIBILITY.md` §9d.
 
 One R2 statement was imprecise rather than wrong: `java` breaks Java source only
 in the fully qualified `java.` form. `String` and `System` break the unqualified
@@ -250,9 +257,15 @@ form. §1.5a now separates the cases.
 
 ### Gate status
 
-All fifteen D001 gates are `PASS`. Milestone verdict remains `CONDITIONAL`
-because `G9-A` needs owner approval and five decisions are open. G12 and G13 were
-closed by doing the missing work, not by redefining the criterion.
+*As recorded by D001-R3 at the time:* all fifteen D001 gates were `PASS` with the
+milestone verdict `CONDITIONAL`. **Superseded by D001-R4:** `D001-G9` is
+`BLOCKED` against the authorized criterion (`D001-09`), so the verdict is
+`BLOCKED`. The R3 sentence below describes the state it recorded, not the current
+state. G12 and G13 were closed by doing the missing work, not by redefining the
+criterion.
+
+Original R3 text: "All fifteen D001 gates are `PASS`. Milestone verdict remains
+`CONDITIONAL` because `G9-A` needs owner approval and five decisions are open."
 
 ### Naming policy summary (§1.2a–§1.2c)
 
@@ -279,6 +292,86 @@ references), `shortaudit.py` (shorthand eliminated from normative files),
 FIRST/FOLLOW rows match the computed sets), and a grammar-driven parser run over
 every documentation example (11 valid examples parse; the one example documented
 as a parse error is rejected; semantic-error examples parse, as they should).
+
+## D001-R4 — Public repository, Apache-2.0, Copilot migration (2026-10-20)
+
+Documentation, licensing, and infrastructure only. No compiler source, build file,
+test, or CI workflow. No push, merge, tag, or release.
+
+### What changed and why
+
+| File | Change | Class |
+| --- | --- | --- |
+| `LICENSE` | New. Unmodified Apache License 2.0 text from `apache.org/licenses/LICENSE-2.0.txt`, 202 lines, SHA-256 `cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30` | license adoption (`D001-08`) |
+| `README.md` | License section, license and agent-environment identity rows, Copilot entry point, layout | documentation |
+| `docs/spec/semantics.md` | §1.2b rule 2 corrected: the 71-name list is Arara policy, not a `javac` requirement; measured table added. §1.5a corrected: unit `String` emits `String`, not `java/lang/String`, with the coexistence table | semantic correction (`F-R4-01`, `F-R4-02`) |
+| `docs/spec/conformance-plan.md` | Keyword row states the policy scope and forbids asserting `javac` behavior; §1.5a obligation now asserts the emitted internal name | documentation correction |
+| `docs/charter.md` | Unit-name rule notes the 71-name exclusion is broader than `javac` | documentation correction |
+| `docs/progress/GATES.md` | `D001-G9` reclassified `PASS` → `BLOCKED`; D001 verdict `CONDITIONAL` → `BLOCKED`; `G9-A` marked not operative; G15 limitation expanded | governance correction (`D001-09`) |
+| `docs/progress/DECISIONS.md` | `D001-08` (visibility, license, agent environment), `D001-09` (G9); `OQ-9` resolved; `OQ-10`/`OQ-11` corrected | governance |
+| `docs/progress/audit/D001-R3.md` | Header correction banner; §3.2 and §3.4 corrected in place with the original conclusions quoted; decision matrix row 10 corrected | provenance |
+| `docs/progress/audit/REPRODUCIBILITY.md` | New §9d (corrected `javac` experiment) and §9e (JVM internal names); §9c.2 marked invalid and retained | provenance |
+| `docs/progress/audit/D001-R4.md` | New. Execution record for this directive | audit |
+| `.github/copilot-instructions.md` | New. Repository-wide Copilot entry point | infrastructure |
+| `.github/instructions/*.instructions.md` | New. Documentation-governance and compiler-invariant instructions | infrastructure |
+| `.github/agents/*.agent.md` | New. `arara-engineer`, `arara-auditor`, `arara-recovery` | infrastructure |
+| `.github/prompts/*.prompt.md` | New. `checkpoint`, `resume` workflows | infrastructure |
+| `docs/progress/STATE.md`, `CONTINUATION.md` | This section and the handoff | recovery |
+
+### F-R4-01 — the `javac` experiment, corrected
+
+D001-R3 wrote every candidate source to `t.java` while declaring
+`public class <candidate>`. Java requires a public top-level class to match its
+file name, so the experiment failed for every candidate, legal or not. A harness
+whose controls fail cannot support a conclusion.
+
+Corrected result on `javac 21.0.12.1` / Corretto 21.0.12.12.1 / macOS arm64, with
+five compiling controls: **59 rejected** (51 reserved keywords,
+`true`/`false`/`null`, and `var`/`yield`/`record`/`sealed`/`permits`), **11
+contextual keywords accepted** (`exports`, `opens`, `requires`, `to`, `uses`,
+`provides`, `with`, `transitive`, `open`, `module`, `when`). `non-sealed` is
+rejected by rule 1 on the pattern.
+
+`OQ-10` was **not** ratified automatically. The 71-name list remains as a
+documented policy choice, explicitly labelled broader than `javac` requires, and
+pending owner ratification.
+
+### F-R4-02 — JVM internal names, corrected
+
+`semantics.md` §1.5a had claimed a unit named `String` emits an internal name such
+as `java/lang/String`, contradicting §11.2. Measured with `javap`: the unit's
+`this_class` is `String`; `java.lang.String` remains `java/lang/String`; both
+coexist in one class file that compiles, verifies under `-Xverify:all`, and runs
+(exit 0). `defineClass("String", …)` succeeds; `defineClass("java/lang/String", …)`
+fails with `IllegalName`. Shadowing is a Java-source resolution problem only.
+
+### F-R4-03 — gate integrity, corrected
+
+`D001-G9` had been `PASS` against amendment `G9-A`, which is still `PROPOSED`. An
+unapproved criterion is not operative, so the gate is now `BLOCKED` against the
+original authorized text. The original criterion and the proposed amendment are
+both preserved in `GATES.md`. The milestone verdict is `BLOCKED`.
+
+### Verification performed
+
+See `docs/progress/audit/D001-R4.md` §9 and the final report. Environment:
+macOS arm64; `javac`/`java` 21.0.12.1 (Corretto 21.0.12.12.1); `gh` authenticated
+as `JoaoGaValentim`.
+
+- Repository inventory: 29 tracked paths before, plus the D001-R4 additions; no
+  `*.java`, `*.kt`, `*.rs`, `*.py`, `*.class`, `src/`, `build.gradle*`, `pom.xml`,
+  or `gradlew`. `D001-G1` remains `PASS`.
+- Secret scan over tracked files and reachable history: no key, token, password,
+  private key, personal path, or private endpoint in tracked content.
+- Apache-2.0 integrity: byte-identical to the ASF source; no inserted copyright
+  line.
+- Copilot file syntax: all eight `.github` files parse as YAML frontmatter plus
+  Markdown (`python3` + `yaml.safe_load`).
+- DeepSeek bridge: reachable, chat completion `200`, tool call `200` with
+  `finish_reason: tool_calls`, all reasoning-effort values accepted, context
+  boundary measured at 1 048 576 with a 31-token prompt.
+- **UNVERIFIED:** Copilot recovery in a fresh session; Copilot context management;
+  whether VS Code forwards `reasoning_effort: max`; Kilo compaction events.
 
 ## Authorized scope
 
@@ -514,43 +607,46 @@ dispositions:
 
 ## Blocking decisions
 
-**D001 is `CONDITIONAL`, not accepted.** No gate is `BLOCKED`; all fifteen are
-`PASS`. What remains is authorization, not evidence.
+**D001 is `BLOCKED`, not accepted** (`D001-09`). Fourteen gates are `PASS`;
+`D001-G9` is `BLOCKED` because the only criterion that could settle it, `G9-A`,
+has never been approved. A gate cannot be `PASS` against an unratified criterion.
 
-| # | Decision | Gates acceptance? | Gates D002? |
-| --- | --- | --- | --- |
-| `OQ-3` | Accept `docs/spec/*` as the D001 contract | yes — this *is* acceptance | yes |
-| `OQ-10` | Ratify the 71-name unit-name rule (§1.2b rule 2) | yes | yes |
-| `OQ-11` | Ratify the five shadowing names (§1.2b rule 3, `ARA-SRC-0005`) | yes | yes |
-| `G9-A` | Approve the amended G9 criterion | yes | no |
-| `OQ-8` | Ratify `.ara` | no — D001 holds either way | yes |
-| `OQ-7` | Ratify the 28 reserved words | no | yes |
-| `OQ-1`, `OQ-2` | Repository visibility; push authorization | no | no |
-| `OQ-4`, `OQ-5`, `OQ-6` | Division by zero; shadowing ban; multi-unit | no | yes |
-| `OQ-9` | License | no — private repository | no |
-| `OQ-12` | Ratify the diagnostic rewrite (already applied) | no | yes |
-| `OQ-13` | Keep the vocabulary split | no | no |
+| # | Decision | Gates acceptance? | Gates D002? | Status after D001-R4 |
+| --- | --- | --- | --- | --- |
+| `OQ-3` | Accept `docs/spec/*` as the D001 contract | yes — this *is* acceptance | yes | open |
+| `OQ-10` | Ratify the 71-name unit-name rule (§1.2b rule 2) | yes | yes | open; the `javac` basis was corrected |
+| `OQ-11` | Ratify the five shadowing names (§1.2b rule 3, `ARA-SRC-0005`) | yes | yes | open; the internal-name claim was corrected |
+| `G9-A` | Approve the amended G9 criterion | yes — currently blocks the milestone verdict | no | **PROPOSED, not operative** |
+| `OQ-1` | Repository visibility | no | no | **RESOLVED — public (`D001-08`)** |
+| `OQ-9` | License | no | no | **RESOLVED — Apache-2.0 (`D001-08`)** |
+| `OQ-2` | Push authorization | no | no | open; still zero pushed refs |
+| `OQ-8` | Ratify `.ara` | no — D001 holds either way | yes | open |
+| `OQ-7` | Ratify the 28 reserved words | no | yes | open |
+| `OQ-4`, `OQ-5`, `OQ-6` | Division by zero; shadowing ban; multi-unit | no | yes | open |
+| `OQ-12` | Ratify the diagnostic rewrite (already applied) | no | yes | open |
+| `OQ-13` | Keep the vocabulary split | no | no | open |
 
-Thirteen open questions are recorded in `docs/progress/DECISIONS.md` under "Open
-decisions requested from the owner". The consolidated matrix with alternatives,
+Eleven items remain open. The consolidated matrix with alternatives,
 recommendation, justification, compatibility impact, and D002 effect is
-`docs/progress/audit/D001-R3.md` §9. Recommendations are **not** approvals.
+`docs/progress/audit/D001-R3.md` §9; `docs/progress/audit/D001-R4.md` §8 records
+the R3 corrections. Recommendations are **not** approvals.
 
 ## Next executable action
 
-Owner review of `docs/progress/audit/D001-R3.md`, then recorded decisions in
-`docs/progress/DECISIONS.md`. No agent action is authorized until then.
-
-The exact sequence:
-
-1. Owner approves or rejects `G9-A` in `docs/progress/DECISIONS.md`.
-2. Owner records decisions on `OQ-3`, `OQ-10`, and `OQ-11`. These three gate D001
+1. Owner rules on `G9-A`. It is the only item that changes the D001 verdict from
+   `BLOCKED` without new evidence.
+2. Owner records decisions on `OQ-3`, `OQ-10`, and `OQ-11`. These gate D001
    acceptance. Any reversal of a decision already applied to the specification is
    made in the same commit as the decision that authorizes it.
 3. Owner records decisions on the D002-facing questions: `OQ-4`, `OQ-5`, `OQ-6`,
    `OQ-7`, `OQ-8`, `OQ-12`, and `OQ-13`. These do not block D001 acceptance.
 4. Owner records D001 acceptance or rejection in `docs/progress/DECISIONS.md`.
 5. Only then may Directive 002 be issued.
+
+Separately, and not blocking D001: authorize a push of
+`infra/d001-r4-copilot-migration` if the branch is to be published. The directive
+that authorized the visibility change explicitly did **not** authorize pushing
+unreviewed branches.
 
 Two D002 obligations were closed by Directive 001-R3 rather than carried forward:
 `ARA-SRC-0002` and `ARA-PARSE-0199` now have explicit obligations in
@@ -559,4 +655,5 @@ Two D002 obligations were closed by Directive 001-R3 rather than carried forward
 Compaction remains **UNVERIFIED**. Zero compaction events exist in the Kilo store
 (`SELECT COUNT(*) FROM event WHERE type LIKE '%compact%'` → 0; no session has a
 non-null `time_compacting`). Config *recognition* is verified; config *effect* is
-not, and must not be upgraded without an observed event.
+not, and must not be upgraded without an observed event. Copilot context handling
+is a different mechanism and is `UNVERIFIED` as well.

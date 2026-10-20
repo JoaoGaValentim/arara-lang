@@ -726,7 +726,14 @@ The class-file writer needs four things right, and each wrong version produced a
 4. `<init>` must carry `ACC_PUBLIC` only. `ACC_PUBLIC|ACC_STATIC` (`0x9`) is
    rejected with *"Method &lt;init&gt; has illegal modifiers"*.
 
-### 9c.2 `javac` rejects every keyword as a class name
+### 9c.2 ~~`javac` rejects every keyword as a class name~~ — INVALID, superseded by §9d
+
+> **Invalid experiment.** This block writes every candidate to `t.java`. Java
+> requires a public top-level class to match its file name, so the compile fails
+> regardless of whether the candidate is legal. The procedure has no control and
+> its 71-of-71 result is an artifact. §9d replaces it and obtains the opposite
+> result for 11 contextual keywords. The listing is retained only to document the
+> defect.
 
 ```sh
 while read -r nm; do
@@ -736,8 +743,7 @@ while read -r nm; do
 done < all68.txt
 ```
 
-Result: **0 accepted, 68 rejected**, plus `true`, `false`, `null` rejected with
-`error: <identifier> expected`. Total 71.
+Original (wrong) result: "0 accepted, 68 rejected". Corrected result: §9d.3.
 
 ### 9c.3 Whitespace package prohibition is enforced independently
 
@@ -799,3 +805,164 @@ sqlite3 ~/.local/share/kilo/kilo.db \
 
 Message text was extracted from the `part` table where `type = 'text'`. No
 content was edited; only the surrounding provenance header was added.
+
+## 9d. Directive 001-R4 — corrected `javac` class-name experiment
+
+### 9d.1 Why the earlier experiment was invalid
+
+The D001-R3 probe wrote every candidate source to `/tmp/…/t.java` while declaring
+`public class <candidate> {}`. Java requires a public top-level class to match its
+file name, so `javac` failed identically for every candidate. That procedure has
+no control: it cannot distinguish `class` from `Foo`, and its "71 of 71 rejected"
+conclusion was an artifact of the harness, not a property of the language.
+
+### 9d.2 Corrected procedure
+
+Each candidate is written to `<candidate>.java` and compiled in its own directory.
+Five ordinary identifiers are compiled with the same harness as positive controls.
+The candidate lists are the 51 reserved keywords, the 17 contextual keywords, the
+three literals, and the five controls.
+
+```bash
+#!/bin/bash
+RESERVED="abstract assert boolean break byte case catch char class const continue default do double else enum extends final finally float for goto if implements import instanceof int interface long native new package private protected public return short static strictfp super switch synchronized this throw throws transient try void volatile while _"
+CONTEXT="exports opens requires to uses provides with transitive open module var yield record sealed permits non-sealed when"
+LITERALS="true false null"
+CONTROLS="Arara Foo _arara AraraLang x1"
+
+test_one() {
+  name="$1"; group="$2"
+  d="/tmp/arara-r4/kw/work/$group/$name"
+  rm -rf "$d"; mkdir -p "$d"
+  printf 'public class %s {}\n' "$name" > "$d/$name.java"
+  out=$(cd "$d" && javac "$name.java" 2>&1); rc=$?
+  echo "$group|$name|$rc|$(echo "$out" | head -1)"
+}
+for n in $RESERVED; do test_one "$n" reserved; done
+for n in $CONTEXT;  do test_one "$n" contextual; done
+for n in $LITERALS; do test_one "$n" literal; done
+for n in $CONTROLS; do test_one "$n" control; done
+```
+
+Environment: `javac 21.0.12.1`, OpenJDK 64-Bit Server VM Corretto-21.0.12.12.1,
+macOS arm64.
+
+### 9d.3 Result
+
+| Group | n | Exit 0 | Exit 1 |
+| --- | --- | --- | --- |
+| Reserved keywords | 51 | 0 | **51** |
+| Contextual keywords | 17 | **11** | 6 |
+| Literals `true`/`false`/`null` | 3 | 0 | **3** |
+| Controls | 5 | **5** | 0 |
+
+The 6 rejected contextual keywords are `var`, `yield`, `record`, `sealed`,
+`permits` (`'…' not allowed here`) and `non-sealed` (`'{' expected`; also outside
+the §1.2b rule-1 pattern because of `-`).
+
+The 11 accepted contextual keywords are:
+
+```text
+exports opens requires to uses provides with transitive open module when
+```
+
+Representative diagnostics, quoted verbatim:
+
+```text
+abstract.java:1: error: <identifier> expected
+assert.java:1: error: as of release 1.4, 'assert' is a keyword, and may not be used as an identifier
+_ .java:1: error: as of release 9, '_' is a keyword, and may not be used as an identifier
+var.java:1: error: 'var' not allowed here
+module.java: (no output; exit 0)
+open.java: (no output; exit 0)
+```
+
+Conclusion: `javac` refuses **59** of the 71 names in the Arara list. The
+remaining 11 are excluded by Arara policy (`semantics.md` §1.2b rule 2), not by
+`javac`.
+
+## 9e. Directive 001-R4 — JVM internal names and shadowing
+
+### 9e.1 Unit `String` emits `String`, not `java/lang/String`
+
+```bash
+mkdir -p pkg && cd pkg
+printf 'public class String { public static java.lang.String make(){ return "abc"; } }\n' > String.java
+javac String.java          # exit 0
+javap -v String.class | grep -E 'this_class|super_class|major'
+```
+
+Verbatim output of the relevant lines:
+
+```text
+  minor version: 0
+  major version: 65
+  this_class: #9                          // String
+  super_class: #2                         // java/lang/Object
+```
+
+`this_class` is `String`. The claim that a unit named `String` produces an internal
+name such as `java/lang/String` is false and contradicted `semantics.md` §11.2.
+
+### 9e.2 Both names coexist in one class file and run
+
+```bash
+printf 'public class Main {\n  public static void main(java.lang.String[] a) {\n    java.lang.String x = "hi";\n    java.lang.System.out.println(x + "/" + String.mk() + "/" + x.length());\n  }\n}\n' > Main.java
+javac String.java Main.java && java -Xverify:all Main
+```
+
+Output, exit status 0:
+
+```text
+hi/s/2
+```
+
+Constant-pool entries in the same class:
+
+```text
+  #15 = Methodref   #16.#17   // String.mk:()Ljava/lang/String;
+  #16 = Class       #18       // String
+  #21 = Methodref   #22.#23   // java/lang/String.length:()I
+  #22 = Class       #24       // java/lang/String
+```
+
+The generated unit class and the JDK type are distinct entries. References to the
+Arara `String` type remain `Ljava/lang/String;` because that type *is*
+`java.lang.String`.
+
+### 9e.3 `defineClass` distinguishes the two names
+
+```java
+static class L extends ClassLoader {
+  Class<?> def(String n, byte[] b) { return defineClass(n, b, 0, b.length); }
+}
+```
+
+Feeding the same `String.class` bytes under different names:
+
+```text
+OK    String            -> String
+FAIL  java.lang.String  -> SecurityException: Prohibited package name: java.lang
+FAIL  java/lang/String  -> NoClassDefFoundError: IllegalName: java/lang/String
+```
+
+So `String` is a legal class name and `java/lang/String` is not. Shadowing cannot
+be a bytecode or verifier problem.
+
+### 9e.4 Java-source shadowing, each with a compiling control
+
+Class files for `String`, `System`, `Object`, `Math`, and `java` were produced with
+`javac` in a directory used as a classpath; each probe was then compiled twice,
+once against that directory and once without it.
+
+| Probe source | With shadowing class | Control (no shadowing) |
+| --- | --- | --- |
+| `String s = "abc";` | `incompatible types` | compiles |
+| `System.out.println(1);` | `cannot find symbol: variable out` | compiles |
+| `Object o = Integer.valueOf(1);` | `incompatible types` | compiles |
+| `Math.abs(-2)` | `cannot find symbol: method abs(int)` | compiles |
+| `java.lang.String s = "a";` | `cannot find symbol: class lang` | compiles |
+| `String s = "a";` (only `java` shadowed) | compiles | compiles |
+
+The last row is why the rule is stated per name rather than as a general
+prohibition: a unit named `java` affects only fully qualified `java.` references.

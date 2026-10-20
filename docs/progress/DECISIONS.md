@@ -165,6 +165,69 @@ Format: `Dxxx-yy` where `xxx` is the directive number and `yy` is a sequence.
 
 ---
 
+## D001-08 — Directive 001-R4: public repository, Apache-2.0, Copilot migration
+
+- **Date:** 2026-10-20
+- **Decider:** Repository owner (`JoaoGaValentim`)
+- **Status:** ACTIVE
+- **Supersedes:** `D001-02` (repository visibility) and resolves `OQ-9` (license).
+  `D001-02` is retained unmodified as history; this entry is the operative
+  visibility decision.
+- **Scope:**
+  - **`OQ-1` — repository visibility: PUBLIC.** Authorized. `D001-02` recorded
+    `private` as the conservative bootstrap default; this entry changes it.
+  - **`OQ-9` — license: Apache License, Version 2.0.** SPDX `Apache-2.0`. A root
+    `LICENSE` file carries the unmodified ASF text. No `NOTICE` file is created,
+    because the repository contains no third-party material requiring one; see
+    `docs/progress/audit/D001-R4.md` §3.
+  - **Agent environment: GitHub Copilot replaces Kilo as the supported primary
+    environment.** `AGENTS.md` remains the governing document. Kilo
+    configuration is retained until the replacement is demonstrated working.
+  - The DeepSeek model continues to be used, through the VS Code Custom Endpoint
+    provider with vendor `customendpoint`.
+- **Explicitly not authorized:**
+  - Starting D002 or any later milestone.
+  - Writing lexer, parser, type-checker, IR, or backend code.
+  - Merging a pull request, creating a release, tag, or published artifact.
+  - Pushing the D001-R4 branch, or any branch, without separate authorization.
+  - Reinterpreting `OQ-3`, `OQ-10`, `OQ-11`, `G9-A`, or any other pending item as
+    approved.
+- **Rationale:** The owner must be able to read and audit the repository, and an
+  unlicensed public repository is not legally reusable. Copilot migration
+  consolidates the agent environment while keeping the governance record in the
+  repository rather than in a tool-specific configuration.
+- **Evidence of authority:** Owner directive "DIRECTIVE 001-R4 — Public
+  Repository, Apache-2.0 Adoption & GitHub Copilot Migration", 2026-10-20, §1:
+  "`OQ-1` — Repository visibility: APPROVED: PUBLIC", "`OQ-9` — Licensing:
+  APPROVED: Apache License, Version 2.0", and "Agent infrastructure: APPROVED:
+  Replace Kilo as the active project agent environment with GitHub Copilot".
+
+---
+
+## D001-09 — D001-G9 is `BLOCKED`, not `PASS` (Directive 001-R4 F-R4-03)
+
+- **Date:** 2026-10-20
+- **Decider:** Repository owner, via directive §3
+- **Status:** ACTIVE
+- **Scope:** The authorized criterion for `D001-G9` is the original text:
+  "`STATE.md` matches actual branch, HEAD, and working tree at report time".
+  Amendment `G9-A` was only ever `PROPOSED`. A gate cannot be marked `PASS`
+  against an unapproved criterion, so `D001-G9` is reclassified from `PASS` to
+  `BLOCKED`. `G9-A` remains `PROPOSED` and is still awaiting ratification.
+- **Not authorized:** treating `G9-A` as operative, deleting the proposed
+  amendment, or rewriting the original criterion text.
+- **Rationale:** Directive 001-R4 §3 states that D001-G9 was declared `PASS`
+  against an amendment that remains `PROPOSED`, and that an unapproved criterion
+  amendment is not operative. Because the original criterion cannot be satisfied
+  by any ledger written before its own commit, the gate cannot be settled by
+  evidence — which is the declared meaning of `BLOCKED`.
+- **Consequence:** The D001 milestone verdict can no longer be `CONDITIONAL` on
+  the previous reasoning, because one gate is `BLOCKED`. It is recorded as
+  `BLOCKED` pending the owner's decision on `G9-A`.
+- **Evidence of authority:** Directive 001-R4 §3, F-R4-03.
+
+---
+
 ## Open decisions requested from the owner
 
 These are recorded here so they are not lost; they are **not** decisions yet.
@@ -186,36 +249,47 @@ D002.
 7. **OQ-7 — Reserved word list.** Confirm the deferred-feature reserved words in
    `lexical.md` §6.
 8. **OQ-8 — File extension.** Confirm `.ara` as the source extension.
-9. **OQ-9 — License.** No license file is included; the repository is private.
-   Choose a license before any publication.
+9. **OQ-9 — License.** RESOLVED by `D001-08`: Apache License 2.0, SPDX
+   `Apache-2.0`, root `LICENSE` file.
 10. **OQ-10 — Restricted unit names.** RESOLVED IN THE SPECIFICATION, PENDING
     RATIFICATION. `semantics.md` §1.2b states a three-part unit-name rule:
     pattern (rule 1), exclusion of all 51 reserved and 17 contextual keywords of
     JLS 21 §3.9 plus `true`/`false`/`null` (`ARA-SRC-0004`, rule 2), and
     exclusion of shadowing names (`ARA-SRC-0005`, rule 3, see `OQ-11`). The owner
-    ratifies or reverses; the previous text proposed excluding keywords only.
-    *Evidence, Directive 001-R2, corrected by 001-R3:* JLS 21 §3.9 declares
-    **51** reserved and **17** contextual keywords. The R2 figure of 52 was
-    wrong; the extra item came from a regex capturing the gloss word
+    ratifies or reverses.
+    *Evidence, Directive 001-R2, corrected by 001-R3 and again by 001-R4:* JLS 21
+    §3.9 declares **51** reserved and **17** contextual keywords. The R2 figure of
+    52 was wrong; the extra item came from a regex capturing the gloss word
     `underscore` in `_ (underscore)`. JVMS 21 §4.2.1 forbids only `.` `;` `[`
     `/` in a class name, so the JVM constraint and the Java-source constraint
     are different questions, not approximations of each other. Measured on
     Corretto 21.0.12.1 under `-Xverify:all`: the JVM accepts **all 68** names as
-    class names; `javac` rejects **all 68** as class names, plus `true`, `false`,
-    and `null` (71 total). The earlier claim that `javac` rejects only five was
-    wrong.
+    class names. **Corrected 2026-10-20 by F-R4-01:** the R3 claim that `javac`
+    rejects all 71 names came from an experiment that wrote every source to
+    `t.java` while declaring `public class <candidate>`, which fails for every
+    candidate including legal ones. The corrected experiment, with five
+    compiling controls, shows `javac` rejects **59** names — the 51 reserved,
+    `true`/`false`/`null`, and `var`/`yield`/`record`/`sealed`/`permits` — and
+    **accepts 11 contextual keywords**: `exports`, `opens`, `requires`, `to`,
+    `uses`, `provides`, `with`, `transitive`, `open`, `module`, `when`.
+    Excluding those 11 is an Arara policy choice for stability, not a `javac`
+    requirement. Evidence: `REPRODUCIBILITY.md` §9d.
 11. **OQ-11 — Units that shadow `java.lang`.** RESOLVED IN THE SPECIFICATION,
     PENDING RATIFICATION. `semantics.md` §1.2b rule 3 forbids `java`, `String`,
     `System`, `Object`, and `Math` as unit names, reported as `ARA-SRC-0005`.
     §1.5a records the measured behaviour in a per-name table, each with a control
-    that compiles. The previous text said the rule permits them and reports
-    nothing.
+    that compiles.
     *Correction, Directive 001-R3:* the R2 statement that a unit named `java`
     breaks `java.lang.String` holds only when the Java source writes a **fully
     qualified** `java.` name; a file using only simple names compiles unaffected.
-    A unit named `String` or `System` breaks the unqualified form directly. Both
-    behaviours are now recorded separately in §1.5a instead of being collapsed
-    into one universal claim.
+    A unit named `String` or `System` breaks the unqualified form directly.
+    *Correction, Directive 001-R4 (F-R4-02):* §1.5a also claimed that a unit named
+    `String` emits an internal name such as `java/lang/String`. That contradicted
+    §11.2 and was wrong. Measured with `javap`: unit `String` emits `this_class`
+    `String`; `java.lang.String` remains `java/lang/String`; both coexist in one
+    class file that compiles, verifies under `-Xverify:all`, and runs. Loading
+    `java/lang/String` via `defineClass` fails with `IllegalName`, while `String`
+    loads. Shadowing is therefore a Java *source* resolution issue only.
 12. **OQ-12 — Diagnostic shorthand in the conformance plan.** RESOLVED, PENDING
     RATIFICATION OF THE REWRITE. Every normative obligation in
     `conformance-plan.md`, `lexical.md`, and `semantics.md` now uses a full

@@ -20,6 +20,8 @@ repository.
 | Design inspiration | Kotlin, surface syntax only |
 | Implementation and semantics | Independently specified; no Kotlin compiler or runtime |
 | Diagnostic codes | `ARA-<STAGE>-<NNNN>` |
+| License | Apache-2.0 ([`LICENSE`](LICENSE)) |
+| Primary agent environment | GitHub Copilot (`.github/`) |
 
 ## Status
 
@@ -58,10 +60,15 @@ that prints `42`. Nothing in this repository implements or verifies that yet.
 
 ## Working in this repository
 
-Read [`AGENTS.md`](AGENTS.md) before changing anything. Then follow
-[`.kilo/commands/resume.md`](.kilo/commands/resume.md) to reconstruct state, and
-[`.kilo/commands/checkpoint.md`](.kilo/commands/checkpoint.md) before persisting
-work.
+Read [`AGENTS.md`](AGENTS.md) before changing anything. GitHub Copilot is the
+supported agent environment; [`AGENTS.md`](AGENTS.md) remains the governing
+document regardless of which tool is driving the session.
+
+Start with [`.github/copilot-instructions.md`](.github/copilot-instructions.md),
+then run the recovery workflow in
+[`.github/prompts/resume.prompt.md`](.github/prompts/resume.prompt.md). The
+Kilo procedures in [`.kilo/commands/`](.kilo/commands/) remain valid and are the
+fallback until the Copilot migration is verified in a fresh session.
 
 The short version:
 
@@ -71,12 +78,26 @@ The short version:
    commit.
 4. Repository records outrank conversation history.
 
+## License
+
+Arara is licensed under the Apache License, Version 2.0. See [`LICENSE`](LICENSE).
+SPDX identifier: `Apache-2.0`.
+
+Copyright 2026 the Arara project contributors.
+
+The `LICENSE` file is the unmodified Apache Software Foundation text. It is not
+edited to insert a copyright line; the notice above records the holder instead.
+SPDX recommends the `SPDX-License-Identifier` header or a single `LICENSE` file
+rather than altering the license body.
+
 ## Repository layout
 
 ```text
 AGENTS.md                  primary engineering authority
 README.md                  this file
-.kilo/                     Kilo configuration, rules, commands, auditor agent
+LICENSE                    Apache License 2.0 (unmodified ASF text)
+.github/                   Copilot instructions, custom agents, prompt files
+.kilo/                     previous agent environment (retained until verified)
 docs/charter.md            purpose, scope, non-goals, deferred features
 docs/architecture.md       compiler pipeline and stage contracts
 docs/roadmap.md            milestone boundaries and entry/exit criteria

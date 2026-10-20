@@ -39,31 +39,33 @@ recorded in `docs/adr/0002-compiler-host.md`, `docs/adr/0003-model-limits.md`, a
 | D001-G6 | Model limits | Non-zero context and output limits appear in resolved model metadata | PASS | ADR 0003; `kilo models hive --verbose` |
 | D001-G7 | Reasoning effort | The strongest declared variant is selected and accepted by the provider | PASS | ADR 0003; `kilo debug agent code` → `variant: max` |
 | D001-G8 | Recovery completeness | `resume.md` reconstructs directive, scope, state, decisions, pending work, and next action from repository files alone | PASS | `STATE.md` §Independent recovery validation |
-| D001-G9 | Ledger accuracy | `STATE.md` matches actual branch, HEAD, and working tree at report time | PASS | Criterion as originally worded was unsatisfiable for a ledger written before its own commit, so it was amended by Directive 001-R3 proposal `G9-A` (see *Criterion amendments* below). Against the amended criterion — branch, parent commit, audit commit, and working-tree state all recorded and each verifiable by a named command — the ledger matches. Evidence: `STATE.md` header, §D001-R2, §D001-R3; `git rev-parse --abbrev-ref HEAD`, `git log --oneline -2`, `git status --porcelain` returns empty |
+| D001-G9 | Ledger accuracy | `STATE.md` matches actual branch, HEAD, and working tree at report time | BLOCKED | Criterion is the original, authorized text. It cannot be satisfied by any accurate ledger, because a ledger is committed after the work it records and cannot contain its own SHA. Amendment `G9-A` remains **PROPOSED** and is not operative (`D001-09`). The gate cannot be settled by evidence until the owner ratifies `G9-A` or supplies a satisfiable criterion |
 | D001-G10 | Specification consistency | No two normative documents conflict; every diagnostic code defined exactly once | PASS | `STATE.md` §Internal audit resolution and §D001-R1 verification runs |
 | D001-G11 | Grammar derivability | Every example in the specification is derivable from `syntax.ebnf`; FIRST/FOLLOW analysis shows no selection conflict | PASS | `syntax.ebnf` §5, §6.3; `STATE.md` §D001-R1 verification runs |
 | D001-G12 | Traceability | Every normative rule has a test obligation or an explicit `MANUAL` marker | PASS | Directive 001-R3 closed both gaps instead of deferring them. `ARA-SRC-0002` now has a driver test, `ARA-PARSE-0199` a 101-defect fixture, `ARA-SRC-0001` an empty-argument test, `ARA-JVM-0001` an emitter injection test, and the reserved codes `ARA-JVM-0100`/`ARA-NAME-0107` an absence assertion. `ARA-SRC-0005` was added with five negative fixtures. Reproducible check: `REPRODUCIBILITY.md` §9 `g12check.py` reports 68 of 68 defined codes carrying at least one obligation |
 | D001-G13 | No unverified claims | Every environment claim carries a command and result | PASS | Directive 001-R3 replaced the two "ad-hoc audit script (not committed)" rows with executed commands and recorded them in `REPRODUCIBILITY.md`: `ll1final.py` for the grammar lint and FIRST/FOLLOW/selection analysis, `traceaudit.py` for code uniqueness, `shortaudit.py` for shorthand, `g12check.py` for coverage. The D001 and D001-R1 run tables remain separate. Remaining limitation: the checker is reproduced as a listing, not a tracked file, because `D001-G1` forbids tracked `.py` sources |
 | D001-G14 | Git state | Work is committed locally on the recorded branch; no unauthorized push | PASS | `git log` shows `c5f376a` (bootstrap), ledger checkpoints through `717fcc6`, and D001-R1 content commit `ce3c67d`, all local; `git status` clean; `git remote -v` shows only `origin`, `git ls-remote origin` returns no refs, and no push occurred |
-| D001-G15 | Independent recovery | A fresh session reconstructs state without the transcript | PASS | Two separate `kilo run` processes reconstructed milestone, scope, next action, forbidden actions, and Git state from files alone; the first correctly flagged the missing commit. See `STATE.md` §Independent recovery validation. Limitation: same client and model. |
+| D001-G15 | Independent recovery | A fresh session reconstructs state without the transcript | PASS | Two separate `kilo run` processes reconstructed milestone, scope, next action, forbidden actions, and Git state from files alone; the first correctly flagged the missing commit. See `STATE.md` §Independent recovery validation. **Limitation (updated by 001-R4):** both runs used the same client and model, so recovery is verified for the Kilo client only. Recovery under GitHub Copilot is `UNVERIFIED` — see `docs/progress/audit/D001-R4.md` §7 |
 
-**D001 self-assessment (as amended by Directive 001-R3):** all fifteen gates are
-`PASS`. Milestone verdict: **`CONDITIONAL`**, because one criterion amendment
-(`G9-A`) awaits owner approval and five decisions remain open. This is not
-milestone acceptance: only the owner can accept D001, and acceptance must be
-recorded in `docs/progress/DECISIONS.md`.
+**D001 self-assessment (as corrected by Directive 001-R4):** fourteen gates are
+`PASS`; `D001-G9` is `BLOCKED` because the only criterion that could settle it
+(`G9-A`) has never been approved. Milestone verdict: **`BLOCKED`**. A gate status
+of `BLOCKED` means the milestone cannot be accepted until the owner ratifies
+`G9-A`, rewrites the criterion, or waives the gate. This is not a reclassification
+of evidence: the ledger does match reality, but it matches against a criterion the
+owner has not authorized. See `D001-09` in `docs/progress/DECISIONS.md`.
 
 ### Criterion amendments proposed by Directive 001-R3
 
 A gate criterion is never rewritten to make incomplete work look sufficient. Where
 a criterion was defective, the defect is named, the original text is preserved, and
 the replacement is proposed for owner approval rather than applied silently. Until
-approved, the amended criterion is what the status was evaluated against, and that
-fact is part of the record.
+approved, the amendment is **not** operative: the gate is evaluated against the
+original text only, which is why `D001-G9` is `BLOCKED`.
 
 | ID | Gate | Original criterion (verbatim) | Proposed criterion | Why the original is defective | Status |
 | --- | --- | --- | --- | --- | --- |
-| `G9-A` | D001-G9 | "`STATE.md` matches actual branch, HEAD, and working tree at report time" | "`STATE.md` records the branch, the commit preceding this ledger, the audit commit, and the working-tree state, and each is verifiable by a named command" | A ledger committed after the work it describes can never contain its own commit SHA, so "matches actual HEAD at report time" is unsatisfiable for any accurate ledger. Every D001 ledger failed it for that reason alone | PROPOSED |
+| `G9-A` | D001-G9 | "`STATE.md` matches actual branch, HEAD, and working tree at report time" | "`STATE.md` records the branch, the commit preceding this ledger, the audit commit, and the working-tree state, and each is verifiable by a named command" | A ledger committed after the work it describes can never contain its own commit SHA, so "matches actual HEAD at report time" is unsatisfiable for any accurate ledger. Every D001 ledger failed it for that reason alone | PROPOSED — awaiting owner ratification |
 
 The correction history is preserved rather than overwritten: D001-R2 recorded G9,
 G12, and G13 as `BLOCKED` on the theory that the work could not be settled inside

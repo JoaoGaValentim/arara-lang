@@ -52,11 +52,35 @@ function named `record` or `if` is legal Arara. The probe evidence is in
    of a `java.lang` type in the emitted subset (§1.5a). Violation is
    `ARA-SRC-0005`.
 
-Rule 2 excludes contextual keywords even though the JVM accepts them, because the
-unit-name rule serves Java source interop (namespace D), and `javac` rejects all
-71 of these as class names — every one was tested, not inferred. Excluding only
-the five names `var`, `yield`, `record`, `sealed`, and `permits` would be wrong: it
-would permit `int`, `class`, and `_` as unit names.
+Rule 2 is **broader than `javac` requires**, and the measured facts are these
+(Directive 001-R4, `REPRODUCIBILITY.md` §9d). Each candidate was written to a
+source file named after the candidate and compiled with `javac 21.0.12.1`; five
+ordinary identifiers were compiled as controls.
+
+| Class name group | Count | `javac` result as a public class name |
+| --- | --- | --- |
+| 51 reserved keywords of JLS 21 §3.9 | 51 | all rejected |
+| `true`, `false`, `null` | 3 | all rejected |
+| `var`, `yield`, `record`, `sealed`, `permits` | 5 | all rejected (`not allowed here`) |
+| `exports`, `opens`, `requires`, `to`, `uses`, `provides`, `with`, `transitive`, `open`, `module`, `when` | 11 | **all accepted** |
+| controls (`Arara`, `Foo`, `_arara`, `AraraLang`, `x1`) | 5 | all accepted |
+
+`non-sealed` is rejected by rule 1 before rule 2 applies, because `-` is outside
+the pattern. So the set that `javac` itself refuses is 59 names, and 11
+contextual keywords are legal class names — `module` and `open` among them.
+
+The rule still excludes those 11, but as an **explicit policy choice pending
+owner ratification (`OQ-10`)**, not as an inherited `javac` restriction:
+
+- It keeps one flat rule for unit names, so a future JLS release that promotes a
+  contextual keyword does not silently change the Arara contract.
+- It costs nothing today: no current Arara program needs a unit named `module`.
+
+The earlier justification in this section claimed that `javac` rejects all 71
+names and that every name was tested. That claim was wrong: the experiment wrote
+every source file to `t.java` while declaring `public class <candidate>`, which
+fails for *every* candidate regardless of legality, so it could not distinguish a
+legal name from an illegal one. The measurement above replaces it.
 
 Rule 3 exists because rule 2 is not sufficient: `String` and `System` are legal
 Java class names, yet a unit with either name breaks Java source on the same
@@ -85,12 +109,31 @@ and the **entry class** is that unit's generated class. A unit name that equals 
 function name is permitted: functions are members of the class, not classes.
 
 1.5a. **Shadowing `java.lang`.** A unit named `java`, `String`, `System`,
-`Object`, or `Math` produces bytecode that is itself valid and executable: the
-compiler emits internal names such as `java/lang/String`, so Arara code is
-unaffected and the class verifies under `-Xverify:all`. Such a unit nevertheless
-can make **Java source** compiled against the same classpath fail, because `javac`
-resolves the simple name in the unnamed package before `java.lang`. Measured
-outcomes, each with its own control that compiles cleanly:
+`Object`, or `Math` produces bytecode that is itself valid and executable, and
+the class verifies under `-Xverify:all`. Such a unit nevertheless can make **Java
+source** compiled against the same classpath fail, because `javac` resolves the
+simple name in the unnamed package before `java.lang`.
+
+The emitted names are **not** what an earlier version of this section claimed.
+A unit `String.ara` emits a class whose internal name is exactly `String` — the
+unit base name, verbatim, with no package prefix (§11.2). It does **not** emit
+`java/lang/String`. The JDK type `java.lang.String` keeps its own internal name
+`java/lang/String`, and references to the Arara `String` type continue to use the
+descriptor `Ljava/lang/String;` (§11.3). The two names are different entries that
+coexist in one class file; measured output for a class that calls both:
+
+| Reference | Internal name in the constant pool |
+| --- | --- |
+| unit `String` function call | `String` |
+| JDK string operation | `java/lang/String` |
+
+A class containing both runs correctly (`java -Xverify:all`, exit 0, expected
+output). The `defineClass` probe shows why the distinction matters: the name
+`java/lang/String` is rejected as `IllegalName`, while `String` loads normally.
+Shadowing is therefore a **Java source resolution** problem only, never a
+bytecode, verifier, or runtime problem.
+
+Measured `javac` outcomes, each with its own control that compiles cleanly:
 
 | Shadowing class on classpath | Java source using the simple name | Result |
 | --- | --- | --- |
