@@ -6,19 +6,29 @@ diagnostics for the initial subset.
 Related: `lexical.md`, `syntax.ebnf`, `conformance-plan.md`,
 `docs/architecture.md`, `docs/adr/0001-jvm-target.md`.
 
+Source extension: `.ara` is **PROPOSED** by `D001-06` and is not ratified;
+`OQ-8` remains open. A different extension would change only file discovery and
+the unit-name rule in §1.1, not the language semantics.
+
 Every rule below is normative for D002–D004. No rule may be delegated implicitly
 to Java, Kotlin, or JVM behavior; where a rule matches the JVM, that is stated and
 tested explicitly.
 
 ## 1. Program model
 
-1.1. A **compilation unit** is the normalized text of one `.ara` file. The unit's
-**name** is the file's base name without `.ara`.
+1.1. A **compilation unit** is the normalized text of one source file with the
+proposed extension `.ara` (`D001-06`, `OQ-8`). The unit's **name** is the file's
+base name without that extension.
 
 1.2. A unit name MUST match `[A-Za-z_][A-Za-z0-9_]*`, MUST not be a Java reserved
 word, and MUST be unique within a compilation. "Java reserved word" means the
-Java 21 keyword list plus `true`, `false`, and `null`. A violation is
-`ARA-SRC-0004`; a duplicate is `ARA-SRC-0003`.
+Java 21 keyword list plus `true`, `false`, and `null`. `_` matches the pattern but
+is itself a Java keyword, so the keyword rule rejects it. A violation is
+`ARA-SRC-0004`; a duplicate is `ARA-SRC-0003`. Java's *restricted identifiers*
+that are not keywords (`var`, `yield`, `record`, `sealed`, `permits`, and the
+module words) are not excluded by this rule: the JVM accepts a class with such a
+name, which was verified under `-Xverify:all`, and `javac` refusal does not bind
+a bytecode emitter. Whether to forbid them anyway is `OQ-10`.
 
 1.3. A **program** is the set of units passed to one compiler invocation.
 
@@ -26,11 +36,10 @@ Java 21 keyword list plus `true`, `false`, and `null`. A violation is
 unnamed package.
 
 1.4a. A unit with no function declarations is legal and emits a class with no
-declared methods. It is reachable in a program only if other units call nothing
-from it, and it may be the entry unit only if it declares `main`, which it does
-not, so a program consisting only of empty units is `ARA-NAME-0106`. Empty units
-are otherwise accepted so that a unit's file can be staged before its functions
-are written; they produce no diagnostics of their own.
+declared methods. It can never be called and can never be the entry unit. A
+program consisting only of empty units is `ARA-NAME-0106`. Empty units are
+otherwise accepted so that a unit's file can be staged before its functions are
+written; they produce no diagnostics of their own.
 
 1.5. The **entry point** is the unique function named `main` declared with no
 parameters and return type `Unit`. The **entry unit** is the unit declaring it,
@@ -64,11 +73,12 @@ and locals) occupy a separate per-function namespace. See §5.3–§5.9.
 2.0. A `String` value is a finite sequence of Unicode scalar values, as produced
 by the lexical rules. At runtime it is represented by `java.lang.String`, which
 stores UTF-16 code units. Because no scalar value is a surrogate and no escape
-can produce one (§2.1), the two representations are in bijection for every value
-this language can construct, and `equals` over UTF-16 code units is therefore the
-same relation as equality over scalar sequences. This equivalence is a theorem
-about the initial subset, not an assumption; if a future milestone permits
-surrogate code units, it must restate both this rule and §7.4.3.
+can produce one (`lexical.md` §8 rules 40–47), the two representations are in
+bijection for every value Arara can construct, and `equals` over UTF-16 code
+units is therefore the same relation as equality over scalar sequences. This
+equivalence is a theorem about the initial subset, not an assumption; if a future
+milestone permits surrogate code units, it must restate both this rule and
+§7.4.3.
 
 2.1. The type universe is exactly:
 
@@ -567,9 +577,9 @@ is read before it is written, because every local declaration has an initializer
 answer from a closed table: `java/lang/Object`, `java/lang/String`, and every
 generated unit class, whose only common supertypes are `java/lang/Object`. Any
 emission path that can merge other reference types is out of contract for the
-initial subset. Because no generated class stores a reference value in a local,
-a field, or on the operand stack across a branch, the table is never consulted
-for a user-defined class in the initial subset; the rule exists so that a later
+initial subset. A generated class may hold a `String` in a local, but never a
+reference to a generated unit class, so the table is not consulted for a
+user-defined class in the initial subset; the rule exists so that a later
 milestone cannot silently load classes from the compiler's own classloader.
 
 11.12. **Verification evidence.** Emitted bytes are verified twice before being
@@ -621,8 +631,8 @@ normative.
 
 ### 12.3 Syntactic
 
-Defined in `syntax.ebnf` §7: `ARA-PARSE-0100`–`0117`, plus the reserved
-`ARA-PARSE-0199`. The full table there is normative.
+Defined in `syntax.ebnf` §7: `ARA-PARSE-0100`–`0117`, plus the produced `NOTE`
+code `ARA-PARSE-0199`. The full table there is normative.
 
 ### 12.4 Name resolution
 
@@ -689,7 +699,7 @@ error produces no class file.
 
 13.1 Valid, returns `42`:
 
-```kotlin
+```arara
 fun answer(): Int {
     val x: Int = 40
     val y: Int = 2
@@ -703,7 +713,7 @@ fun main() {
 
 13.2 Invalid, `ARA-TYPE-0209`, because `+` does not concatenate strings:
 
-```kotlin
+```arara
 fun main() {
     val a: String = "ar" + "ara"
 }
@@ -712,7 +722,7 @@ fun main() {
 The valid form uses two equal string literals and compares them structurally;
 this prints `true`:
 
-```kotlin
+```arara
 fun main() {
     val a: String = "arara"
     val b: String = "arara"
@@ -722,7 +732,7 @@ fun main() {
 
 13.3 Invalid, `ARA-TYPE-0203`:
 
-```kotlin
+```arara
 fun main() {
     val x: Int = 1
     x = 2
@@ -731,7 +741,7 @@ fun main() {
 
 13.4 Invalid, `ARA-TYPE-0208`, because the `if` has no `else`:
 
-```kotlin
+```arara
 fun f(c: Boolean): Int {
     if (c) {
         return 1
@@ -741,7 +751,7 @@ fun f(c: Boolean): Int {
 
 13.5 Valid:
 
-```kotlin
+```arara
 fun f(c: Boolean): Int {
     if (c) {
         return 1
@@ -754,7 +764,7 @@ fun f(c: Boolean): Int {
 13.5a Invalid, `ARA-TYPE-0210` at `println(2)`, because the preceding `if`
 `alwaysReturns`:
 
-```kotlin
+```arara
 fun f(c: Boolean): Int {
     if (c) {
         return 1
@@ -771,7 +781,7 @@ fun f(c: Boolean): Int {
 
 13.7 Invalid, `ARA-NAME-0104` (shadowing):
 
-```kotlin
+```arara
 fun main() {
     val x: Int = 1
     if (x > 0) {
@@ -782,7 +792,7 @@ fun main() {
 
 13.8 Invalid, `ARA-PARSE-0108` (else must be on the same line as `}`):
 
-```kotlin
+```arara
 fun main() {
     if (true) {
         println(1)
@@ -795,7 +805,7 @@ fun main() {
 
 13.9 Runtime behavior, not a compile error:
 
-```kotlin
+```arara
 fun main() {
     println(1 / 0)
 }

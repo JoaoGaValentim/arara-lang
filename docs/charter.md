@@ -4,6 +4,22 @@ Status: **DRAFT — submitted for owner review as part of D001. Not frozen.**
 Authority: this document is normative for purpose, scope, and non-goals. It does
 not define language behavior; `docs/spec/*` does.
 
+## Language identity
+
+- Official language name: **Arara**.
+- Repository: `JoaoGaValentim/arara-lang`.
+- Source extension: `.ara`, **PROPOSED** by `D001-06`; it remains subject to
+  `OQ-8` and is not ratified.
+- Primary target: JVM class files, classfile major version 65 (JDK 21).
+- Design inspiration: Kotlin, for surface syntax only. Arara is not a Kotlin
+  fork, does not claim Kotlin compatibility, and does not inherit Kotlin
+  semantics.
+- Implementation and semantics: independently specified in this repository. No
+  Kotlin compiler, Kotlin runtime, or Kotlin standard library is part of the
+  language implementation.
+- Diagnostic namespace: `ARA-<STAGE>-<NNNN>`. `ARA` is the stable abbreviation of
+  Arara; `D001-06` does not rename existing codes.
+
 ## 1. Purpose
 
 Arara is a small, statically typed programming language that compiles to JVM
@@ -73,7 +89,8 @@ introduced to simplify an implementation:
 - Pattern matching (`when`).
 - Type aliases (`typealias`).
 - Type tests and casts (`is`, `as`) and the `in` operator form.
-- Enums as a distinct declaration kind; classes and objects cover the category.
+- Enums as a distinct declaration kind; a future class or object feature would
+  cover the category.
 - String concatenation and string interpolation.
 - Floating-point types.
 - Exception handling syntax (`try`/`catch`/`throw`).
@@ -96,6 +113,8 @@ See `docs/adr/0001-jvm-target.md`.
 - A **compilation unit** is one `.ara` source file.
 - The file's base name (without `.ara`) is the name of the generated class. It
   must match `[A-Za-z_][A-Za-z0-9_]*` and must not be a Java reserved word.
+  Java's restricted identifiers (`var`, `yield`, `record`, `sealed`, `permits`,
+  module words) are not keywords and are currently legal; see `OQ-10`.
   Validity is checked by the compiler and reported as `ARA-SRC-0004`, not
   assumed. The exact reserved-word list is the JLS keyword list for Java 21 plus
   the literals `true`, `false`, and `null`.

@@ -5,9 +5,21 @@ bytecode. It is designed to grow into a production-quality JVM language through
 small, independently verified milestones.
 
 Arara is **not** Kotlin, and it does not claim Kotlin compatibility. It borrows a
-familiar declaration syntax so that the language is easy to read, but every
+familiar declaration syntax from Kotlin so that Arara is easy to read, but every
 lexical, syntactic, semantic, and code-generation rule is specified in this
 repository.
+
+## Language identity
+
+| Property | Value |
+| --- | --- |
+| Official name | Arara |
+| Repository | `JoaoGaValentim/arara-lang` |
+| Source extension | `.ara` — **PROPOSED**, not ratified (`OQ-8`) |
+| Primary target | JVM class files, classfile major version 65 (JDK 21) |
+| Design inspiration | Kotlin, surface syntax only |
+| Implementation and semantics | Independently specified; no Kotlin compiler or runtime |
+| Diagnostic codes | `ARA-<STAGE>-<NNNN>` |
 
 ## Status
 
@@ -33,7 +45,7 @@ snippet on this page is a specification example, not a working program.
 
 ## Example of the intended syntax
 
-```kotlin
+```arara
 fun main() {
     val answer: Int = 40 + 2
     println(answer)

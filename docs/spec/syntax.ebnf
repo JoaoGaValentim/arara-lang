@@ -162,7 +162,7 @@ separator (`syntax.ebnf` §3 items 6 and 6a).
 
 Source:
 
-```kotlin
+```arara
 fun main() {
     val answer: Int = 40 + 2
     println(answer)
@@ -270,19 +270,19 @@ Nullable nonterminals: `FunctionTail` and `StatementTail` only.
 | `[ ArgumentList ]` | expression-start vs `)` | disjoint |
 | `[ ":" Type ]` | `:` vs `{` | disjoint |
 | `[ "else" ... ]` | `else` vs FOLLOW(`IfStatement`) | `else` is not in FOLLOW |
-| `( "-" \| "!" )` in `UnaryExpression` | `-`/`!` vs expression-start | disjoint; expression-start excludes both |
+| `( "-" \| "!" )` in `UnaryExpression` | `-`/`!` vs FIRST(`PrimaryExpression`) | disjoint; `PrimaryExpression` starts with `(`, `IDENT`, a literal, `true`, or `false` |
 | `Block \| IfStatement` after `else` | `{` vs `if` | disjoint |
 
 `IdentStatement` is left-factored: after `IDENT` the next token is `=` or `(`,
 which is disjoint. This is the only factoring the grammar requires.
 
-There is no dangling-`else` ambiguity because both branch bodies are `Block`
-values and `else` is not in FOLLOW(`Block`) as an ambiguity source: an `else`
-attaches to the innermost `if` whose `Block` has just closed, which the
-production nesting determines. There is no unary/binary `-` ambiguity because
-unary `-` is reachable only where an expression is expected and binary `-` only
-after a complete operand; `1 - 2` and `1 -2` are the same token sequence and both
-parse as subtraction.
+There is no dangling-`else` ambiguity because every branch body is a `Block`:
+an `else` can only follow the `}` that closes the nearest preceding `if`, and no
+unbraced `if` can appear as a body. `else` is therefore in FOLLOW(`Block`) only
+in the position the production expects. There is no unary/binary `-` ambiguity
+because unary `-` is reachable only where an expression is expected and binary
+`-` only after a complete operand; `1 - 2` and `1 -2` are the same token sequence
+and both parse as subtraction.
 
 ### 6.3 Mechanical check output
 
@@ -308,8 +308,8 @@ language for repeated separators.
 
 ## 7. Parse diagnostics
 
-All are `ERROR`. The primary span is the offending token, or the empty span at
-end of file when the token is missing.
+All are `ERROR` except `ARA-PARSE-0199`, which is a `NOTE`. The primary span is
+the offending token, or the empty span at end of file when the token is missing.
 
 | Code | Condition | Notes |
 | --- | --- | --- |
@@ -324,12 +324,12 @@ end of file when the token is missing.
 | `ARA-PARSE-0108` | `else` is not on the same line as the preceding `}` | Rule from `lexical.md` §10 |
 | `ARA-PARSE-0109` | A statement begins with an expression that is neither a call nor an assignment | e.g. `1 + 2` or `-x`; also used when `if` appears where an expression is required, because `if` is not an expression |
 | `ARA-PARSE-0110` | Expected `=` or `(` after an identifier in statement position | Prevents a bare identifier statement |
-| `ARA-PARSE-0111` | Expected `(` after a function name | |
+| `ARA-PARSE-0111` | Expected `(` after a function name in a declaration | Reported at the token that is not `(` |
 | `ARA-PARSE-0112` | Expected `:` after a parameter name | |
 | `ARA-PARSE-0113` | Expected `,` or `)` in a parameter or argument list | |
 | `ARA-PARSE-0114` | Expected a function body block after a function header | Reported at `EOF` or the offending token |
 | `ARA-PARSE-0115` | Expected `{` | After `if (expr)`, after `else`, or where a body was required |
-| `ARA-PARSE-0116` | Expected `(` | After `if`, or after a function name |
+| `ARA-PARSE-0116` | Expected `(` after `if` | |
 | `ARA-PARSE-0117` | Unmatched `)` | A `)` with no open parenthesis; the separation counter never goes below zero (`lexical.md` §10 rule 52) |
 | `ARA-PARSE-0199` | Parse error limit reached (100 errors) | `NOTE`-severity companion diagnostic; parsing stops |
 

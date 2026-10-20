@@ -4,18 +4,134 @@ Machine-readable recovery ledger. Update after every completed work unit. Facts
 only; no intentions, no forecasts.
 
 ```yaml
-active_directive: D001
+active_directive: D001-R1 (language identity); milestone D001
 active_milestone: D001 — Foundation (documentation and configuration only)
-milestone_authorization: D001-01 (docs/progress/DECISIONS.md)
-current_task: D001 execution complete; awaiting owner review
+milestone_authorization: D001-01 and D001-06 (docs/progress/DECISIONS.md)
+current_task: D001-R1 documentation identity audit complete; awaiting owner review
 current_subtask: none
-last_completed_unit: D001 bootstrap committed and recovery-validated
-branch: main
-last_verified_commit: ea3e294
+last_completed_unit: D001-R1 identity record, naming audit, and specification corrections
+branch: docs/d001-r1-arara-identity
+last_verified_commit: 717fcc6
 commit_convention: this ledger is edited before each commit, so last_verified_commit is always the commit immediately preceding the one containing this line; verify with `git log --oneline -3`
-remote: origin https://github.com/JoaoGaValentim/arara-lang.git (private, no push)
-working_tree: clean before this ledger edit
+remote: origin https://github.com/JoaoGaValentim/arara-lang.git (private, empty, no push)
+working_tree: modified paths are exactly the D001-R1 file list below; no untracked or unrelated changes
 ```
+
+## D001-R1 changed paths
+
+```text
+.kilo/rules/01-compiler-invariants.md
+README.md
+docs/adr/0002-compiler-host.md
+docs/architecture.md
+docs/charter.md
+docs/progress/CONTINUATION.md
+docs/progress/DECISIONS.md
+docs/progress/GATES.md
+docs/progress/STATE.md
+docs/spec/conformance-plan.md
+docs/spec/semantics.md
+docs/spec/syntax.ebnf
+```
+
+## D001-R1 — Language identity (2026-10-20)
+
+Directive 001-R1 fixes the official name and requires a naming and audit pass.
+Scope actually executed: documentation only, on `docs/d001-r1-arara-identity`,
+branched from `717fcc6`.
+
+- `D001-06` recorded in `docs/progress/DECISIONS.md`: name **Arara**,
+  repository `JoaoGaValentim/arara-lang`, extension `.ara` **PROPOSED**,
+  target JVM classfile 65, Kotlin as surface-syntax inspiration only,
+  implementation and semantics independently specified.
+- Naming audit: 23 tracked documentation and configuration files scanned; no
+  alternate project name exists in any tracked document. Every language
+  reference already used "Arara". The gaps were the missing decision entry, the
+  missing identity statement in `README.md` and `docs/charter.md`, and 12 code
+  fences labelled `kotlin`, which implied a Kotlin source claim. All 12 now use
+  `arara`.
+- Extension status: `.ara` is marked PROPOSED in `README.md`, `docs/charter.md`,
+  `docs/spec/semantics.md` §1.1, `docs/spec/conformance-plan.md`, and
+  `docs/architecture.md` §6. `OQ-8` stays open.
+- Diagnostic namespace: `ARA-<STAGE>-<NNNN>` is retained unchanged, with `ARA` as
+  the abbreviation of the approved name. This is stated in `README.md`,
+  `docs/charter.md`, and `D001-06`; no diagnostic code was renamed.
+- Unit-name rule: `semantics.md` §1.2 and `charter.md` §6 now state explicitly
+  that Java *restricted identifiers* (`var`, `yield`, `record`, `sealed`,
+  `permits`, module words) remain legal because they are not keywords, and
+  record `OQ-10` so the owner can forbid them if desired. `_` is rejected
+  because it is a Java keyword.
+- No file was renamed, no Git history was rewritten, and no architecture,
+  specification scope, or milestone boundary changed.
+
+### D001 report audit (scope item 5)
+
+The D001 report was delivered in the previous session and is **not** a committed
+artifact (limitation 6), so only its repository-visible claims can be audited.
+The audit compared the D001 documents against probes run in this session and
+produced three kinds of unresolved items:
+
+**JVM compatibility.** Corrected in this unit:
+- ADR 0002 claimed Java 21 "gives direct access to `java.lang.classfile`-adjacent
+  tooling". The API does not exist on JDK 21: a probe on Corretto 21.0.12.1 threw
+  `ClassNotFoundException` for `java.lang.classfile.ClassFile` (`java.lang.classfile`
+  was finalized in JDK 24, not 21). ADR 0002 now records the probe and keeps ASM
+  as the bytecode API.
+- `architecture.md` and `semantics.md` §11.11 claimed no generated class stores a
+  reference in a local. That is false for `String` locals created by `val s:
+  String = ...`, which the initial subset permits. Both now state that a `String`
+  local is legal and only references to generated unit classes are excluded.
+- `semantics.md` §11.3 (a method may share its class's name) and §11.10 (a class
+  with no `<init>`) were **verified** by probe rather than asserted: a `javac`
+  class `Foo` with `static void Foo()` and a hand-built class with no
+  constructor both run under `-Xverify:all`.
+- Unresolved and left to the owner: the initial subset is validated only on
+  Corretto 21.0.12.1 on macOS arm64. Behavior on other JDK 21 vendors, other
+  architectures, or a JVM invoked with `-Xverify:none` is `UNVERIFIED`. The
+  specification requires `-Xverify:all` for the gate, which compensates for the
+  default `BytecodeVerificationLocal=false`, but a user running `java` directly
+  relies on the default verifier.
+
+**Specification consistency.** Corrected in this unit:
+- `conformance-plan.md` assigned `ARA-PARSE-0111` to a value-called-as-function
+  case that `semantics.md` §5.10 marks unreachable, and later assigned `0116` to
+  a missing `(` in a function declaration while `0111` had no trigger. `0111`
+  now owns the declaration case, `0116` owns only `if`, and the conformance rows
+  match. `D002-G5` now asserts `ARA-LEX-0102` absent instead of naming a second
+  unreachable code.
+- `syntax.ebnf` §7 declared every parse diagnostic `ERROR` while `0199` is a
+  `NOTE`; the preamble now says so. `semantics.md` §12.3 called `0199` reserved
+  when it is produced; corrected.
+- `semantics.md` §2.0 cited "§2.1" for the surrogate rule, which is actually in
+  `lexical.md` §8; the citation is now explicit.
+- `semantics.md` §1.4a claimed an empty unit "is reachable only if other units
+  call nothing from it", which is vacuous for a unit with no functions;
+  rewritten.
+- `charter.md` said classes and objects "cover" the enum category while classes
+  and objects are themselves deferred; reworded to "a future class or object
+  feature would cover the category".
+- `conformance-plan.md` row "leading and trailing separators" contradicted
+  `lexical.md` §10 rule 58 (leading `SEMI` is an error) and cited the wrong code
+  for a body-only file (`0106` instead of `0100`); corrected.
+- Unresolved: `docs/roadmap.md` and `docs/architecture.md` still describe the
+  full D001–D006 plan, not a frozen contract; they are explicitly descriptive in
+  `AGENTS.md` §1 and do not override the specification.
+
+**Context recovery limitations.** Recorded, not resolved:
+- Recovery was validated twice with the same Kilo client and model. Recovery
+  under a different client, model, or machine remains `UNVERIFIED`, and the D001
+  report itself was never committed, so a fresh session cannot read the report
+  text, only `STATE.md` and `GATES.md`.
+- The D001 gate citations pointed at `STATE.md` §Audit findings and §Independent
+  recovery simulation. The actual headings are §Internal audit resolution and
+  §Independent recovery validation. `GATES.md` citations are corrected; the D001
+  report text is not a repository record and was not edited.
+- `CONTINUATION.md` recorded branch `main` and told the next session to expect
+  `main`. That was accurate until this branch was created and would have produced
+  a false discrepancy in a fresh session. Both `CONTINUATION.md` and `GATES.md`
+  now name the actual branch.
+- Unresolved: automatic compaction has never been observed firing, so recovery
+  after a real compaction event is `UNVERIFIED`. See limitation 2.
 
 ## Authorized scope
 
@@ -67,10 +183,10 @@ report. Local commits are permitted. Nothing has been pushed.
 
 | Item | Value | Command |
 | --- | --- | --- |
-| OS | Darwin 27.0.0 arm64 (macOS) | `java -XshowSettings:properties -version` |
-| JDK | Corretto 21.0.12.1, build 21+35-LTS | `java -version` |
+| OS | macOS 27.0.1, Darwin 27.0.0 arm64 | `sw_vers`, `uname -a` |
+| JDK | Corretto 21.0.12.1, build 21.0.12.1+12-LTS | `java -version` |
 | javac | 21.0.12.1 | `javac -version` |
-| Gradle | 9.8.1 | `gradle --version` |
+| Gradle | 9.8.1, launcher JVM 21.0.12.1 | `gradle --version` |
 | Git | 2.54.0 (Apple Git-157) | `git --version` |
 | GitHub CLI | 2.102.0, authenticated as `JoaoGaValentim` | `gh --version`, `gh auth status` |
 | Kilo CLI | 7.8.12 | `kilo --version` |
@@ -174,14 +290,33 @@ Assessments:
 | End-to-end prompt | `kilo run ...` | PASS — returned `PING` |
 | Grammar structural lint | ad-hoc audit script (not committed) | PASS — 27 productions, 0 undefined, 0 unused |
 | FIRST/FOLLOW analysis | ad-hoc audit script (not committed) | PASS — no LL(1) selection conflict |
-| Diagnostic code uniqueness | ad-hoc Python cross-check | PASS — 62 codes, 0 duplicates, 0 undefined |
+| Diagnostic code uniqueness | ad-hoc Python cross-check | PASS — 67 unique codes, 0 duplicates, 0 undefined |
 | Trailing whitespace | `grep -rnE ' +$'` over all files | PASS — no matches |
 | Relative links | link audit over all `.md` | PASS — all resolve |
 | Backticked paths | path audit over all `.md` | PASS — all exist |
-| Diagnostic codes | cross-check over lexical/syntax/semantics | PASS — 67 used, 67 defined, 0 duplicates |
-| Grammar structure | ad-hoc parse of the EBNF block | PASS — 27 productions, 0 undefined, 0 unused, 0 duplicate |
-| FIRST/FOLLOW | ad-hoc LL(1) analysis | PASS — no selection conflict |
 | Fresh-process recovery | `kilo run --agent plan`, twice, read-only | PASS with limitation — §Independent recovery validation |
+
+### D001-R1 verification runs (2026-10-20)
+
+| Check | Command | Result |
+| --- | --- | --- |
+| Naming audit | `grep -rniE` over `*.md`, `*.ebnf`, `*.jsonc` for Arara, `.ara`, Kotlin, and alternate names | PASS — 0 alternate project names; 12 `kotlin` fences found and relabelled `arara` |
+| Diagnostic uniqueness after edits | ad-hoc Python cross-check | PASS — 67 unique codes, 0 duplicates, 0 references without a table definition |
+| Grammar LL(1) after edits | external `ll1_check.py docs/spec/syntax.ebnf` | PASS — `no selection conflicts` |
+| Config parse | `kilo config check` | PASS — `No config warnings.` |
+| Agent resolution | `kilo debug agent code` | PASS — `hive`, variant `max` |
+| Model limits | `kilo models hive --verbose` | PASS — context 1048576, output 1048576 |
+| JSON/JSONC parse | `python3` parse of `.kilo/*.jsonc` | PASS |
+| Referenced paths | path audit over `AGENTS.md`, `README.md`, `docs`, `.kilo` | PASS — none missing |
+| Relative links | Markdown link audit | PASS — none broken |
+| Trailing whitespace | `grep -rnE ' +$'` | PASS — no matches |
+| JDK class-file API probe | `Class.forName("java.lang.classfile.ClassFile")` on Corretto 21.0.12.1 | `ClassNotFoundException` — ASM remains the bytecode API |
+| Restricted class-name probe | hand-built classes named `record`, `var`, `yield`, `when`, `module` loaded under `-Xverify:all` | PASS — the JVM accepts them, so the unit-name rule depends on the Java **keyword** list as specified |
+| Unit-name shadowing probe | hand-built units named `java`, `String`, `Object`, `record`, `var`, `when` that also call `java/lang/String.length()` | PASS — `java/lang/String` still resolves with a unit class of the same simple name; unnamed-package classes cannot shadow a package |
+| Method/class name collision probe | `javac` class `Foo` with `static void Foo()` run under `-Xverify:all` | PASS — legal, matching `semantics.md` §11.3 |
+| Constructor-free class probe | hand-built class with no `<init>` run under `-Xverify:all` | PASS — legal, matching `semantics.md` §11.10 |
+| Verifier strength probe | corrupted `areturn` class under default and `-Xverify:all` | PASS both — `VerifyError`; default flags report `BytecodeVerificationLocal=false`, `Remote=true` |
+| Toolchain smoke test | external Gradle project, `gradle --no-daemon test` | PASS — `BUILD SUCCESSFUL`, 2 tasks up to date |
 
 ## Internal audit resolution
 
@@ -207,7 +342,7 @@ dispositions:
 
 ## Blocking decisions
 
-None block D001 completion. Nine open questions are recorded in
+None block D001 completion. Ten open questions are recorded in
 `docs/progress/DECISIONS.md` under "Open decisions requested from the owner".
 They affect D002 scope, not D001 correctness.
 
@@ -215,4 +350,6 @@ They affect D002 scope, not D001 correctness.
 
 Owner review of the D001 report and the specification drafts. No agent action is
 authorized until the owner records a decision. If the owner accepts D001, the next
-action is to record acceptance in `DECISIONS.md` and issue Directive 002.
+action is to record acceptance in `DECISIONS.md` and issue Directive 002. If the
+owner rules on `OQ-8` (extension) or `OQ-10` (restricted unit names), record the
+decision first and change only the corresponding references.

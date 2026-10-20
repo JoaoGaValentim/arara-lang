@@ -6,12 +6,14 @@ states what to do and what not to do, with no reliance on prior conversation.
 ## Where we are
 
 - **Active milestone:** D001 — Foundation. Documentation and configuration only.
-- **Authorization:** `D001-01` in `docs/progress/DECISIONS.md`.
-- **Status:** D001 execution is complete and awaiting owner review. No
-  implementation exists and none is authorized.
-- **Branch:** `main`, local only. Nothing has been pushed.
+- **Authorization:** `D001-01` (milestone) and `D001-06` (language identity) in
+  `docs/progress/DECISIONS.md`.
+- **Status:** D001 execution is complete. Directive 001-R1 applied the approved
+  Arara identity. D001 acceptance is still pending, and no implementation exists
+  or is authorized.
+- **Branch:** `docs/d001-r1-arara-identity`, local only. Nothing has been pushed.
 - **Remote:** `origin` → `https://github.com/JoaoGaValentim/arara-lang.git`,
-  private, no commits pushed.
+  private, empty, no commits pushed.
 
 ## What exists
 
@@ -30,8 +32,10 @@ states what to do and what not to do, with no reliance on prior conversation.
    `STATE.md`.
 3. If they agree, report readiness and wait for the owner. Do not start D002.
 4. If the owner records acceptance of D001, append a decision entry, do **not**
-   rewrite `D001-01`, and wait for Directive 002.
-5. If the owner reports a defect in D001, fix only that defect, re-check the
+   rewrite `D001-01` or `D001-06`, and wait for Directive 002.
+5. If the owner rules on `.ara` (`OQ-8`), record it as a new decision and change
+   only the extension references listed in `STATE.md` §D001-R1.
+6. If the owner reports a defect in D001, fix only that defect, re-check the
    grammar's FIRST/FOLLOW properties and cross-references, update `STATE.md`, and
    commit with `checkpoint:`.
 
@@ -43,6 +47,7 @@ states what to do and what not to do, with no reliance on prior conversation.
   code.
 - Do not create tests or CI workflows.
 - Do not push, merge, tag, release, or change repository settings.
+- Do not rename files or rewrite Git history.
 - Do not add a language feature from `docs/charter.md` §4, not even as a stub.
 - Do not weaken or delete a rule in `AGENTS.md`, `.kilo/rules/*`, or
   `docs/progress/GATES.md`.
@@ -56,7 +61,8 @@ states what to do and what not to do, with no reliance on prior conversation.
 git branch --show-current && git log --oneline -5 && git status --porcelain=v1 --untracked-files=all
 ```
 
-Expected: branch `main`; the bootstrap commit at HEAD; a clean tree.
+Expected: branch `docs/d001-r1-arara-identity`; the D001-R1 commits at HEAD; a
+clean tree.
 
 ## If the working tree is dirty
 

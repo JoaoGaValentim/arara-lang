@@ -7,6 +7,10 @@ specification to tests to implementation.
 Related: `lexical.md`, `syntax.ebnf`, `semantics.md`,
 `docs/progress/GATES.md`.
 
+Fixture paths use `.ara` because `D001-06` proposes that extension; the extension
+is not ratified (`OQ-8`). If the owner ratifies a different extension, only the
+fixture suffix changes in this document.
+
 No test in this plan exists yet. D001 defines obligations; D002–D005 own their
 execution.
 
@@ -86,16 +90,16 @@ For every production in `syntax.ebnf` §2:
 
 | Production | Positive | Negative |
 | --- | --- | --- |
-| `Program` | empty file; declarations only; leading and trailing separators | body-only file (`0106` expected `fun`) |
+| `Program` | empty file; declarations only; trailing separator | body-only file (`0100` expected `fun`); leading separator (`0100`) |
 | `FunctionList` | one, two, and many functions | missing separator between functions (`0100`); two separators between functions (`0100`) |
-| `FunctionDecl` | no params; one param; many params; omitted return type; explicit `Unit` | `fun (` (`0106`); missing body (`0114`) |
-| `ParameterList` / `Parameter` | trailing comma is invalid; sep by `,` | missing `:` (`0112`); missing type (`0104`); trailing comma (`0113`) |
+| `FunctionDecl` | no params; one param; many params; omitted return type; explicit `Unit` | `fun (` (`0106`); missing body (`0114`); missing `(` after the name (`0111`) |
+| `ParameterList` / `Parameter` | trailing comma is invalid; sep by `,` | missing `:` (`0112`); missing type (`0104`); missing separator (`0113`); trailing comma (`0100`, expected `Parameter`) |
 | `Type` | all four type names | `Unit` as parameter type is a *semantic* error, not syntactic |
 | `Block` | empty; one statement; nested blocks | missing `}` (`0103`); missing `{` (`0115`) |
 | `Statement` | all five forms | expression statement (`0109`); bare identifier (`0110`) |
 | `LocalDecl` | `val`, `var`, every type | missing `=`; missing type (`0104`) |
 | `IdentStatement` | assignment; call; call with args | `x` alone (`0110`); `f(` unclosed (`0102`) |
-| `CallSuffix`/`ArgumentList` | zero, one, many; nested calls | missing `)` (`0102`); missing `,` (`0113`); missing `(` (`0116`) |
+| `CallSuffix`/`ArgumentList` | zero, one, many; nested calls | missing `)` (`0102`); missing `,` between arguments (`0101`, preceding token completed an expression); trailing comma (`0105`, expected an expression) |
 | `ReturnStatement` | bare; with expression; each expression form | — |
 | `IfStatement` | no else; else block; else-if chain; nested if | missing `(` (`0116`); missing `)` (`0102`); non-block body (`0115` expected `{`); `if` in expression position (`0109`) |
 | `Expression` and every precedence level | one test per level; mixed-precedence test per adjacent level pair | — |
@@ -124,7 +128,7 @@ Each row is a rule in `semantics.md` and its obligation.
 | §4.6 no shadowing | sibling scopes with same name in different blocks | `ARA-NAME-0104` |
 | §5.2 duplicate functions | distinct functions | `ARA-NAME-0101` |
 | §5.4 function as value | call form | `ARA-NAME-0109` |
-| §5.6 value called as function | call a function name with a local of the same name present | `ARA-NAME-0111` |
+| §5.4–§5.5 namespace separation | a local or parameter named `f` does not shadow the function `f`; `f()` still calls it, and bare `f` still reads the value | `ARA-NAME-0102` for a call to an undefined function; `ARA-NAME-0109` for a bare function name. `ARA-NAME-0111` is unreachable and MUST NOT be asserted |
 | §5.7 `println` reserved | user function named differently | `ARA-NAME-0108` |
 | §6.2 `println` overloads | all three types | `ARA-TYPE-0206` for zero/two args |
 | §6.7 `println` as value | statement use | `ARA-TYPE-0205` |

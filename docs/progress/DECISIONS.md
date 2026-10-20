@@ -92,11 +92,48 @@ Format: `Dxxx-yy` where `xxx` is the directive number and `yy` is a sequence.
 - **Rationale:** The directive requires a design contract for review, not a
   frozen language.
 
+## D001-06 — Language identity: Arara (Directive 001-R1)
+
+- **Date:** 2026-10-20
+- **Decider:** Repository owner (`JoaoGaValentim`)
+- **Status:** ACTIVE
+- **Scope:**
+  - Official language name: **Arara**.
+  - Repository identity: `JoaoGaValentim/arara-lang`.
+  - Proposed source extension: `.ara`. It remains **PROPOSED**; this entry does
+    not ratify it, and `OQ-8` remains open.
+  - Primary target: JVM. Classfile major version 65 (JDK 21) and the
+    single-backend rule in `docs/adr/0001-jvm-target.md` are unchanged.
+  - Design inspiration: Kotlin, for surface syntax only. Arara is not a Kotlin
+    fork, does not claim Kotlin compatibility, and does not inherit Kotlin
+    semantics.
+  - Language implementation and semantics: independently specified in
+    `docs/spec/*`; every rule is normative in this repository.
+  - Diagnostic namespace: the existing `ARA-<STAGE>-<NNNN>` codes are retained
+    unchanged, with `ARA` as the abbreviation of the approved name. Renaming them
+    would invalidate every diagnostic reference and is not authorized.
+- **Explicitly not authorized:**
+  - Acceptance of D001. D001 remains submitted for owner review.
+  - Starting D002 or any later milestone.
+  - Implementing a lexer, parser, type checker, IR, backend, or compiler source.
+  - Changing frozen semantics, adding dependencies, or adding a backend target.
+  - Pushing, merging, releasing, tagging, or publishing.
+- **Rationale:** The documents already used "Arara" consistently, but the name
+  had no explicit decision entry. This entry makes the identity durable and
+  authoritative before D001 acceptance, while leaving the extension and the
+  milestone gates undecided.
+- **Evidence of authority:** Owner directive "DIRECTIVE 001-R1 — ARARA LANGUAGE
+  IDENTITY", 2026-10-20, with the explicit statement "Owner decision: Language
+  name ARARA — APPROVED. D001 acceptance and D002 implementation remain
+  pending."
+
 ---
 
 ## Open decisions requested from the owner
 
 These are recorded here so they are not lost; they are **not** decisions yet.
+`D001-06` resolves the language name only; it does not accept D001 or authorize
+D002.
 
 1. **OQ-1 — Repository visibility.** Confirm `private` or request `public`.
 2. **OQ-2 — Remote publication.** Authorize pushing the bootstrap commit and
@@ -115,3 +152,9 @@ These are recorded here so they are not lost; they are **not** decisions yet.
 8. **OQ-8 — File extension.** Confirm `.ara` as the source extension.
 9. **OQ-9 — License.** No license file is included; the repository is private.
    Choose a license before any publication.
+10. **OQ-10 — Restricted unit names.** `semantics.md` §1.2 excludes Java keywords
+    only. The JVM accepts class files named `var`, `yield`, `record`, `sealed`,
+    `permits`, and the module words, but `javac` rejects `var`, `yield`, `record`,
+    `sealed`, and `permits` as type names. Keeping them legal preserves the
+    bytecode-only contract; forbidding them costs nothing in the initial subset
+    and avoids a future Java-interop surprise in D005. Confirm either choice.

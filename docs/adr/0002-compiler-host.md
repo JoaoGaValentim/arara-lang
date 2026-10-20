@@ -31,12 +31,12 @@ Candidates: Java 21, Kotlin, Rust, and a generator-based parser stack.
 
 | Component | Version | Evidence |
 | --- | --- | --- |
-| JDK | Corretto 21.0.12.1 (21+35-LTS) | `java -version`, `java -XshowSettings:properties -version` |
+| JDK | Corretto 21.0.12.1, build 21.0.12.1+12-LTS | `java -version`, `java -XshowSettings:properties -version` |
 | javac | 21.0.12.1 | `javac -version` |
 | Gradle | 9.8.1, launcher JVM 21.0.12.1 | `gradle --version` |
 | ASM | 9.11.1 published | Maven Central `maven-metadata.xml` |
 | JUnit Jupiter | 6.1.3 published | Maven Central `maven-metadata.xml` |
-| OS | Darwin 27.0.0, aarch64 | `java -XshowSettings:properties` |
+| OS | macOS 27.0.1, Darwin 27.0.0, aarch64 | `uname -a`, `sw_vers`, `java -XshowSettings:properties` |
 | Python (ad-hoc audit only) | 3.14.8 | `python3 --version` |
 
 ### Recorded toolchain probe
@@ -71,8 +71,11 @@ analyzer, and test framework are mutually compatible on this machine. It does
 
 ## Rationale
 
-1. Java 21 gives direct access to `java.lang.classfile`-adjacent tooling, exact
-   JVM type behavior, and no impedance mismatch for bytecode work.
+1. Java 21 keeps the host on the same JVM family as the target, exposes exact JVM
+   type behavior, and has no impedance mismatch for bytecode work. The JDK 21
+   class-file API (`java.lang.classfile`) is **not** available: a probe on
+   Corretto 21.0.12.1 returned `ClassNotFoundException` for
+   `java.lang.classfile.ClassFile`, so ASM remains the bytecode API.
 2. A Java 21 host keeps the compiler usable with the same JDK that target
    programs require, simplifying the user story.
 3. ASM is mature, widely used, and provides both generation and analysis

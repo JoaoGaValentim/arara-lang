@@ -134,10 +134,11 @@ primary offset ascending, then code ascending, then insertion order.
   types that can appear in a descriptor are `java/lang/String` and every
   generated unit class; all generated unit classes share only
   `java/lang/Object` as a supertype, so the resolver can answer from a closed
-  table of `java/lang/Object`, `java/lang/String`, and the generated classes. No
-  generated class stores a reference in a local or a field, so no merged reference
-  frame for a user class can arise in practice; the table exists to make the
-  failure mode impossible rather than merely unlikely.
+  table of `java/lang/Object`, `java/lang/String`, and the generated classes. A
+  generated class may store a `String` reference in a local, but never a
+  reference to a generated unit class, so no merged reference frame for a user
+  class can arise in practice; the table exists to make that failure mode
+  impossible rather than merely unlikely.
 - Verification is two-layered and both layers are mandatory:
   1. `CheckClassAdapter.verify` with data-flow analysis over the emitted bytes.
   2. Loading and executing under a JVM started with `-Xverify:all` in the
@@ -152,6 +153,8 @@ primary offset ascending, then code ascending, then insertion order.
 
 The full surface is defined here so that stages have a stable destination. Only
 the D002 subset is implemented in D002; the rest is gated by later milestones.
+The `.ara` suffix in the examples is the **proposed** extension (`D001-06`,
+`OQ-8`); no command depends on the suffix.
 
 ```text
 arara lex     <file.ara>...            # D002: tokens and lexical diagnostics
