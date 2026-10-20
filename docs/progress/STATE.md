@@ -4,23 +4,25 @@ Machine-readable recovery ledger. Update after every completed work unit. Facts
 only; no intentions, no forecasts.
 
 ```yaml
-active_directive: D001-R5 (Copilot activation, publication, final foundation verification); milestone D001
+active_directive: D001-R6 (owner contract ratification, PR #1 integration, foundation closure); milestone D001
 active_milestone: D001 — Foundation (documentation and configuration only)
 milestone_authorization: D001-01 and D001-06 (docs/progress/DECISIONS.md)
 process_authorization: D001-07 (English-only communication, closed gate status vocabulary)
 visibility_and_license_authorization: D001-08 (public visibility, Apache-2.0, Copilot migration)
-gate_correction_authorization: D001-09 (D001-G9 is BLOCKED; G9-A not operative)
-r5_authorization: D001-10 (R5 operations, G9-A conditional ratification, publication)
-gate_ratification: D001-11 (G9-A ratified; D001-G9 reclassified BLOCKED -> PASS)
-current_task: D001-R5 complete — numerical defect corrected, agents and allowlists verified by execution, DeepSeek limits validated, Copilot recovery verified, foundation published, Draft PR open
-current_subtask: none — awaiting owner rulings on OQ-3, OQ-10, OQ-11, and D001 acceptance
-last_completed_unit: D001-R5 — R5 corrections, agent verification, publication, branch protection, report
+gate_correction_authorization: D001-09 (D001-G9 was BLOCKED; superseded by D001-11)
+r5_authorization: D001-10 (R5 operations, publication)
+gate_ratification: D001-11 (G9-A ratified; D001-G9 BLOCKED -> PASS)
+r6_authorization: D001-12 (R6 workflow; ratification delegated, language design not delegated)
+contract_ratification: D001-13 through D001-23 (OQ-3,4,5,6,7,8,10,11,12,13,14)
+current_task: D001-R6 — contract ratified and frozen, PR #1 description corrected, merged into main, post-merge verified
+current_subtask: none — D001 boundary reached; D002 not authorized
+last_completed_unit: D001-R6 — eleven ratifications, contract freeze at hashed revision, PR description correction, merge-commit integration
 branch: infra/d001-r4-copilot-migration
-last_verified_commit: 7bce5a7
-audit_commit: 230abd6 (D001-R5 content); previous audit 2607608 (D001-R4), 49ad593 (D001-R3)
+last_verified_commit: PENDING_R6_COMMIT
+audit_commit: D001-R6 report in docs/progress/audit/D001-R6.md; previous 230abd6 (R5), 2607608 (R4)
 commit_convention: this ledger is edited before each commit, so last_verified_commit is always the commit immediately preceding the one containing this line; verify with `git log --oneline -3`
-remote: origin https://github.com/JoaoGaValentim/arara-lang.git (public; `main` published 2026-10-20, default branch `main`)
-working_tree: clean at 7bce5a7 before this checkpoint commit; the earlier concurrent edits were reconciled, consolidated, and committed, not discarded
+remote: origin https://github.com/JoaoGaValentim/arara-lang.git (public; default branch `main`)
+working_tree: clean at the recorded last_verified_commit before this checkpoint commit
 ```
 
 ## D001-R1 changed paths
@@ -162,7 +164,12 @@ updated by the checkpoint commit that immediately follows it, so the SHA of the
 ledger's own commit is one step later and must be read from
 `git log --oneline -2`. Nothing was pushed; `git ls-remote origin` returns no refs.
 
-### Verdict
+### Verdict at D001-R2 *(historical — superseded)*
+
+> This records the D001-R2 verdict. It is **not** the current status. Directives
+> 001-R3 through 001-R6 superseded it: G12 and G13 were closed on evidence, `G9-A`
+> was ratified, and the owner ratified the remaining decisions. See §"Decision
+> status" and `docs/progress/audit/D001-R6.md`.
 
 `CONDITIONAL`. As a gate status this is not a declared value: eleven D001 gates
 are `PASS`, and `D001-G9`, `D001-G12`, and `D001-G13` are `BLOCKED` — their
@@ -339,9 +346,10 @@ the pattern". That is true of rule order and false of the experiment: it was
 compiled and `javac` rejected it. Directive 001-R5 found the arithmetic defect;
 `REPRODUCIBILITY.md` §9d.3 now asserts accepted + rejected = candidates.
 
-`OQ-10` was **not** ratified automatically. The 71-name list remains as a
-documented policy choice, explicitly labelled broader than `javac` requires, and
-pending owner ratification.
+`OQ-10` was **not** ratified automatically in R4. The 71-name list remained a
+documented policy choice, explicitly labelled broader than `javac` requires,
+pending owner ratification. *(Superseded by `D001-19`: the owner ratified the
+policy in Directive 001-R6. The R4 wording is retained as history.)*
 
 ### F-R4-02 — JVM internal names, corrected
 
@@ -769,54 +777,42 @@ dispositions:
 | Reserved-word list was not traceable to charter categories | `lexical.md` §31–32 now require a charter category per word |
 | `GATES.md` reported PASS before the bootstrap commit existed | Rewritten to `BLOCKED` at the time, then to `PASS` only after the commit and after fresh-process recovery |
 
-## Blocking decisions
+## Decision status
 
-**D001 is `BLOCKED`, not accepted** — but no longer because of a gate. After
-Directive 001-R5, fifteen gates are `PASS` and none is `BLOCKED`; `G9-A` was
-ratified in `D001-11` and `D001-G9` was re-evaluated against it. The milestone
-verdict is still `BLOCKED` because three substantive owner decisions that gate
-acceptance are unresolved. A gate cannot be `PASS` against an unratified
-criterion, and acceptance cannot be `PASS` without the owner's contract decision.
+**No decision remains open.** After Directive 001-R6 every option raised during
+D001 is resolved by a recorded owner decision; the index lives in
+`docs/progress/DECISIONS.md`. The eleven outstanding items were ratified as
+`D001-13`–`D001-23`, each with its own scope and limitations.
 
-| # | Decision | Gates acceptance? | Gates D002? | Status after D001-R5 |
-| --- | --- | --- | --- | --- |
-| `OQ-3` | Accept `docs/spec/*` as the D001 contract | yes — this *is* acceptance | yes | open; prepared for decision, not accepted |
-| `OQ-10` | Ratify the 71-name unit-name rule (§1.2b rule 2) | yes | yes | open; `javac` basis corrected to 60/11 and rerun |
-| `OQ-11` | Ratify the five shadowing names (§1.2b rule 3, `ARA-SRC-0005`) | yes | yes | open; scope limitation now recorded |
-| `G9-A` | Approve the amended G9 criterion | no longer blocking | no | **RATIFIED (`D001-11`); `D001-G9` `PASS`** |
-| `OQ-1` | Repository visibility | no | no | **RESOLVED — public (`D001-08`)** |
-| `OQ-9` | License | no | no | **RESOLVED — Apache-2.0 (`D001-08`)** |
-| `OQ-2` | Push authorization | no | no | **RESOLVED — `D001-10`; `main` and the branch published** |
-| `OQ-8` | Ratify `.ara` | no — D001 holds either way | yes | open |
-| `OQ-7` | Ratify the 28 reserved words | no | yes | open |
-| `OQ-4`, `OQ-5`, `OQ-6` | Division by zero; shadowing ban; multi-unit | no | yes | open |
-| `OQ-12` | Ratify the diagnostic rewrite (already applied) | no | yes | open |
-| `OQ-13` | Keep the vocabulary split | no | no | open |
-| `OQ-14` | Retire Kilo, keeping it as fallback until then | no | no | open; retention is the current default |
+| Option | Decision | Status |
+| --- | --- | --- |
+| `OQ-1` | `D001-08` | Public visibility |
+| `OQ-2` | `D001-10` | Published; `main` bootstrapped |
+| `OQ-3` | `D001-13` | **RATIFIED** — initial contract |
+| `OQ-4` | `D001-14` | **RATIFIED** — `ArithmeticException` |
+| `OQ-5` | `D001-15` | **RATIFIED** — shadowing prohibited |
+| `OQ-6` | `D001-16` | **RATIFIED** — multiple units, one namespace |
+| `OQ-7` | `D001-17` | **RATIFIED** — documented reserved words |
+| `OQ-8` | `D001-18` | **RATIFIED** — `.ara` |
+| `OQ-9` | `D001-08` | Apache-2.0 |
+| `OQ-10` | `D001-19` | **RATIFIED** — 71-name policy, 60/11 preserved |
+| `OQ-11` | `D001-20` | **RATIFIED** — five measured names, not exhaustive |
+| `OQ-12` | `D001-21` | **RATIFIED** — 68/68 obligations |
+| `OQ-13` | `D001-22` | **RATIFIED** — separate vocabularies |
+| `OQ-14` | `D001-23` | **RATIFIED** — retain Kilo |
 
-Nine items remain open, of which three gate D001 acceptance. The consolidated
-matrix with alternatives, recommendation, justification, compatibility impact, and
-D002 effect is `docs/progress/audit/D001-R3.md` §9; `docs/progress/audit/D001-R4.md`
-§8 records the R3 corrections, and `docs/progress/audit/D001-R5.md` §M records the
-R5 status. Recommendations are **not** approvals.
+Ratification is not amendment. Each entry states that a future change needs a new
+decision naming the superseded rule; the decision index lists those targets.
 
 ## Next executable action
 
-1. Owner records decisions on `OQ-3`, `OQ-10`, and `OQ-11`. These are the only
-   remaining obstacles to D001 acceptance. Any reversal of a decision already
-   applied to the specification is made in the same commit as the decision that
-   authorizes it.
-2. Owner records decisions on the D002-facing questions: `OQ-4`, `OQ-5`, `OQ-6`,
-   `OQ-7`, `OQ-8`, `OQ-12`, and `OQ-13`. These do not block D001 acceptance.
-3. Owner records D001 acceptance or rejection in `docs/progress/DECISIONS.md`.
-4. Only then may Directive 002 be issued.
-5. Optional and non-blocking: review and merge the Draft PR, or rule on `OQ-14`
-   (Kilo retirement). Neither is authorized by Directive 001-R5.
-
-The foundation is published: remote `main` is `717fcc6` and is the default branch;
-`infra/d001-r4-copilot-migration` is pushed separately for review. Nothing was
-merged. The Draft PR URL and exact head revision are recorded in
-`docs/progress/audit/D001-R5.md` §H.
+1. Read `docs/progress/audit/D001-R6.md` §K for the D001 acceptance verdict.
+2. If `D001-24` records acceptance: D002 may begin only under a separate
+   directive. D001-R6 does not authorize implementation.
+3. Reconcile the ledger for post-merge `main` only through a narrowly scoped
+   documentation follow-up, never a direct commit to protected `main`.
+4. `OQ-14` remains ratified as "retain Kilo"; retiring it still requires a new
+   decision.
 
 Two D002 obligations were closed by Directive 001-R3 rather than carried forward:
 `ARA-SRC-0002` and `ARA-PARSE-0199` now have explicit obligations in

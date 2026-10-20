@@ -15,7 +15,7 @@ repository.
 | --- | --- |
 | Official name | Arara |
 | Repository | `JoaoGaValentim/arara-lang` |
-| Source extension | `.ara` — **PROPOSED**, not ratified (`OQ-8`) |
+| Source extension | `.ara` — **RATIFIED** (`D001-18`) |
 | Primary target | JVM class files, classfile major version 65 (JDK 21) |
 | Design inspiration | Kotlin, surface syntax only |
 | Implementation and semantics | Independently specified; no Kotlin compiler or runtime |

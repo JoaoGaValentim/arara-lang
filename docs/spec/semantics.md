@@ -1,14 +1,16 @@
 # Arara Semantic Contract
 
-Status: **DRAFT — D001. Submitted for owner review. Not frozen.**
+Status: **RATIFIED — D001 contract, `D001-13`.** Frozen for the D002–D004
+implementation of the initial subset. Any change requires a new decision that
+names the superseded rule.
 Scope: static semantics, evaluation semantics, the JVM mapping, and consolidated
 diagnostics for the initial subset.
 Related: `lexical.md`, `syntax.ebnf`, `conformance-plan.md`,
 `docs/architecture.md`, `docs/adr/0001-jvm-target.md`.
 
-Source extension: `.ara` is **PROPOSED** by `D001-06` and is not ratified;
-`OQ-8` remains open. A different extension would change only file discovery and
-the unit-name rule in §1.1, not the language semantics.
+Source extension: `.ara` is **RATIFIED** by `D001-18`. A different extension would
+change only file discovery and the unit-name rule in §1.1, not the language
+semantics.
 
 Every rule below is normative for D002–D004. No rule may be delegated implicitly
 to Java, Kotlin, or JVM behavior; where a rule matches the JVM, that is stated and
@@ -17,8 +19,8 @@ tested explicitly.
 ## 1. Program model
 
 1.1. A **compilation unit** is the normalized text of one source file with the
-proposed extension `.ara` (`D001-06`, `OQ-8`). The unit's **name** is the file's
-base name without that extension.
+extension `.ara` (`D001-06`, ratified by `D001-18`). The unit's **name** is the
+file's base name without that extension.
 
 1.2. A unit name MUST match `[A-Za-z_][A-Za-z0-9_]*` and MUST be unique within a
 compilation. Uniqueness failure is `ARA-SRC-0003`; pattern failure is
@@ -75,8 +77,8 @@ other.
 The 11 accepted contextual keywords are legal class names in Java 21 — `module`
 and `open` among them — so excluding them is a choice, not a constraint.
 
-The rule still excludes those 11, but as an **explicit policy choice pending
-owner ratification (`OQ-10`)**, not as an inherited `javac` restriction:
+The rule still excludes those 11, as an **explicit policy choice ratified by
+`D001-19` (`OQ-10`)**, not as an inherited `javac` restriction:
 
 - It keeps one flat rule for unit names, so a future JLS release that promotes a
   contextual keyword does not silently change the Arara contract.

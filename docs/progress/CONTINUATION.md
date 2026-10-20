@@ -6,36 +6,38 @@ states what to do and what not to do, with no reliance on prior conversation.
 ## Where we are
 
 - **Active milestone:** D001 — Foundation. Documentation and configuration only.
-- **Active directive:** `D001-R5` — Copilot activation, publication, and final
-  foundation verification.
+- **Active directive:** `D001-R6` — owner contract ratification, PR #1
+  integration, and foundation closure.
 - **Authorization:** `D001-01` (milestone), `D001-06` (language identity),
   `D001-07` (language and vocabulary policy), `D001-08` (visibility, license,
   agent environment), `D001-09` (G9 reclassification), `D001-10` (R5 operations,
-  publication, conditional `G9-A` ratification), `D001-11` (`G9-A` ratified,
-  `D001-G9` reclassified).
-- **Status:** D001 is **`BLOCKED`**, not accepted — but no longer because of a
-  gate. Fifteen gates are `PASS` and none is `BLOCKED`; `D001-G9` moved from
-  `BLOCKED` to `PASS` when the owner ratified `G9-A` in `D001-11`. Acceptance
-  still needs `OQ-3`, `OQ-10`, and `OQ-11`, which are owner decisions, not
-  evidence gaps. No implementation exists or is authorized.
+  publication), `D001-11` (`G9-A` ratified), `D001-12` (R6 authorization),
+  `D001-13`–`D001-23` (the eleven contract ratifications).
+- **Status:** the contract is **RATIFIED and frozen** at the hashed revision in
+  `docs/progress/audit/D001-R6.md` §B. Fifteen gates are `PASS`, none `BLOCKED`,
+  and no decision remains open. D001 acceptance depends on the merge and
+  post-merge verification; the verdict is recorded in `D001-R6.md` §K and, if
+  acceptance holds, in `D001-24`. No implementation exists or is authorized.
 - **Branch:** `infra/d001-r4-copilot-migration`.
 - **Remote:** `origin` → `https://github.com/JoaoGaValentim/arara-lang.git`.
-  Public. `main` is published at `717fcc6` and is the default branch; the
-  migration branch is published at `e707b10` (its R5 content commit is `230abd6`).
-  A **Draft** PR (#1) is open against `main`; the live head advances with each
-  documentation checkpoint. Nothing is merged, and merging is not authorized.
+  Public, default branch `main`. The merge of PR #1 under `D001-12` is a merge
+  commit; `D001-R6.md` §F records the exact SHA and parents once executed. No
+  commit is squashed, rebased, or force-pushed.
 - **License:** Apache-2.0, root `LICENSE`, unmodified ASF text
-  (SHA-256 `cfc7749b…3d30`). It is on the migration branch; `main` receives it
-  only if the Draft PR is merged.
-- **Agent environment:** GitHub Copilot is primary (`.github/`). Kilo remains
-  tracked and is the fallback (`OQ-14` records retirement as open).
+  (SHA-256 `cfc7749b…3d30`). It reaches `main` through the authorized merge; until
+  then it exists only on the review branch.
+- **Agent environment:** GitHub Copilot is primary (`.github/`). Kilo is retained
+  as the fallback and must not be deleted (`D001-23`).
 
 ## What exists
 
 - Authority: `AGENTS.md`, `.kilo/rules/{00,01,02}-*.md`.
 - Copilot agents: `.github/agents/arara-{engineer,auditor,recovery}.agent.md`.
   Auditor and recovery declare `tools: ['read', 'search']`, which resolves to a
-  single read-only file tool; this was verified by execution, not by parsing.
+  read-only **set**, not a single tool: one tool (`view`) in the VS Code agent
+  host, five (`view`, `rg`, `glob`, `skill`, `sql`) under the Copilot CLI. Neither
+  set contains a writer, a shell, or delegation. Verified by execution in both
+  harnesses, not by parsing.
 - Copilot recovery entry point: the `resume` and `checkpoint` skills in
   `.github/skills/*/SKILL.md`, plus `arara-recovery.agent.md`.
   `.github/prompts/{resume,checkpoint}.prompt.md` are Local-harness only and are
@@ -43,8 +45,9 @@ states what to do and what not to do, with no reliance on prior conversation.
 - Recovery: `docs/progress/{STATE,CONTINUATION,DECISIONS,GATES}.md`.
 - Design: `docs/charter.md`, `docs/architecture.md`, `docs/roadmap.md`,
   `docs/adr/000{1,2,3}-*.md`.
-- Language contract (draft): `docs/spec/{lexical.md,syntax.ebnf,semantics.md,conformance-plan.md}`.
-- Audit record: `docs/progress/audit/{D001-R5,D001-R4,D001-R3,D001-AUDIT-R2,REPRODUCIBILITY}.md`
+- Language contract (**RATIFIED**, `D001-13`):
+  `docs/spec/{lexical.md,syntax.ebnf,semantics.md,conformance-plan.md}`.
+- Audit record: `docs/progress/audit/{D001-R6,D001-R5,D001-R4,D001-R3,D001-AUDIT-R2,REPRODUCIBILITY}.md`
   and the two verbatim report archives. `D001-R5.md` is the current directive
   report (sections A–N). `D001-R4.md` §8 is the corrections index for R3/R4.
   `REPRODUCIBILITY.md` §9d.3 holds the rerun `javac` experiment with its sum

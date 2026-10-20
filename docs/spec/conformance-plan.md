@@ -1,15 +1,16 @@
 # Arara Conformance Plan
 
-Status: **DRAFT — D001. Submitted for owner review. Not frozen.**
+Status: **RATIFIED — D001 contract, `D001-13`.** Frozen for the D002–D004
+implementation of the initial subset. Any change requires a new decision that
+names the superseded rule.
 Scope: how each specified rule is proven. It defines test obligations, test
 categories, fixture conventions, and the traceability requirement that connects
 specification to tests to implementation.
 Related: `lexical.md`, `syntax.ebnf`, `semantics.md`,
 `docs/progress/GATES.md`.
 
-Fixture paths use `.ara` because `D001-06` proposes that extension; the extension
-is not ratified (`OQ-8`). If the owner ratifies a different extension, only the
-fixture suffix changes in this document.
+Fixture paths use `.ara`, ratified by `D001-18`. Only the fixture suffix depends on
+the extension; the obligations below do not.
 
 No test in this plan exists yet. D001 defines obligations; D002–D005 own their
 execution.

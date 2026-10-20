@@ -8,8 +8,7 @@ not define language behavior; `docs/spec/*` does.
 
 - Official language name: **Arara**.
 - Repository: `JoaoGaValentim/arara-lang`.
-- Source extension: `.ara`, **PROPOSED** by `D001-06`; it remains subject to
-  `OQ-8` and is not ratified.
+- Source extension: `.ara`, **RATIFIED** by `D001-18` (`OQ-8`).
 - Primary target: JVM class files, classfile major version 65 (JDK 21).
 - Design inspiration: Kotlin, for surface syntax only. Arara is not a Kotlin
   fork, does not claim Kotlin compatibility, and does not inherit Kotlin
@@ -118,8 +117,8 @@ See `docs/adr/0001-jvm-target.md`.
   emitted subset (`ARA-SRC-0005`). The 71-name exclusion is broader than `javac`
   requires: 11 contextual keywords, including `module` and `open`, are legal
   class names, and Arara excludes them by policy. The normative statement and the
-  probe evidence are in `semantics.md` §1.2a–§1.5a; `OQ-10` records the
-  ratification question.
+  probe evidence are in `semantics.md` §1.2a–§1.5a; `D001-19` records the
+  ratification.
 - There are no package declarations in the initial subset. All classes are in the
   unnamed package.
 - Multiple compilation units may be compiled together. Function names share one

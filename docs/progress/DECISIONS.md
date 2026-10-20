@@ -101,7 +101,8 @@ Format: `Dxxx-yy` where `xxx` is the directive number and `yy` is a sequence.
   - Official language name: **Arara**.
   - Repository identity: `JoaoGaValentim/arara-lang`.
   - Proposed source extension: `.ara`. It remains **PROPOSED**; this entry does
-    not ratify it, and `OQ-8` remains open.
+    not ratify it, and `OQ-8` remains open. *(Historical: `D001-18` later ratified
+    `.ara`. This entry is not edited, per the no-rewrite rule.)*
   - Primary target: JVM. Classfile major version 65 (JDK 21) and the
     single-backend rule in `docs/adr/0001-jvm-target.md` are unchanged.
   - Design inspiration: Kotlin, for surface syntax only. Arara is not a Kotlin
@@ -311,128 +312,294 @@ Format: `Dxxx-yy` where `xxx` is the directive number and `yy` is a sequence.
 
 ---
 
-## Open decisions requested from the owner
+---
 
-These are recorded here so they are not lost; they are **not** decisions yet.
-`D001-06` resolves the language name only; it does not accept D001 or authorize
-D002.
+## D001-12 — Directive 001-R6 authorization and owner delegation
 
-1. **OQ-1 — Repository visibility.** **RESOLVED — PUBLIC** by `D001-08`.
-2. **OQ-2 — Remote publication.** **RESOLVED — authorized and performed** under
-   `D001-10`. `main` is published at the foundation baseline
-   `717fcc667f1397252c66d9a6e854fac2fb33ca64`; the migration branch and Draft PR
-   are published separately. No force push was used.
-3. **OQ-3 — Specification acceptance.** **OPEN — ready for owner review.** The
-   R5 verification found 68 diagnostic codes defined once, 68 with conformance
-   obligations, a 97-production grammar with 0 LL(1) conflicts, and no
-   implementation. Accept, reject, or request changes to `docs/spec/*` as the
-   D001 contract. The infrastructure migration does not accept it automatically.
-   *Prepared for owner acceptance by Directive 001-R5; not accepted by it.* The
-   contract is ready to be accepted, rejected, or amended as one decision, and
-   the R5 work does not change its status. Acceptance is a separate owner act
-   with these consequences:
-   - Accepting freezes `docs/spec/{lexical.md,syntax.ebnf,semantics.md,conformance-plan.md}`
-     as the D002 entry contract, so a later semantic change requires a new
-     decision that names the superseded rule.
-   - Accepting does **not** ratify `OQ-4`–`OQ-8` or `OQ-10`–`OQ-14`, and does not
-     reopen `G9-A`, which `D001-11` already ratified; those stay separate
-     decisions.
-   - Accepting does **not** authorize D002. That needs its own directive after
-     `D001-G9` is settled.
-   - Rejecting or amending leaves the specification `DRAFT`/`PROPOSED` and must
-     name the sections that change.
-4. **OQ-4 — `Int` division by zero.** The draft specifies a runtime
-   `ArithmeticException`. Confirm or request a different behavior.
-5. **OQ-5 — Shadowing prohibition.** The draft forbids all shadowing, which is
-   stricter than Kotlin. Confirm or request Kotlin-like nested shadowing.
-6. **OQ-6 — Multi-unit programs.** The draft allows multiple `.ara` units per
-   program with one program-wide function namespace. Confirm or restrict to a
-   single unit for the initial subset.
-7. **OQ-7 — Reserved word list.** Confirm the deferred-feature reserved words in
-   `lexical.md` §6.
-8. **OQ-8 — File extension.** Confirm `.ara` as the source extension.
-9. **OQ-9 — License.** RESOLVED by `D001-08`: Apache License 2.0, SPDX
-   `Apache-2.0`, root `LICENSE` file.
-10. **OQ-10 — Restricted unit names.** RESOLVED IN THE SPECIFICATION, PENDING
-    RATIFICATION. `semantics.md` §1.2b states a three-part unit-name rule:
-    pattern (rule 1), exclusion of all 51 reserved and 17 contextual keywords of
-    JLS 21 §3.9 plus `true`/`false`/`null` (`ARA-SRC-0004`, rule 2), and
-    exclusion of shadowing names (`ARA-SRC-0005`, rule 3, see `OQ-11`). The owner
-    ratifies or reverses.
-    *Evidence, Directive 001-R2, corrected by 001-R3 and again by 001-R4:* JLS 21
-    §3.9 declares **51** reserved and **17** contextual keywords. The R2 figure of
-    52 was wrong; the extra item came from a regex capturing the gloss word
-    `underscore` in `_ (underscore)`. JVMS 21 §4.2.1 forbids only `.` `;` `[`
-    `/` in a class name, so the JVM constraint and the Java-source constraint
-    are different questions, not approximations of each other. Measured on
-    Corretto 21.0.12.1 under `-Xverify:all`: the JVM accepts **all 68** names as
-    class names. **Corrected 2026-10-20 by F-R4-01:** the R3 claim that `javac`
-    rejects all 71 names came from an experiment that wrote every source to
-    `t.java` while declaring `public class <candidate>`, which fails for every
-    candidate including legal ones. **Arithmetic corrected by Directive
-    001-R5:** the corrected experiment, with five compiling controls, shows
-    `javac` rejects **60** names — the 51 reserved, `true`/`false`/`null`,
-    `var`/`yield`/`record`/`sealed`/`permits`, and `non-sealed`
-    (51 + 3 + 5 + 1 = 60) — and **accepts 11 contextual keywords**: `exports`,
-    `opens`, `requires`, `to`, `uses`, `provides`, `with`, `transitive`, `open`,
-    `module`, `when`. 60 + 11 = 71, which is the tested candidate count; D001-R4
-    reported 59 because it deducted `non-sealed` as untested although `javac` had
-    rejected it. Excluding those 11 is an Arara policy choice for stability, not
-    a `javac` requirement. Evidence: `REPRODUCIBILITY.md` §9d. Directive 001-R5
-    reran the experiment independently and asserted programmatically that
-    60 rejected + 11 accepted = 71 candidates; the result is unchanged.
-    **This directive does not ratify the 71-name policy.** It remains `PROPOSED`
-    and is never to be justified by the false claim that `javac` rejects all 71
-    names.
-11. **OQ-11 — Units that shadow `java.lang`.** RESOLVED IN THE SPECIFICATION,
-    PENDING RATIFICATION. `semantics.md` §1.2b rule 3 forbids `java`, `String`,
-    `System`, `Object`, and `Math` as unit names, reported as `ARA-SRC-0005`.
-    §1.5a records the measured behaviour in a per-name table, each with a control
-    that compiles.
-    *Correction, Directive 001-R3:* the R2 statement that a unit named `java`
-    breaks `java.lang.String` holds only when the Java source writes a **fully
-    qualified** `java.` name; a file using only simple names compiles unaffected.
-    A unit named `String` or `System` breaks the unqualified form directly.
-    *Correction, Directive 001-R4 (F-R4-02):* §1.5a also claimed that a unit named
-    `String` emits an internal name such as `java/lang/String`. That contradicted
-    §11.2 and was wrong. Measured with `javap`: unit `String` emits `this_class`
-    `String`; `java.lang.String` remains `java/lang/String`; both coexist in one
-    class file that compiles, verifies under `-Xverify:all`, and runs. Loading
-    `java/lang/String` via `defineClass` fails with `IllegalName`, while `String`
-    loads. Shadowing is therefore a Java *source* resolution issue only.
-    *Scope limitation, recorded by Directive 001-R5:* the five names are the
-    measured set that breaks **this** initial subset against **Java 21** source on
-    the same classpath. That is not an exhaustive collision analysis of the
-    entire Java platform. Names in packages other than `java.lang`, names that
-    collide only under `import`, and names introduced by future JDK releases
-    were not tested. The rule is therefore a documented, measured restriction for
-    the current subset, and no document may present it as a complete account of
-    Java name collisions. Testing the wider platform is D005 work.
-12. **OQ-12 — Diagnostic shorthand in the conformance plan.** RESOLVED, PENDING
-    RATIFICATION OF THE REWRITE. Every normative obligation in
-    `conformance-plan.md`, `lexical.md`, and `semantics.md` now uses a full
-    `ARA-NS-NNNN` code; the ranges in `semantics.md` §12.2 and §12.3 were
-    rewritten as explicit lists.
-    *Correction, Directive 001-R3:* the R2 count was low. A strict scan found
-    **83** shorthand occurrences over **35** distinct numbers, not 54, and 20
-    numbers spanned more than one namespace. Two codes were not merely unnamed
-    but uncovered: `ARA-SRC-0002` and `ARA-PARSE-0199`. Both now carry explicit
-    obligations in `conformance-plan.md` §6a, and all **68** defined codes have
-    at least one obligation.
-13. **OQ-13 — Vocabulary separation.** Whether to retain the split between the
-    closed gate status set (`NOT_STARTED`, `IN_PROGRESS`, `PASS`, `FAIL`,
-    `BLOCKED`) and the milestone verdict set (`PASS`, `CONDITIONAL`, `BLOCKED`)
-    as the permanent convention. Recorded in `AGENTS.md` §12 and `D001-07`. The
-    alternative is one vocabulary, which would force a verdict value into a gate
-    column — the defect Directive 001-R3 corrected.
-14. **OQ-14 — Kilo retirement.** Whether to retire the Kilo configuration now
-    that Copilot is the primary environment. Directive 001-R5 §10 requires Kilo
-    to remain available until every migration criterion is satisfied, and its §10
-    also requires retirement to be a separate, minimal, reversible commit.
-    Auditor and recovery agents, their read-only allowlists, and fresh-session
-    recovery are now `VERIFIED` under Copilot; whether VS Code forwards
-    `reasoning_effort: max` and how Copilot handles context compaction are
-    `UNVERIFIED`. **Current default: retain.** Retiring is a decision, not a
-    cleanup, and deleting `.kilo/` removes the only independently verified
-    fallback recovery path.
+- **Date:** 2026-10-20
+- **Decider:** Repository owner (`JoaoGaValentim`)
+- **Status:** ACTIVE
+- **Scope:** Authorizes the D001-R6 workflow: recording the owner's ratification
+  of `OQ-3`–`OQ-8` and `OQ-10`–`OQ-14`, freezing the D001 contract at an exact
+  revision, correcting the PR #1 description, pre-merge verification, marking
+  PR #1 ready and merging it into `main` with a **merge commit**, post-merge
+  verification, and recording D001 acceptance if and only if every condition
+  holds.
+- **Delegation boundary:** The directive delegates ratification of the eleven named
+  options. It does **not** delegate language design. No ratification recorded
+  under this directive may introduce a rule the specification does not already
+  contain, and none may alter a semantic in the course of acceptance.
+- **Explicitly not authorized:** starting D002; implementing a lexer, parser,
+  resolver, type checker, IR, or backend; adding a language feature; squashing or
+  rebasing the reviewed commits; force-pushing; bypassing branch protection;
+  deleting `.kilo/`; publishing a release; introducing an unapproved dependency.
+- **Rationale:** The D001 contract has passed independent verification and its
+  evidence is published. What remained was the owner's authority over the
+  contract, not further engineering. Recording the decisions and integrating the
+  reviewed revision converts a local foundation into an accepted baseline that
+  D002 can safely build on.
+- **Evidence of authority:** Owner directive "ARARA — DIRECTIVE 001-R6 — Owner
+  Contract Ratification, PR #1 Integration and Foundation Closure", 2026-10-20,
+  §2 (ratifications), §6 (merge authorization), and §8 (acceptance conditions).
 
+---
+
+## D001-13 — `OQ-3` ratified: initial language contract
+
+- **Date:** 2026-10-20
+- **Decider:** Repository owner (`JoaoGaValentim`), via Directive 001-R6 §2
+- **Status:** ACTIVE — **RATIFIED**
+- **Scope:** The current D001 specification —
+  `docs/spec/lexical.md`, `docs/spec/syntax.ebnf`, `docs/spec/semantics.md`, and
+  `docs/spec/conformance-plan.md` — is approved as the baseline for the initial
+  Arara implementation, starting at D002.
+- **Coverage limit:** This approval covers **only the currently documented
+  subset**. It is not a general license to add features, and it does not approve
+  anything in `docs/charter.md` §4, all of which remain deferred.
+- **Superseding rule:** Any future semantic change requires an explicit new
+  decision that names the rule it supersedes. Silence, implementation convenience,
+  or a passing build never amends the contract.
+- **Not authorized by this entry:** starting D002, writing compiler code,
+  accepting a later gate, or treating this ratification as a release.
+- **Verification performed before ratification:** 68 diagnostic codes defined
+  once and none undefined; 68 of 68 carrying a conformance obligation; EBNF
+  lowering reproduced at 27 declared productions, 53 nonterminals, 97 BNF
+  productions, 38 terminals; FIRST/FOLLOW analysis reporting 0 unreachable,
+  0 undefined, and **0 LL(1) conflicts**; no compiler implementation present.
+  Commands and output are recorded in `docs/progress/audit/D001-R6.md` §B.
+- **Rationale:** A contract that is never accepted cannot gate an implementation.
+  The verification above is what makes acceptance a decision about the language
+  rather than an assertion of hope.
+- **Evidence of authority:** Directive 001-R6 §2, `OQ-3`.
+
+---
+
+## D001-14 — `OQ-4` ratified: integer division by zero
+
+- **Date:** 2026-10-20
+- **Decider:** Repository owner, via Directive 001-R6 §2
+- **Status:** ACTIVE — **RATIFIED**
+- **Scope:** Integer division by zero raises a Java-compatible runtime
+  `ArithmeticException` at the point of division. It is specified behaviour, not
+  undefined behaviour, and not a compile-time error.
+- **Constraint:** "Java-compatible" means the observable JVM exception type and
+  the specified evaluation order. It does not import any other Java arithmetic
+  rule not already written in `semantics.md`.
+- **Rationale:** A defined failure mode is testable and portable; an undefined one
+  makes the conformance plan unwritable.
+- **Evidence of authority:** Directive 001-R6 §2, `OQ-4`.
+
+---
+
+## D001-15 — `OQ-5` ratified: no lexical shadowing in the initial subset
+
+- **Date:** 2026-10-20
+- **Decider:** Repository owner, via Directive 001-R6 §2
+- **Status:** ACTIVE — **RATIFIED**
+- **Scope:** The initial subset prohibits lexical shadowing. A binding whose name
+  is already visible is an error, not a new nested binding.
+- **Reconsideration:** This restriction **may be revisited in a later language
+  milestone**. It is a scoping choice for the initial subset, not a permanent
+  claim that shadowing is harmful.
+- **Rationale:** Rejecting shadowing removes a whole class of resolution
+  ambiguity from the first implementation, at the cost of a restriction that is
+  easy to relax later and hard to remove after programs depend on it.
+- **Evidence of authority:** Directive 001-R6 §2, `OQ-5`.
+
+---
+
+## D001-16 — `OQ-6` ratified: multiple units, one function namespace
+
+- **Date:** 2026-10-20
+- **Decider:** Repository owner, via Directive 001-R6 §2
+- **Status:** ACTIVE — **RATIFIED**
+- **Scope:** A program may consist of multiple `.ara` compilation units, with a
+  single program-wide function namespace. Name collisions across units are an
+  error, not a shadowing opportunity.
+- **Not implied:** packages, imports, modules, or per-unit namespaces. `§1.4`
+  states there are none, and this entry does not add them.
+- **Rationale:** A program-wide namespace matches the flat, package-free model the
+  rest of the contract already assumes, and it keeps resolution a single global
+  table for D003.
+- **Evidence of authority:** Directive 001-R6 §2, `OQ-6`.
+
+---
+
+## D001-17 — `OQ-7` ratified: the documented reserved-word list
+
+- **Date:** 2026-10-20
+- **Decider:** Repository owner, via Directive 001-R6 §2
+- **Status:** ACTIVE — **RATIFIED**
+- **Scope:** The explicitly documented reserved-word list in `lexical.md` §6 is
+  approved as-is. Reserved words map to a `docs/charter.md` §4 category, as
+  `lexical.md` §31–32 require.
+- **Expansion rule:** The list MUST NOT be expanded without a new decision. In
+  particular, a future JLS release adding a keyword does not silently widen the
+  Arara list.
+- **Rationale:** An enumeration is auditable and stable; a rule like "all future
+  Java keywords" is neither, and it would let an external release change this
+  language's contract.
+- **Evidence of authority:** Directive 001-R6 §2, `OQ-7`.
+
+---
+
+## D001-18 — `OQ-8` ratified: `.ara` source extension
+
+- **Date:** 2026-10-20
+- **Decider:** Repository owner, via Directive 001-R6 §2
+- **Status:** ACTIVE — **RATIFIED**
+- **Supersedes:** The `PROPOSED` status of `.ara` recorded by `D001-06`. The
+  identity decision itself is unchanged; only the extension's status moves from
+  proposed to ratified.
+- **Scope:** `.ara` is the official Arara source-file extension. The conformance
+  plan's fixture suffixes and the driver's file discovery use it.
+- **Effect of change:** A future change of extension would affect file discovery
+  and the unit-name derivation in `semantics.md` §1.1 only, not language
+  semantics. Nothing else is renegotiated by this entry.
+- **Rationale:** An extension left permanently `PROPOSED` propagates "not
+  ratified" caveats into the contract, the conformance plan, and the README, which
+  makes the frozen contract read as tentative in three places at once.
+- **Evidence of authority:** Directive 001-R6 §2, `OQ-8`.
+
+---
+
+## D001-19 — `OQ-10` ratified: the 71-name unit-name exclusion
+
+- **Date:** 2026-10-20
+- **Decider:** Repository owner, via Directive 001-R6 §2
+- **Status:** ACTIVE — **RATIFIED**
+- **Scope:** The conservative 71-name exclusion in `semantics.md` §1.2b rule 2 is
+  approved as an initial Arara policy.
+- **Preserved evidence, kept explicitly:** on the tested candidates, `javac`
+  21.0.12.1 rejects **60** names — the 51 reserved keywords, `true`/`false`/`null`,
+  `var`/`yield`/`record`/`sealed`/`permits`, and `non-sealed` — and **accepts 11**
+  contextual keywords: `exports`, `opens`, `requires`, `to`, `uses`, `provides`,
+  `with`, `transitive`, `open`, `module`, `when`. The experiment was rerun with
+  five compiling controls and its arithmetic asserted programmatically
+  (`accepted + rejected = 71`).
+- **Interpretation rule:** the 11 additional exclusions are an **Arara
+  compatibility choice, not a Java requirement**. No document may justify the
+  71-name list by claiming `javac` rejects all 71; it rejects 60.
+- **Rationale:** A flat enumeration keeps unit naming stable if a future JLS
+  release promotes a contextual keyword, and it costs nothing today because no
+  Arara program needs a unit named `module`.
+- **Evidence of authority:** Directive 001-R6 §2, `OQ-10`; measurement in
+  `docs/progress/audit/REPRODUCIBILITY.md` §9d.3.
+
+---
+
+## D001-20 — `OQ-11` ratified: measured `java.lang` shadowing restriction
+
+- **Date:** 2026-10-20
+- **Decider:** Repository owner, via Directive 001-R6 §2
+- **Status:** ACTIVE — **RATIFIED**
+- **Scope:** The measured restriction in `semantics.md` §1.2b rule 3 is approved:
+  `java`, `String`, `System`, `Object`, and `Math` are forbidden as compilation-unit
+  names, reported as `ARA-SRC-0005`.
+- **Explicit limit on the claim:** these five names are a **measured subset**, not
+  an exhaustive Java-platform collision policy. Untested: names in packages other
+  than `java.lang`, collisions that arise only through `import`, and names a future
+  JDK may introduce.
+- **Interoperability:** full Java interoperability remains a **separate milestone**
+  (D005). This entry makes no compatibility guarantee, and no document may infer
+  one from the five measured names.
+- **Rationale:** The five names break Java source compiled against the same
+  classpath, which is a real and testable defect; the rule is narrow because the
+  measurement is narrow.
+- **Evidence of authority:** Directive 001-R6 §2, `OQ-11`; measurement in
+  `docs/progress/audit/REPRODUCIBILITY.md` §9e.
+
+---
+
+## D001-21 — `OQ-12` ratified: canonical diagnostic references
+
+- **Date:** 2026-10-20
+- **Decider:** Repository owner, via Directive 001-R6 §2
+- **Status:** ACTIVE — **RATIFIED**
+- **Scope:** The corrected canonical diagnostic references and their recorded
+  conformance obligations are approved. Every normative obligation uses a full
+  `ARA-NS-NNNN` code; the range notation in `semantics.md` §12.2–§12.3 was
+  rewritten as explicit lists.
+- **Verified counts:** 68 codes defined exactly once (LEX 12, PARSE 19, SRC 5,
+  NAME 11, TYPE 15, JVM 6), 0 duplicated, 0 referenced-but-undefined, and 68 of 68
+  carrying at least one obligation in `conformance-plan.md`.
+- **Rationale:** A diagnostic that cannot be traced from rule to obligation to test
+  is a diagnostic nobody will implement correctly.
+- **Evidence of authority:** Directive 001-R6 §2, `OQ-12`; checks rerun in
+  `docs/progress/audit/D001-R6.md` §B.
+
+---
+
+## D001-22 — `OQ-13` ratified: separate status vocabularies
+
+- **Date:** 2026-10-20
+- **Decider:** Repository owner, via Directive 001-R6 §2
+- **Status:** ACTIVE — **RATIFIED**
+- **Scope:** Gate statuses (`NOT_STARTED`, `IN_PROGRESS`, `PASS`, `FAIL`,
+  `BLOCKED`) and milestone verdicts (`PASS`, `CONDITIONAL`, `BLOCKED`) are
+  **permanently separate** vocabularies. A verdict value may never appear in a gate
+  status column, and no undocumented status identifier may be introduced.
+- **Rationale:** The overlap between the two sets is what allowed a verdict to be
+  written into a gate column, which is the defect D001-R3 corrected. Keeping the
+  vocabularies distinct makes the recurrence structural rather than stylistic.
+- **Evidence of authority:** Directive 001-R6 §2, `OQ-13`.
+
+---
+
+## D001-23 — `OQ-14` ratified: retain Kilo as fallback
+
+- **Date:** 2026-10-20
+- **Decider:** Repository owner, via Directive 001-R6 §2
+- **Status:** ACTIVE — **RATIFIED**
+- **Scope:** `.kilo/` configuration is **retained** as a fallback until the
+  remaining GitHub Copilot compatibility and context-management limitations are
+  resolved. It MUST NOT be deleted.
+- **Unresolved limitations that justify retention:** whether VS Code forwards
+  `reasoning_effort: max` to the provider is `UNVERIFIED`; Copilot context
+  compaction behaviour is `UNVERIFIED`.
+- **Not authorized:** deleting `.kilo/`, or treating retention as a permanent
+  decision. Retirement remains available through a later explicit decision.
+- **Rationale:** Removing the only independently verified fallback while two
+  client-side behaviours remain unverified trades a working recovery path for
+  tidiness.
+- **Evidence of authority:** Directive 001-R6 §2, `OQ-14`.
+
+---
+
+## Decision index
+
+Every option raised during D001 is now resolved by a recorded owner decision.
+This table is the index; the entries above are the authority. A recommended
+option is not a decision — only an entry with a `Dxxx-yy` identifier is.
+
+| Option | Subject | Decision | Content |
+| --- | --- | --- | --- |
+| `OQ-1` | Repository visibility | `D001-08` | Public |
+| `OQ-2` | Remote publication | `D001-10` | `main` bootstrapped, branch pushed, Draft PR opened |
+| `OQ-3` | Initial language contract | `D001-13` | **RATIFIED** — current D001 subset only |
+| `OQ-4` | Integer division by zero | `D001-14` | **RATIFIED** — Java-compatible `ArithmeticException` |
+| `OQ-5` | Shadowing | `D001-15` | **RATIFIED** — prohibited in the initial subset, revisitable later |
+| `OQ-6` | Compilation units | `D001-16` | **RATIFIED** — multiple units, one program-wide function namespace |
+| `OQ-7` | Reserved words | `D001-17` | **RATIFIED** — documented list only, no silent expansion |
+| `OQ-8` | Source extension | `D001-18` | **RATIFIED** — `.ara` |
+| `OQ-9` | License | `D001-08` | Apache-2.0 |
+| `OQ-10` | JVM unit naming | `D001-19` | **RATIFIED** — 71-name exclusion as Arara policy; 60 rejected / 11 accepted preserved |
+| `OQ-11` | `java.lang` shadowing | `D001-20` | **RATIFIED** — five measured names; not exhaustive; interop stays D005 |
+| `OQ-12` | Diagnostic traceability | `D001-21` | **RATIFIED** — canonical references, 68/68 obligations |
+| `OQ-13` | Status vocabularies | `D001-22` | **RATIFIED** — permanent separation |
+| `OQ-14` | Kilo fallback | `D001-23` | **RATIFIED** — retain; do not delete `.kilo/` |
+
+Nothing in this table authorizes D002. Implementation begins only under a
+separate directive after D001 is recorded as accepted.
+
+### Amendments a later decision must name
+
+A ratified rule is not amended by silence. Each of these requires a new decision
+that quotes the rule it supersedes:
+
+- Any semantic change to `docs/spec/*` after `D001-13` (`D001-13` states this).
+- Expanding the reserved-word list (`D001-17`).
+- Changing the source extension (`D001-18`).
+- Widening or narrowing the 71-name exclusion (`D001-19`).
+- Relaxing the shadowing prohibition (`D001-15`).
+- Retiring Kilo (`D001-23`).

@@ -153,8 +153,8 @@ primary offset ascending, then code ascending, then insertion order.
 
 The full surface is defined here so that stages have a stable destination. Only
 the D002 subset is implemented in D002; the rest is gated by later milestones.
-The `.ara` suffix in the examples is the **proposed** extension (`D001-06`,
-`OQ-8`); no command depends on the suffix.
+The `.ara` suffix in the examples is the extension ratified by `D001-18`
+(`D001-06`); no command depends on the suffix.
 
 ```text
 arara lex     <file.ara>...            # D002: tokens and lexical diagnostics

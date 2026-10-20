@@ -1,6 +1,8 @@
 # Arara Lexical Contract
 
-Status: **DRAFT — D001. Submitted for owner review. Not frozen.**
+Status: **RATIFIED — D001 contract, `D001-13`.** Frozen for the D002–D004
+implementation of the initial subset. Any change requires a new decision that
+names the superseded rule.
 Scope: converts normalized source text into a token stream. Normative for
 `ARA-LEX-*` diagnostics and for the statement-termination rules that the parser
 depends on.

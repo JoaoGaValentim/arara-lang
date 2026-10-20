@@ -1,6 +1,8 @@
 # Arara Grammar
 
-Status: **DRAFT — D001. Submitted for owner review. Not frozen.**
+Status: **RATIFIED — D001 contract, `D001-13`.** Frozen for the D002–D004
+implementation of the initial subset. Any change requires a new decision that
+names the superseded rule.
 Scope: the concrete syntax of the initial subset, expressed as an EBNF grammar over
 the token stream produced by `lexical.md`. Normative for `ARA-PARSE-*`
 diagnostics.

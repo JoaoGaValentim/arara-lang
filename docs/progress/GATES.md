@@ -47,14 +47,18 @@ recorded in `docs/adr/0002-compiler-host.md`, `docs/adr/0003-model-limits.md`, a
 | D001-G14 | Git state | Work is committed locally on the recorded branch; no unauthorized push | PASS | `git log` shows `c5f376a` (bootstrap), ledger checkpoints through `717fcc6`, and D001-R1 content commit `ce3c67d`. Until Directive 001-R5 the remote had no refs and no push had occurred; `D001-10` then authorized publishing `main` once and pushing the migration branch. Current state: `main` = `717fcc6` and the migration branch is pushed, both authorized; every other historical commit is local-only. `git remote -v` shows only `origin` |
 | D001-G15 | Independent recovery | A fresh session reconstructs state without the transcript | PASS | A fresh `arara-recovery` invocation under the **GitHub Copilot** harness reconstructed directive, milestone, authorized work, branch, HEAD, open decisions, next safe action, and forbidden actions from files alone, and correctly reported the working tree `UNVERIFIED`. See `docs/progress/audit/D001-R5.md` §F.1. Earlier evidence: two separate `kilo run` processes produced the same result for the Kilo client (`STATE.md` §Independent recovery validation). **Limitation:** both clients were verified against the same durable files; whether either harness survives compaction is `UNVERIFIED` |
 
-**D001 self-assessment (as corrected by Directive 001-R5):** fifteen gates are
+**D001 self-assessment (as ratified by Directive 001-R6):** fifteen gates are
 `PASS` and none is `BLOCKED`. `D001-G9` was reclassified from `BLOCKED` to `PASS`
 after the owner ratified `G9-A` in `D001-11`; the original criterion and the
 `BLOCKED` period remain quoted below, so the reclassification is auditable rather
-than silent. The D001 verdict is nevertheless **`BLOCKED`**, because acceptance
-requires owner decisions that are not gate statuses: `OQ-3` (contract
-acceptance), `OQ-10` (71-name policy), and `OQ-11` (shadowing) remain unresolved.
-See `docs/progress/audit/D001-R5.md` §L.
+than silent.
+
+The owner ratified the eleven outstanding options in `D001-13`–`D001-23`, so the
+obstacle the D001-R5 assessment named — unresolved owner decisions rather than
+unmet gate criteria — is removed. Acceptance is still conditioned on the merge and
+post-merge verification in Directive 001-R6 §8; the verdict is recorded in
+`docs/progress/audit/D001-R6.md` §K and in `D001-24` only when those conditions
+hold.
 
 ### Criterion amendments proposed by Directive 001-R3
 
