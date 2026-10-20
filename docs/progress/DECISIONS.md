@@ -617,6 +617,37 @@ Format: `Dxxx-yy` where `xxx` is the directive number and `yy` is a sequence.
 
 ---
 
+## D001-25 — Directive 001-R7: acceptance reconciliation and PR #2 integration
+
+- **Date:** 2026-10-20
+- **Decider:** Repository owner (`JoaoGaValentim`)
+- **Status:** ACTIVE
+- **Scope:** Authorizes correcting the D001-R6 acceptance-record inconsistency,
+  reconciling the recovery ledger as a post-merge snapshot of `main`, updating the
+  recovery instructions so a historical snapshot is never confused with a live
+  HEAD pin, verifying recovery in a fresh session, and integrating the corrected
+  record by merging PR #2 with a merge commit.
+- **Scope limit:** Documentation, recovery-instruction, and repository
+  administration only. The four normative specification files MUST NOT change; if
+  their hashes differ from the frozen revision, integration stops.
+- **Explicitly not authorized:** starting D002; implementing a lexer, parser, AST,
+  build system, or bytecode emitter; changing the frozen contract; removing the
+  Kilo fallback; publishing a release or tag; changing the license; weakening
+  repository protections; squashing, rebasing, or force-pushing.
+- **Rationale:** The R6 record claimed an operational prerequisite was satisfied
+  while its own §I said it was outstanding. A correction of that kind has to be
+  authorized explicitly, because otherwise it looks like retroactively editing a
+  completed acceptance decision.
+- **Note:** This entry was added because the D001-R7 recovery test found that the
+  directive was referenced in `STATE.md` and in the audit report but had no
+  decision identifier. A directive cited as authority with no recorded decision is
+  a traceability gap, not a formality.
+- **Evidence of authority:** Owner directive "ARARA — DIRECTIVE 001-R7 —
+  Acceptance Record Reconciliation and PR #2 Final Integration", 2026-10-20, §1,
+  §3, §4, and §8.
+
+---
+
 ## Decision index
 
 Every option raised during D001 is now resolved by a recorded owner decision.
@@ -639,6 +670,15 @@ option is not a decision — only an entry with a `Dxxx-yy` identifier is.
 | `OQ-12` | Diagnostic traceability | `D001-21` | **RATIFIED** — canonical references, 68/68 obligations |
 | `OQ-13` | Status vocabularies | `D001-22` | **RATIFIED** — permanent separation |
 | `OQ-14` | Kilo fallback | `D001-23` | **RATIFIED** — retain; do not delete `.kilo/` |
+
+Directive authorizations recorded separately from option decisions:
+
+| Directive | Decision | Scope |
+| --- | --- | --- |
+| 001-R5 | `D001-10` | Operations, publication, conditional `G9-A` ratification |
+| 001-R6 | `D001-12` | Ratification delegation, integration, acceptance recording |
+| 001-R7 | `D001-25` | Acceptance-record reconciliation, ledger snapshot, PR #2 integration |
+| 001-R6 acceptance | `D001-24` | D001 formally accepted |
 
 Nothing in this table authorizes D002. Implementation begins only under a
 separate directive after D001 is recorded as accepted.

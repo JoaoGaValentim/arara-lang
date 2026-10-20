@@ -29,7 +29,7 @@ r5_authorization: D001-10 (R5 operations, publication)
 gate_ratification: D001-11 (G9-A ratified; D001-G9 BLOCKED -> PASS)
 r6_authorization: D001-12 (R6 workflow; ratification delegated, language design not delegated)
 contract_ratification: D001-13 through D001-23 (OQ-3,4,5,6,7,8,10,11,12,13,14)
-r7_authorization: D001-R7 directive (reconciliation and PR #2 integration)
+r7_authorization: D001-25 (R7 reconciliation, ledger snapshot, PR #2 integration)
 
 # ── Mainline snapshot (historical observation, NOT a live HEAD pin) ─────────
 mainline_observed_at: 2026-10-20 (D001-R6 post-merge verification)
