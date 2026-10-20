@@ -14,11 +14,11 @@ r5_authorization: D001-10 (R5 operations, publication)
 gate_ratification: D001-11 (G9-A ratified; D001-G9 BLOCKED -> PASS)
 r6_authorization: D001-12 (R6 workflow; ratification delegated, language design not delegated)
 contract_ratification: D001-13 through D001-23 (OQ-3,4,5,6,7,8,10,11,12,13,14)
-current_task: D001-R6 — contract ratified and frozen, PR #1 description corrected, merged into main, post-merge verified
-current_subtask: none — D001 boundary reached; D002 not authorized
-last_completed_unit: D001-R6 — eleven ratifications, contract freeze at hashed revision, PR description correction, merge-commit integration
+current_task: D001-R6 — contract ratified and frozen, PR #1 description corrected, pre-merge verification complete
+current_subtask: none — awaiting merge of the reviewed revision, then post-merge verification
+last_completed_unit: D001-R6 — eleven ratifications, contract freeze at hashed revision, PR description correction, pre-merge verification
 branch: infra/d001-r4-copilot-migration
-last_verified_commit: c4ef617
+last_verified_commit: d35e8be
 audit_commit: D001-R6 report in docs/progress/audit/D001-R6.md; previous 230abd6 (R5), 2607608 (R4)
 commit_convention: this ledger is edited before each commit, so last_verified_commit is always the commit immediately preceding the one containing this line; verify with `git log --oneline -3`
 remote: origin https://github.com/JoaoGaValentim/arara-lang.git (public; default branch `main`)
