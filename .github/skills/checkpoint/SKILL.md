@@ -30,21 +30,42 @@ inconvenient.
 ```yaml
 active_directive:
 active_milestone:
+milestone_status:
 milestone_authorization:
+acceptance_decision:
+contract_status:
+contract_decision:
+spec_hashes_sha256:
 process_authorization:
 current_task:
 current_subtask:
 last_completed_unit:
-branch:
+ledger_branch:
 last_verified_commit:
 audit_commit:
-commit_convention:
+mainline_observed_at:
+mainline_merge_commit:
+mainline_merge_parents:
+mainline_snapshot_rule:
+ledger_commit_rule:
+live_state_rule:
 remote:
-working_tree:
+working_tree_at_write:
 ```
 
-`last_verified_commit` is the commit **preceding** the one that will contain the
-ledger. State that explicitly; a ledger cannot record its own SHA.
+Three rules, each learned from a real defect:
+
+1. `last_verified_commit` is the commit **preceding** the one that will contain
+   the ledger, on `ledger_branch`. A ledger cannot record its own SHA.
+2. `mainline_merge_commit` is a **historical observation**, never a live pin. Do
+   not rewrite it when `main` advances, and do not claim it equals today's `main`.
+   Its only hard invariant is that it remains an ancestor of `main`.
+3. Never record the current branch or HEAD as a ledger fact. A recovery session
+   discovers those live and reports them separately. Recording them invites a
+   later reader to mistake a snapshot for the present.
+
+Also never assert the working tree is clean at read time. Record the state at
+write time (`working_tree_at_write`) and let the reader verify it.
 
 ## 3. Update `docs/progress/CONTINUATION.md`
 

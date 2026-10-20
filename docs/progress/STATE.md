@@ -4,9 +4,24 @@ Machine-readable recovery ledger. Update after every completed work unit. Facts
 only; no intentions, no forecasts.
 
 ```yaml
-active_directive: D001-R6 (owner contract ratification, PR #1 integration, foundation closure); milestone D001
-active_milestone: D001 — Foundation (documentation and configuration only)
+# ── Milestone ───────────────────────────────────────────────────────────────
+active_directive: D001-R7 (acceptance reconciliation and PR #2 integration); milestone D001
+active_milestone: D001 — Foundation
+milestone_status: ACCEPTED_AND_INTEGRATED
 milestone_authorization: D001-01 and D001-06 (docs/progress/DECISIONS.md)
+acceptance_decision: D001-24 (D001 accepted; ledger reconciliation was outstanding then, completed under D001-R7)
+
+# ── Ratified contract ───────────────────────────────────────────────────────
+contract_status: FROZEN
+contract_decision: D001-13
+contract_revision_file: docs/progress/audit/D001-R6.md §B.1
+spec_hashes_sha256:
+  docs/spec/lexical.md: 70b0f8dd1a01d85391e2d9f75b240b2b60390e5c94092a56fc0d1d0293f2d8ea
+  docs/spec/syntax.ebnf: 2d4dcf73159033a8cdefa5a09eaff1344b7be586a5f5f78af1d9fa5c280a7f1a
+  docs/spec/semantics.md: e2ac89c58a24d3d01c14755ada3b80c914ac6bafb5c16b7c50815533f623f106
+  docs/spec/conformance-plan.md: 2024d51c86e1b768ba712175c0f9a15adf65fbe1963e02f66d855fd20f5dd2e3
+
+# ── Authorizations ──────────────────────────────────────────────────────────
 process_authorization: D001-07 (English-only communication, closed gate status vocabulary)
 visibility_and_license_authorization: D001-08 (public visibility, Apache-2.0, Copilot migration)
 gate_correction_authorization: D001-09 (D001-G9 was BLOCKED; superseded by D001-11)
@@ -14,16 +29,43 @@ r5_authorization: D001-10 (R5 operations, publication)
 gate_ratification: D001-11 (G9-A ratified; D001-G9 BLOCKED -> PASS)
 r6_authorization: D001-12 (R6 workflow; ratification delegated, language design not delegated)
 contract_ratification: D001-13 through D001-23 (OQ-3,4,5,6,7,8,10,11,12,13,14)
-current_task: D001-R6 — contract ratified and frozen, PR #1 description corrected, pre-merge verification complete
-current_subtask: none — awaiting merge of the reviewed revision, then post-merge verification
-last_completed_unit: D001-R6 — eleven ratifications, contract freeze at hashed revision, PR description correction, pre-merge verification
-branch: infra/d001-r4-copilot-migration
-last_verified_commit: d35e8be
-audit_commit: D001-R6 report in docs/progress/audit/D001-R6.md; previous 230abd6 (R5), 2607608 (R4)
-commit_convention: this ledger is edited before each commit, so last_verified_commit is always the commit immediately preceding the one containing this line; verify with `git log --oneline -3`
-remote: origin https://github.com/JoaoGaValentim/arara-lang.git (public; default branch `main`)
-working_tree: clean at the recorded last_verified_commit before this checkpoint commit
-```
+r7_authorization: D001-25 (R7 reconciliation, ledger snapshot, PR #2 integration)
+
+# ── Mainline snapshot (historical observation, NOT a live HEAD pin) ─────────
+mainline_observed_at: 2026-10-20 (D001-R6 post-merge verification)
+mainline_merge_commit: 5441a9f3a95db09563f5183c7cb8f68532e5a6bf
+mainline_merge_parents: 717fcc667f1397252c66d9a6e854fac2fb33ca64, b0c2492eec39a3ae8877f70d6607afcc3dd128fa
+mainline_tree: 9536279fdf12c708e0c6eaf2319faf920520fe65
+mainline_snapshot_rule: >
+  This is the main revision observed during verification, not an assertion about
+  the current tip of main. Later commits on main do not make it wrong. Compare it
+  against `main` history only to confirm it is an ancestor; treat a divergence
+  where it is NOT an ancestor as a hard failure.
+
+# ── Ledger commit identity ──────────────────────────────────────────────────
+ledger_branch: docs/d001-r6-acceptance
+last_verified_commit: e067aa0
+ledger_commit_rule: >
+  last_verified_commit is the commit preceding the commit that contains this
+  ledger, on ledger_branch. It is expected to be the parent of that commit, not
+  the branch tip and not main. See G9-A.
+audit_commit: docs/progress/audit/D001-R7.md (R7); previous D001-R6.md (R6), 230abd6 (R5), 2607608 (R4)
+
+# ── Live session state (discovered at recovery, never stored) ──────────────
+live_state_rule: >
+  The current branch and HEAD are discovered from .git during a recovery session
+  and are never recorded here as facts. A recovery run reports them separately and
+  compares them with ledger_branch and last_verified_commit using the parent
+  relation above. This ledger does not pin the working tree; that is UNVERIFIED
+  unless someone runs git status.
+
+# ── Environment and boundaries ──────────────────────────────────────────────
+remote: origin https://github.com/JoaoGaValentim/arara-lang.git (public; default branch main)
+agent_environment: GitHub Copilot primary (.github/); Kilo retained as fallback (D001-23)
+d002_authorization: NOT AUTHORIZED — requires a separate directive
+implementation_state: none — no compiler source, build file, test, or CI workflow exists
+working_tree_at_write: clean before this ledger commit; the ledger does not assert the tree is clean at read time
+
 
 ## D001-R1 changed paths
 
@@ -782,7 +824,8 @@ dispositions:
 **No decision remains open.** After Directive 001-R6 every option raised during
 D001 is resolved by a recorded owner decision; the index lives in
 `docs/progress/DECISIONS.md`. The eleven outstanding items were ratified as
-`D001-13`–`D001-23`, each with its own scope and limitations.
+`D001-13`–`D001-23`, each with its own scope and limitations, and D001 itself was
+accepted as `D001-24` after the integration was verified.
 
 | Option | Decision | Status |
 | --- | --- | --- |
@@ -806,13 +849,18 @@ decision naming the superseded rule; the decision index lists those targets.
 
 ## Next executable action
 
-1. Read `docs/progress/audit/D001-R6.md` §K for the D001 acceptance verdict.
-2. If `D001-24` records acceptance: D002 may begin only under a separate
-   directive. D001-R6 does not authorize implementation.
-3. Reconcile the ledger for post-merge `main` only through a narrowly scoped
-   documentation follow-up, never a direct commit to protected `main`.
-4. `OQ-14` remains ratified as "retain Kilo"; retiring it still requires a new
+D001 is `ACCEPTED` (`D001-24`). The next action is **owner-issued, not
+agent-initiated**:
+
+1. Issue a D002 directive. D002 is not authorized by D001-R6 and no compiler code
+   may be written before that directive exists.
+2. Optionally authorize a narrowly scoped documentation-only follow-up branch to
+   reconcile this ledger for post-merge `main`, per `D001-R6.md` §I. Never commit
+   that reconciliation directly to protected `main`.
+3. `OQ-14` remains ratified as "retain Kilo"; retiring it still requires a new
    decision.
+4. D002's first task is to write a lexer against the frozen contract, and it will
+   need CI that actually executes tests: none exists today.
 
 Two D002 obligations were closed by Directive 001-R3 rather than carried forward:
 `ARA-SRC-0002` and `ARA-PARSE-0199` now have explicit obligations in

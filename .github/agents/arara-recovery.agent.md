@@ -53,21 +53,44 @@ status` run by arara-engineer or the owner`. Never guess.
    that is absent is a lost work unit. A commit claimed in `STATE.md` that is not
    reachable from a known ref is a false record.
 
-4. **Reconcile** each recorded value against the actual value. `STATE.md`
-   records `last_verified_commit` as the commit **preceding** the ledger commit,
-   so it is expected to be the parent of the actual HEAD, not HEAD itself. Use
-   `.git/logs/HEAD` to confirm that relation. A ledger commit whose parent is the
-   recorded commit is consistent; equal values mean the ledger has not been
-   committed yet; any other relation is a discrepancy.
+4. **Reconcile three separate things.** Do not conflate them; conflating them is
+   what produced a false "consistent" report in D001-R6.
+
+   **(a) The Git revision observed at verification time.** `STATE.md` records a
+   mainline snapshot (`mainline_merge_commit`, `mainline_merge_parents`,
+   `mainline_tree`). It is a **historical observation**, not a live pin. Later
+   commits on `main` do not falsify it. Its only hard invariant: the recorded
+   merge commit must still be an **ancestor** of `main`. If it is not, that is a
+   rewrite or a wrong repository, and you must report a failure.
+
+   **(b) The branch on which this ledger is committed.** `ledger_branch`. The
+   ledger describes the branch it lives on. `last_verified_commit` is the commit
+   **preceding** the ledger commit on that branch, so it is expected to be the
+   **parent** of that commit — not the branch tip, and not `main`. Confirm with
+   `.git/logs/HEAD`. A ledger commit whose parent is the recorded commit is
+   consistent; equal values mean the ledger is uncommitted; any other relation is
+   a discrepancy.
+
+   **(c) The current branch and HEAD discovered now.** Resolve from `.git/HEAD`,
+   the loose ref, and the reflog. Report them as the live session state. If the
+   live branch differs from `ledger_branch`, say so plainly and explain that the
+   ledger is a snapshot of another branch rather than a description of this one.
+   That is a **note** when the recorded relation still holds on its own branch; it
+   is a **discrepancy** when the recorded commit is unreachable, the snapshot
+   merge commit is not an ancestor of `main`, or the parent relation fails.
 
 5. **Report** exactly this, with no extra claims:
 
 ```text
 Active directive:      <value>        recorded: <value>  match: yes/no
 Active milestone:      <value>        recorded: <value>  match: yes/no
+Milestone status:      <value>        recorded: <value>  match: yes/no
 Authorized work:       <the active directive's scope, from DECISIONS.md>
-Branch:                <value>        recorded: <value>  match: yes/no
-HEAD commit:           <actual HEAD>  recorded preceding: <STATE.last_verified_commit>  relation: parent/equal/other
+Live branch / HEAD:    <actual>       recorded ledger_branch: <value>
+Ledger relation:       <actual HEAD> parent=<value>  recorded preceding: <STATE.last_verified_commit>  relation: parent/equal/other
+Mainline snapshot:     <STATE.mainline_merge_commit>  ancestor of main: yes/no
+Contract:              FROZEN at <hash prefix>  recorded: <value>  match: yes/no
+D002 authorization:    NOT AUTHORIZED | <value>
 Working tree:          UNVERIFIED (no terminal) | <value if reported by the owner>
 Remaining decisions:   <list from DECISIONS.md>
 Next safe action:      <one concrete step>
