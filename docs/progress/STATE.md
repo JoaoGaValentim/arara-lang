@@ -13,10 +13,10 @@ current_subtask: none
 last_completed_unit: D001-R3 — gate reassessment, Java 21 naming policy, diagnostic traceability closure, grammar revalidation, owner decision package
 branch: docs/d001-r1-arara-identity
 last_verified_commit: e408966
-audit_commit: 15f25b2 (D001-R2); D001-R3 audit commit recorded in §D001-R3 after its commit
+audit_commit: 49ad593 (D001-R3); previous audit 15f25b2 (D001-R2)
 commit_convention: this ledger is edited before each commit, so last_verified_commit is always the commit immediately preceding the one containing this line; verify with `git log --oneline -3`
 remote: origin https://github.com/JoaoGaValentim/arara-lang.git (private, empty, no push)
-working_tree: D001-R3 corrections in progress; nothing pushed
+working_tree: clean after 49ad593; nothing pushed
 ```
 
 ## D001-R1 changed paths
@@ -261,6 +261,13 @@ Java-source-accessible names, protected platform packages — with separate
 constraints. Function names are deliberately permissive; unit names are
 restricted on the 71-keyword list and the five shadowing names. Every claim is a
 probe result, and every probe had a control that compiled cleanly.
+
+### Audit commit
+
+The D001-R3 corrections are committed locally as **`49ad593`** (parent
+`e408966`). This ledger is updated by the checkpoint commit that follows, so the
+ledger's own SHA is one step later; read both with `git log --oneline -2`.
+Nothing was pushed.
 
 ### Verification performed
 
