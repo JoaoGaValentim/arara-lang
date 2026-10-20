@@ -47,7 +47,7 @@ mainline_snapshot_rule: >
 # ── Ledger commit identity ──────────────────────────────────────────────────
 ledger_branch: docs/d001-residual-closure
 ledger_branch_note: first committed on this branch under Directive 002 §3; the preceding ledger commit is on docs/d001-r7-postmerge
-last_verified_commit: a53b3905614600cceb2936ea8e2eaca9eb6b658a
+last_verified_commit: 9e37eda49622f274dc3cf1e93c77b9a958ad7f5c
 ledger_commit_rule: >
   last_verified_commit is the commit preceding the commit that contains this
   ledger, on ledger_branch. It is expected to be the parent of that commit, not
