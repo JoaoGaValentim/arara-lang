@@ -13,10 +13,10 @@ current_subtask: none
 last_completed_unit: D001-R2 audit — report, archives, gate corrections, and OQ-11/OQ-12
 branch: docs/d001-r1-arara-identity
 last_verified_commit: 82a7afa
-audit_commit: this ledger is committed by the D001-R2 commit; its exact SHA is recorded in §D001-R2 below
+audit_commit: 15f25b2 (D001-R2 audit; record SHA in the checkpoint commit that follows it)
 commit_convention: this ledger is edited before each commit, so last_verified_commit is always the commit immediately preceding the one containing this line; verify with `git log --oneline -3`
 remote: origin https://github.com/JoaoGaValentim/arara-lang.git (private, empty, no push)
-working_tree: D001-R2 audit documents, gate corrections, and specification corrections staged for a local commit; nothing pushed
+working_tree: clean after commit 15f25b2; nothing pushed
 ```
 
 ## D001-R1 changed paths
@@ -153,9 +153,10 @@ documentation audit only.
 ### Audit commit
 
 The D001-R2 documentation and configuration corrections are committed locally on
-`docs/d001-r1-arara-identity`. Exact SHA: recorded in the commit itself and
-verifiable with `git log --oneline -1 -- docs/progress/audit/D001-AUDIT-R2.md`.
-Nothing was pushed; `git ls-remote origin` still returns no refs.
+`docs/d001-r1-arara-identity` as **`15f25b2`** (parent `82a7afa`). This ledger is
+updated by the checkpoint commit that immediately follows it, so the SHA of the
+ledger's own commit is one step later and must be read from
+`git log --oneline -2`. Nothing was pushed; `git ls-remote origin` returns no refs.
 
 ### Verdict
 
