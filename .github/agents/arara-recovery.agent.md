@@ -90,7 +90,8 @@ Live branch / HEAD:    <actual>       recorded ledger_branch: <value>
 Ledger relation:       <actual HEAD> parent=<value>  recorded preceding: <STATE.last_verified_commit>  relation: parent/equal/other
 Mainline snapshot:     <STATE.mainline_merge_commit>  ancestor of main: yes/no
 Contract:              FROZEN at <hash prefix>  recorded: <value>  match: yes/no
-D002 authorization:    NOT AUTHORIZED | <value>
+D002 authorization:    <STATE.d002_authorization>   | <the D002 increment authorized, from DECISIONS.md>
+Implementation state:  <STATE.implementation_state>  (verify by listing the tree; never infer from absence of mention)
 Working tree:          UNVERIFIED (no terminal) | <value if reported by the owner>
 Remaining decisions:   <list from DECISIONS.md>
 Next safe action:      <one concrete step>
