@@ -45,7 +45,16 @@ owner records acceptance.
 
 ## Session start
 
-Run the recovery workflow before any edit:
+The recovery entry point depends on the harness:
+
+- **Copilot harness:** select the `arara-recovery` agent. It has an explicit
+  `read`/`search` allowlist, reconstructs state from durable files and Git
+  metadata, and reports discrepancies without modifying the repository. The
+  `resume` skill carries the same procedure for Copilot chat.
+- **Local harness:** `/resume` runs `.github/prompts/resume.prompt.md`. That file
+  is retained for Local-harness compatibility; it is not the Copilot entry point.
+
+Whichever entry point is used, the engineer or owner then runs:
 
 ```sh
 git branch --show-current
@@ -54,7 +63,7 @@ git status --porcelain=v1 --untracked-files=all
 ```
 
 Compare the result against `docs/progress/STATE.md`. If they disagree, report the
-discrepancy and change nothing. `/resume` runs this procedure.
+discrepancy and change nothing.
 
 ## Where the detail lives
 
@@ -65,8 +74,9 @@ discrepancy and change nothing. `/resume` runs this procedure.
 | Semantics and diagnostics | `docs/spec/semantics.md` |
 | Conformance obligations | `docs/spec/conformance-plan.md` |
 | Gate status vocabulary | `docs/progress/GATES.md` |
-| Recovery procedure | `.github/prompts/resume.prompt.md` |
-| Checkpoint procedure | `.github/prompts/checkpoint.prompt.md` |
+| Recovery procedure (Copilot) | `.github/agents/arara-recovery.agent.md`, `.github/skills/resume/SKILL.md` |
+| Checkpoint procedure (Copilot) | `.github/skills/checkpoint/SKILL.md` |
+| Recovery and checkpoint (Local) | `.github/prompts/resume.prompt.md`, `.github/prompts/checkpoint.prompt.md` |
 
 Do not duplicate normative specification text into prompts or agent files. When a
 rule matters, cite the section and let the reader open it.

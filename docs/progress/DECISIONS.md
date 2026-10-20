@@ -317,11 +317,16 @@ These are recorded here so they are not lost; they are **not** decisions yet.
 `D001-06` resolves the language name only; it does not accept D001 or authorize
 D002.
 
-1. **OQ-1 — Repository visibility.** Confirm `private` or request `public`.
-2. **OQ-2 — Remote publication.** Authorize pushing the bootstrap commit and
-   creating `develop`, or keep the bootstrap local.
-3. **OQ-3 — Specification acceptance.** Accept, reject, or request changes to
-   `docs/spec/*` as the D001 contract.
+1. **OQ-1 — Repository visibility.** **RESOLVED — PUBLIC** by `D001-08`.
+2. **OQ-2 — Remote publication.** **RESOLVED — authorized and performed** under
+   `D001-10`. `main` is published at the foundation baseline
+   `717fcc667f1397252c66d9a6e854fac2fb33ca64`; the migration branch and Draft PR
+   are published separately. No force push was used.
+3. **OQ-3 — Specification acceptance.** **OPEN — ready for owner review.** The
+   R5 verification found 68 diagnostic codes defined once, 68 with conformance
+   obligations, a 97-production grammar with 0 LL(1) conflicts, and no
+   implementation. Accept, reject, or request changes to `docs/spec/*` as the
+   D001 contract. The infrastructure migration does not accept it automatically.
    *Prepared for owner acceptance by Directive 001-R5; not accepted by it.* The
    contract is ready to be accepted, rejected, or amended as one decision, and
    the R5 work does not change its status. Acceptance is a separate owner act
@@ -329,8 +334,9 @@ D002.
    - Accepting freezes `docs/spec/{lexical.md,syntax.ebnf,semantics.md,conformance-plan.md}`
      as the D002 entry contract, so a later semantic change requires a new
      decision that names the superseded rule.
-   - Accepting does **not** ratify `OQ-4`–`OQ-8`, `OQ-10`–`OQ-13`, or `G9-A`;
-     those stay separate decisions.
+   - Accepting does **not** ratify `OQ-4`–`OQ-8` or `OQ-10`–`OQ-14`, and does not
+     reopen `G9-A`, which `D001-11` already ratified; those stay separate
+     decisions.
    - Accepting does **not** authorize D002. That needs its own directive after
      `D001-G9` is settled.
    - Rejecting or amending leaves the specification `DRAFT`/`PROPOSED` and must
@@ -372,7 +378,12 @@ D002.
     `module`, `when`. 60 + 11 = 71, which is the tested candidate count; D001-R4
     reported 59 because it deducted `non-sealed` as untested although `javac` had
     rejected it. Excluding those 11 is an Arara policy choice for stability, not
-    a `javac` requirement. Evidence: `REPRODUCIBILITY.md` §9d.
+    a `javac` requirement. Evidence: `REPRODUCIBILITY.md` §9d. Directive 001-R5
+    reran the experiment independently and asserted programmatically that
+    60 rejected + 11 accepted = 71 candidates; the result is unchanged.
+    **This directive does not ratify the 71-name policy.** It remains `PROPOSED`
+    and is never to be justified by the false claim that `javac` rejects all 71
+    names.
 11. **OQ-11 — Units that shadow `java.lang`.** RESOLVED IN THE SPECIFICATION,
     PENDING RATIFICATION. `semantics.md` §1.2b rule 3 forbids `java`, `String`,
     `System`, `Object`, and `Math` as unit names, reported as `ARA-SRC-0005`.
@@ -414,4 +425,14 @@ D002.
     as the permanent convention. Recorded in `AGENTS.md` §12 and `D001-07`. The
     alternative is one vocabulary, which would force a verdict value into a gate
     column — the defect Directive 001-R3 corrected.
+14. **OQ-14 — Kilo retirement.** Whether to retire the Kilo configuration now
+    that Copilot is the primary environment. Directive 001-R5 §10 requires Kilo
+    to remain available until every migration criterion is satisfied, and its §10
+    also requires retirement to be a separate, minimal, reversible commit.
+    Auditor and recovery agents, their read-only allowlists, and fresh-session
+    recovery are now `VERIFIED` under Copilot; whether VS Code forwards
+    `reasoning_effort: max` and how Copilot handles context compaction are
+    `UNVERIFIED`. **Current default: retain.** Retiring is a decision, not a
+    cleanup, and deleting `.kilo/` removes the only independently verified
+    fallback recovery path.
 

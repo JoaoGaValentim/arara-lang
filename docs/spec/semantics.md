@@ -161,6 +161,15 @@ limitation. §1.2b rule 3 forbids them, reported as `ARA-SRC-0005`. That
 prohibition is a specification decision with a diagnostic, not an inherited
 `javac` behaviour: `javac` refusal does not bind a bytecode emitter.
 
+The five names are the **measured** set that breaks this initial subset against
+Java 21 source on the same classpath. That measurement is not an exhaustive
+collision analysis of the entire Java platform, and it does not establish Java
+interoperability. Untested: names in packages other than `java.lang`, names that
+collide only through `import`, and names a future JDK release may introduce. No
+document may present the rule as a complete account of Java name collisions, and
+no compatibility claim may be inferred from it before D005 tests every additional
+`java.lang` or platform name that enters the emitted subset.
+
 1.6. `main` MUST be `Unit`-returning with exactly zero parameters; otherwise
 `ARA-NAME-0110`. A program without `main` is `ARA-NAME-0106`. A program with two
 or more `main` declarations is impossible under §5.8, because duplicate function

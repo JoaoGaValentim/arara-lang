@@ -53,16 +53,21 @@ status` run by arara-engineer or the owner`. Never guess.
    that is absent is a lost work unit. A commit claimed in `STATE.md` that is not
    reachable from a known ref is a false record.
 
-4. **Reconcile** each recorded value against the actual value.
+4. **Reconcile** each recorded value against the actual value. `STATE.md`
+   records `last_verified_commit` as the commit **preceding** the ledger commit,
+   so it is expected to be the parent of the actual HEAD, not HEAD itself. Use
+   `.git/logs/HEAD` to confirm that relation. A ledger commit whose parent is the
+   recorded commit is consistent; equal values mean the ledger has not been
+   committed yet; any other relation is a discrepancy.
 
 5. **Report** exactly this, with no extra claims:
 
 ```text
 Active directive:      <value>        recorded: <value>  match: yes/no
 Active milestone:      <value>        recorded: <value>  match: yes/no
-Authorized work:       <one sentence from DECISIONS.md>
+Authorized work:       <the active directive's scope, from DECISIONS.md>
 Branch:                <value>        recorded: <value>  match: yes/no
-HEAD commit:           <value>        recorded: <value>  match: yes/no
+HEAD commit:           <actual HEAD>  recorded preceding: <STATE.last_verified_commit>  relation: parent/equal/other
 Working tree:          UNVERIFIED (no terminal) | <value if reported by the owner>
 Remaining decisions:   <list from DECISIONS.md>
 Next safe action:      <one concrete step>
