@@ -44,7 +44,7 @@ mainline_snapshot_rule: >
 
 # ── Ledger commit identity ──────────────────────────────────────────────────
 ledger_branch: docs/d001-r6-acceptance
-last_verified_commit: 80c17f9
+last_verified_commit: 6b15571
 ledger_commit_rule: >
   last_verified_commit is the commit preceding the commit that contains this
   ledger, on ledger_branch. It is expected to be the parent of that commit, not
