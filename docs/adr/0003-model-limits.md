@@ -31,6 +31,14 @@ invented and not taken from another vendor's listing. The probe used the API key
 already stored by this environment for the `hive` provider and POSTed to
 `https://api-cdn.thehive.ai/api/v3/chat/completions`.
 
+Scope of that measurement: the limits above are properties of the **`hive`**
+endpoint. The D001 authoring session ran on provider **`robin`** (Kilo session
+store, model `deepseek-ai/deepseek-v4.1-flash-1017`, variant `max`), which declares
+the same model but is a different endpoint. The D001-R1 session ran on `hive`.
+No language rule depends on these numbers, and `robin` was not separately probed,
+so `robin`'s limits are `UNVERIFIED`. Directive 001-R2 §F-06 records this; the
+values above are unchanged.
+
 Request shape (one line, JSON):
 
 ```json

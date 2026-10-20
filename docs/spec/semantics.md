@@ -1,10 +1,16 @@
 # Arara Semantic Contract
 
-Status: **DRAFT — D001. Submitted for owner review. Not frozen.**
+Status: **RATIFIED — D001 contract, `D001-13`.** Frozen for the D002–D004
+implementation of the initial subset. Any change requires a new decision that
+names the superseded rule.
 Scope: static semantics, evaluation semantics, the JVM mapping, and consolidated
 diagnostics for the initial subset.
 Related: `lexical.md`, `syntax.ebnf`, `conformance-plan.md`,
 `docs/architecture.md`, `docs/adr/0001-jvm-target.md`.
+
+Source extension: `.ara` is **RATIFIED** by `D001-18`. A different extension would
+change only file discovery and the unit-name rule in §1.1, not the language
+semantics.
 
 Every rule below is normative for D002–D004. No rule may be delegated implicitly
 to Java, Kotlin, or JVM behavior; where a rule matches the JVM, that is stated and
@@ -12,13 +18,87 @@ tested explicitly.
 
 ## 1. Program model
 
-1.1. A **compilation unit** is the normalized text of one `.ara` file. The unit's
-**name** is the file's base name without `.ara`.
+1.1. A **compilation unit** is the normalized text of one source file with the
+extension `.ara` (`D001-06`, ratified by `D001-18`). The unit's **name** is the
+file's base name without that extension.
 
-1.2. A unit name MUST match `[A-Za-z_][A-Za-z0-9_]*`, MUST not be a Java reserved
-word, and MUST be unique within a compilation. "Java reserved word" means the
-Java 21 keyword list plus `true`, `false`, and `null`. A violation is
-`ARA-SRC-0004`; a duplicate is `ARA-SRC-0003`.
+1.2. A unit name MUST match `[A-Za-z_][A-Za-z0-9_]*` and MUST be unique within a
+compilation. Uniqueness failure is `ARA-SRC-0003`; pattern failure is
+`ARA-SRC-0004`.
+
+1.2a. **Naming policy.** Five namespaces are distinguished, because the same
+character sequence is legal in some and illegal in others. Conflating them is how
+an over-broad prohibition gets written.
+
+| # | Namespace | Constraint source | Governs |
+| --- | --- | --- | --- |
+| A | Arara source identifiers | this specification | function names, locals, parameters |
+| B | Arara compilation-unit names | §1.2b | the base name of a `.ara` file |
+| C | JVM binary class names | JVMS 21 §4.2.1 | the internal name in the class file |
+| D | Java-source-accessible names | JLS 21 §3.8, §3.9 | names a Java source file can write |
+| E | Protected platform packages | JVM `defineClass` | internal names under `java.*` |
+
+A is independent of D and is deliberately permissive: Arara is not Java, and a
+function named `record` or `if` is legal Arara. The probe evidence is in
+`docs/progress/audit/REPRODUCIBILITY.md` §8.
+
+1.2b. Namespace B is governed by three rules, in this order.
+
+1. **Pattern.** `[A-Za-z_][A-Za-z0-9_]*`, with no `.` `;` `[` `/`. This is the
+   intersection of the Arara pattern and the JVMS 21 §4.2.1 constraint on
+   unqualified names.
+2. **Java keyword exclusion.** A unit name MUST NOT be any of the 51 reserved
+   keywords or the 17 contextual keywords of JLS 21 §3.9, nor `true`, `false`, or
+   `null`. That is 71 names. Violation is `ARA-SRC-0004`.
+3. **Shadowing exclusion.** A unit name MUST NOT equal `java` or the simple name
+   of a `java.lang` type in the emitted subset (§1.5a). Violation is
+   `ARA-SRC-0005`.
+
+Rule 2 is **broader than `javac` requires**, and the measured facts are these
+(Directive 001-R4, `REPRODUCIBILITY.md` §9d). Each candidate was written to a
+source file named after the candidate and compiled with `javac 21.0.12.1`; five
+ordinary identifiers were compiled as controls.
+
+| Class name group | Count | `javac` result as a public class name |
+| --- | --- | --- |
+| 51 reserved keywords of JLS 21 §3.9 | 51 | all rejected |
+| `true`, `false`, `null` | 3 | all rejected |
+| `var`, `yield`, `record`, `sealed`, `permits` | 5 | all rejected (`not allowed here`) |
+| `non-sealed` | 1 | rejected (`'{' expected`) |
+| `exports`, `opens`, `requires`, `to`, `uses`, `provides`, `with`, `transitive`, `open`, `module`, `when` | 11 | **all accepted** |
+| controls (`Arara`, `Foo`, `_arara`, `AraraLang`, `x1`) | 5 | all accepted |
+
+The 71 Arara-list names therefore split **60 rejected + 11 accepted**. `non-sealed`
+is counted among the 60 because it was compiled and rejected; it is *also*
+ineligible under rule 1, because `-` is outside the pattern. Those are two
+independent facts about the same name, and the count must not absorb one into the
+other.
+
+The 11 accepted contextual keywords are legal class names in Java 21 — `module`
+and `open` among them — so excluding them is a choice, not a constraint.
+
+The rule still excludes those 11, as an **explicit policy choice ratified by
+`D001-19` (`OQ-10`)**, not as an inherited `javac` restriction:
+
+- It keeps one flat rule for unit names, so a future JLS release that promotes a
+  contextual keyword does not silently change the Arara contract.
+- It costs nothing today: no current Arara program needs a unit named `module`.
+
+The earlier justification in this section claimed that `javac` rejects all 71
+names and that every name was tested. That claim was wrong: the experiment wrote
+every source file to `t.java` while declaring `public class <candidate>`, which
+fails for *every* candidate regardless of legality, so it could not distinguish a
+legal name from an illegal one. The measurement above replaces it.
+
+Rule 3 exists because rule 2 is not sufficient: `String` and `System` are legal
+Java class names, yet a unit with either name breaks Java source on the same
+classpath.
+
+1.2c. Namespace E is enforced by the JVM, not by this specification. A class whose
+internal name begins with `java/` cannot be defined; the verifier-independent
+`defineClass` check raises `IllegalName`. Arara has no packages (§1.4), so no unit
+can reach namespace E, and no additional rule is needed. The probe is recorded for
+completeness, not as a constraint on authors.
 
 1.3. A **program** is the set of units passed to one compiler invocation.
 
@@ -26,20 +106,71 @@ Java 21 keyword list plus `true`, `false`, and `null`. A violation is
 unnamed package.
 
 1.4a. A unit with no function declarations is legal and emits a class with no
-declared methods. It is reachable in a program only if other units call nothing
-from it, and it may be the entry unit only if it declares `main`, which it does
-not, so a program consisting only of empty units is `ARA-NAME-0106`. Empty units
-are otherwise accepted so that a unit's file can be staged before its functions
-are written; they produce no diagnostics of their own.
+declared methods. It can never be called and can never be the entry unit. A
+program consisting only of empty units is `ARA-NAME-0106`. Empty units are
+otherwise accepted so that a unit's file can be staged before its functions are
+written; they produce no diagnostics of their own.
 
 1.5. The **entry point** is the unique function named `main` declared with no
 parameters and return type `Unit`. The **entry unit** is the unit declaring it,
 and the **entry class** is that unit's generated class. A unit name that equals a
 function name is permitted: functions are members of the class, not classes.
-A unit name that equals `java` or would collide with `java.lang` is not a
-concern because there are no packages and generated classes are in the unnamed
-package; the compiler MUST still reject a name that is a Java reserved word
-(§1.2).
+
+1.5a. **Shadowing `java.lang`.** A unit named `java`, `String`, `System`,
+`Object`, or `Math` produces bytecode that is itself valid and executable, and
+the class verifies under `-Xverify:all`. Such a unit nevertheless can make **Java
+source** compiled against the same classpath fail, because `javac` resolves the
+simple name in the unnamed package before `java.lang`.
+
+The emitted names are **not** what an earlier version of this section claimed.
+A unit `String.ara` emits a class whose internal name is exactly `String` — the
+unit base name, verbatim, with no package prefix (§11.2). It does **not** emit
+`java/lang/String`. The JDK type `java.lang.String` keeps its own internal name
+`java/lang/String`, and references to the Arara `String` type continue to use the
+descriptor `Ljava/lang/String;` (§11.3). The two names are different entries that
+coexist in one class file; measured output for a class that calls both:
+
+| Reference | Internal name in the constant pool |
+| --- | --- |
+| unit `String` function call | `String` |
+| JDK string operation | `java/lang/String` |
+
+A class containing both runs correctly (`java -Xverify:all`, exit 0, expected
+output). The `defineClass` probe shows why the distinction matters: the name
+`java/lang/String` is rejected as `IllegalName`, while `String` loads normally.
+Shadowing is therefore a **Java source resolution** problem only, never a
+bytecode, verifier, or runtime problem.
+
+Measured `javac` outcomes, each with its own control that compiles cleanly:
+
+| Shadowing class on classpath | Java source using the simple name | Result |
+| --- | --- | --- |
+| `String` | `String s = "abc";` | `incompatible types: java.lang.String cannot be converted to String` |
+| `System` | `System.out.println(...)` | `cannot find symbol: variable out` |
+| `Object` | `Integer` returned where `Object` is declared | `incompatible types: Integer cannot be converted to Object` |
+| `Math` | `Math.abs(-2)` | `cannot find symbol: method abs(int)` |
+| `java` | `java.lang.String s = ...` | `cannot find symbol: class lang` |
+| `java` | unqualified `String` only | compiles — no visible effect |
+
+The last row is the reason this rule is stated as a measured table rather than as
+a general prohibition. `java` breaks Java source only when that source writes a
+fully qualified `java.` name; a file that uses only simple names is unaffected.
+The earlier claim that `java` alone breaks `java.lang.String` was correct for the
+qualified form and wrong as a general statement.
+
+Because D005 is bidirectional Java interop, these five names are a real
+limitation. §1.2b rule 3 forbids them, reported as `ARA-SRC-0005`. That
+prohibition is a specification decision with a diagnostic, not an inherited
+`javac` behaviour: `javac` refusal does not bind a bytecode emitter.
+
+The five names are the **measured** set that breaks this initial subset against
+Java 21 source on the same classpath. That measurement is not an exhaustive
+collision analysis of the entire Java platform, and it does not establish Java
+interoperability. Untested: names in packages other than `java.lang`, names that
+collide only through `import`, and names a future JDK release may introduce. No
+document may present the rule as a complete account of Java name collisions, and
+no compatibility claim may be inferred from it before D005 tests every additional
+`java.lang` or platform name that enters the emitted subset.
 
 1.6. `main` MUST be `Unit`-returning with exactly zero parameters; otherwise
 `ARA-NAME-0110`. A program without `main` is `ARA-NAME-0106`. A program with two
@@ -64,11 +195,12 @@ and locals) occupy a separate per-function namespace. See §5.3–§5.9.
 2.0. A `String` value is a finite sequence of Unicode scalar values, as produced
 by the lexical rules. At runtime it is represented by `java.lang.String`, which
 stores UTF-16 code units. Because no scalar value is a surrogate and no escape
-can produce one (§2.1), the two representations are in bijection for every value
-this language can construct, and `equals` over UTF-16 code units is therefore the
-same relation as equality over scalar sequences. This equivalence is a theorem
-about the initial subset, not an assumption; if a future milestone permits
-surrogate code units, it must restate both this rule and §7.4.3.
+can produce one (`lexical.md` §8 rules 40–47), the two representations are in
+bijection for every value Arara can construct, and `equals` over UTF-16 code
+units is therefore the same relation as equality over scalar sequences. This
+equivalence is a theorem about the initial subset, not an assumption; if a future
+milestone permits surrogate code units, it must restate both this rule and
+§7.4.3.
 
 2.1. The type universe is exactly:
 
@@ -206,7 +338,7 @@ single argument:
 
 6.4. `println` takes exactly one argument. Zero or two or more arguments is
 `ARA-TYPE-0206`. A single argument whose type is `Unit` is `ARA-TYPE-0205`, not
-`0206` and not `0215`: the arity is correct and the defect is using a `Unit`
+`ARA-TYPE-0206` and not `ARA-TYPE-0215`: the arity is correct and the defect is using a `Unit`
 result as a value.
 
 6.5. The observable output is exactly what the named `PrintStream.println`
@@ -555,9 +687,15 @@ three `PrintStream.println` calls in §6.2. No other I/O is emitted.
 
 11.9. **Stack and locals.** The backend emits stack map frames valid under the
 JDK 21 verifier. `max_stack` and `max_locals` are computed, not guessed. Local
-slot 0 holds the parameter (or is unused for zero-parameter methods), and no slot
-is read before it is written, because every local declaration has an initializer
-(§3.5).
+slot 0 is reserved, holding the parameter when there is exactly one, and unused
+for zero-parameter methods; the first declared local therefore takes slot 1 in a
+zero-parameter method. This is a **deliberate convention, not a JVM requirement**:
+the verifier accepts a zero-parameter static method whose first local occupies
+slot 0, and `javac` in fact generates it that way (`istore_0`). Reserving slot 0
+keeps local numbering uniform across functions, which makes `javap` inspection
+and the conformance frame tests easier to write; no function may depend on the
+reserved slot either way. No slot is read before it is written, because every
+local declaration has an initializer (§3.5).
 
 11.10. **No uninitialized references.** Because no `<init>` is emitted, no
 `uninitialized` or `uninitializedThis` verification type can appear.
@@ -567,9 +705,9 @@ is read before it is written, because every local declaration has an initializer
 answer from a closed table: `java/lang/Object`, `java/lang/String`, and every
 generated unit class, whose only common supertypes are `java/lang/Object`. Any
 emission path that can merge other reference types is out of contract for the
-initial subset. Because no generated class stores a reference value in a local,
-a field, or on the operand stack across a branch, the table is never consulted
-for a user-defined class in the initial subset; the rule exists so that a later
+initial subset. A generated class may hold a `String` in a local, but never a
+reference to a generated unit class, so the table is not consulted for a
+user-defined class in the initial subset; the rule exists so that a later
 milestone cannot silently load classes from the compiler's own classloader.
 
 11.12. **Verification evidence.** Emitted bytes are verified twice before being
@@ -611,18 +749,23 @@ listed where the contract requires them.
 | `ARA-SRC-0001` | No input files |
 | `ARA-SRC-0002` | Input file cannot be read |
 | `ARA-SRC-0003` | Duplicate compilation-unit name |
-| `ARA-SRC-0004` | Unit name is not a valid class name |
+| `ARA-SRC-0004` | Unit name is not a valid class name: pattern violation, Java reserved or contextual keyword, or `true`/`false`/`null` (§1.2b rules 1–2) |
+| `ARA-SRC-0005` | Unit name shadows `java` or a `java.lang` type in the emitted subset (§1.2b rule 3) |
 
 ### 12.2 Lexical
 
-Defined in `lexical.md` §11: `ARA-LEX-0001`, `0101`, `0102` (reserved, never
-produced), `0103`, `0201`–`0206`, `0301`, `0401`. The full table there is
-normative.
+Defined in `lexical.md` §11. Every entry below is a full code; the shorthand
+form is never used, because a bare four-digit number is ambiguous across
+namespaces. `ARA-LEX-0001`, `ARA-LEX-0101`, `ARA-LEX-0102` (reserved, never
+produced), `ARA-LEX-0103`, `ARA-LEX-0201`, `ARA-LEX-0202`, `ARA-LEX-0203`,
+`ARA-LEX-0204`, `ARA-LEX-0205`, `ARA-LEX-0206`, `ARA-LEX-0301`,
+`ARA-LEX-0401`. The full table there is normative.
 
 ### 12.3 Syntactic
 
-Defined in `syntax.ebnf` §7: `ARA-PARSE-0100`–`0117`, plus the reserved
-`ARA-PARSE-0199`. The full table there is normative.
+Defined in `syntax.ebnf` §7: `ARA-PARSE-0100` through `ARA-PARSE-0117`
+inclusive, plus the produced `NOTE` code `ARA-PARSE-0199`. The full table there
+is normative.
 
 ### 12.4 Name resolution
 
@@ -689,7 +832,7 @@ error produces no class file.
 
 13.1 Valid, returns `42`:
 
-```kotlin
+```arara
 fun answer(): Int {
     val x: Int = 40
     val y: Int = 2
@@ -703,7 +846,7 @@ fun main() {
 
 13.2 Invalid, `ARA-TYPE-0209`, because `+` does not concatenate strings:
 
-```kotlin
+```arara
 fun main() {
     val a: String = "ar" + "ara"
 }
@@ -712,7 +855,7 @@ fun main() {
 The valid form uses two equal string literals and compares them structurally;
 this prints `true`:
 
-```kotlin
+```arara
 fun main() {
     val a: String = "arara"
     val b: String = "arara"
@@ -722,7 +865,7 @@ fun main() {
 
 13.3 Invalid, `ARA-TYPE-0203`:
 
-```kotlin
+```arara
 fun main() {
     val x: Int = 1
     x = 2
@@ -731,7 +874,7 @@ fun main() {
 
 13.4 Invalid, `ARA-TYPE-0208`, because the `if` has no `else`:
 
-```kotlin
+```arara
 fun f(c: Boolean): Int {
     if (c) {
         return 1
@@ -741,7 +884,7 @@ fun f(c: Boolean): Int {
 
 13.5 Valid:
 
-```kotlin
+```arara
 fun f(c: Boolean): Int {
     if (c) {
         return 1
@@ -754,7 +897,7 @@ fun f(c: Boolean): Int {
 13.5a Invalid, `ARA-TYPE-0210` at `println(2)`, because the preceding `if`
 `alwaysReturns`:
 
-```kotlin
+```arara
 fun f(c: Boolean): Int {
     if (c) {
         return 1
@@ -771,7 +914,7 @@ fun f(c: Boolean): Int {
 
 13.7 Invalid, `ARA-NAME-0104` (shadowing):
 
-```kotlin
+```arara
 fun main() {
     val x: Int = 1
     if (x > 0) {
@@ -782,7 +925,7 @@ fun main() {
 
 13.8 Invalid, `ARA-PARSE-0108` (else must be on the same line as `}`):
 
-```kotlin
+```arara
 fun main() {
     if (true) {
         println(1)
@@ -795,7 +938,7 @@ fun main() {
 
 13.9 Runtime behavior, not a compile error:
 
-```kotlin
+```arara
 fun main() {
     println(1 / 0)
 }

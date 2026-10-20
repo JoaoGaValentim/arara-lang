@@ -6,6 +6,15 @@ environment.
 
 Status values: `NOT_STARTED`, `IN_PROGRESS`, `PASS`, `FAIL`, `BLOCKED`.
 
+This list is closed. No other status identifier may appear in a gate table. A
+milestone verdict is not a gate status and is drawn from its own vocabulary:
+`PASS`, `CONDITIONAL`, or `BLOCKED`, recorded only in the self-assessment line
+below each table.
+
+`BLOCKED` means the gate cannot be settled by the current evidence: something
+outside the gate's own scope must happen first — an owner decision on a criterion,
+a missing obligation, or a required artifact. It never means "mostly done".
+
 Evidence classes follow `AGENTS.md` §5: `VERIFIED`, `UNVERIFIED`, `FAILED`,
 `BLOCKED`.
 
@@ -24,24 +33,56 @@ recorded in `docs/adr/0002-compiler-host.md`, `docs/adr/0003-model-limits.md`, a
 | --- | --- | --- | --- | --- |
 | D001-G1 | No implementation | No `.java`/`.kt`/`.rs`/`.py` source, no `build.gradle*`, no `pom.xml`, no `gradlew`, no `src/` tree | PASS | Repository file inventory in `STATE.md`; ADR 0002 §"Non-decisions" |
 | D001-G2 | Required structure | Every path required by the directive exists with meaningful content | PASS | File inventory in `STATE.md` |
-| D001-G3 | Authority consistency | `AGENTS.md` and `.kilo/rules/*` contain no rule weaker than the directive and no mutual contradiction | PASS | `docs/progress/STATE.md` §Audit findings |
+| D001-G3 | Authority consistency | `AGENTS.md` and `.kilo/rules/*` contain no rule weaker than the directive and no mutual contradiction | PASS | `docs/progress/STATE.md` §Internal audit resolution |
 | D001-G4 | Kilo config valid | `.kilo/kilo.jsonc` parses and `kilo config check` reports no warnings | PASS | Command output quoted in ADR 0003 and `STATE.md` |
 | D001-G5 | Kilo config effective | `kilo debug config` resolves compaction, instruction globs, and agent variant as written | PASS | `STATE.md` §Kilo configuration evidence |
 | D001-G6 | Model limits | Non-zero context and output limits appear in resolved model metadata | PASS | ADR 0003; `kilo models hive --verbose` |
 | D001-G7 | Reasoning effort | The strongest declared variant is selected and accepted by the provider | PASS | ADR 0003; `kilo debug agent code` → `variant: max` |
-| D001-G8 | Recovery completeness | `resume.md` reconstructs directive, scope, state, decisions, pending work, and next action from repository files alone | PASS | `STATE.md` §Independent recovery simulation |
-| D001-G9 | Ledger accuracy | `STATE.md` matches actual branch, HEAD, and working tree at report time | PASS | Branch `main`, HEAD `c5f376a`, clean tree; see `STATE.md` §Independent recovery validation |
-| D001-G10 | Specification consistency | No two normative documents conflict; every diagnostic code defined exactly once | PASS | `STATE.md` §Audit findings, cross-check results |
-| D001-G11 | Grammar derivability | Every example in the specification is derivable from `syntax.ebnf`; FIRST/FOLLOW analysis shows no selection conflict | PASS | `syntax.ebnf` §5, §6.3; `STATE.md` §Audit findings |
-| D001-G12 | Traceability | Every normative rule has a test obligation or an explicit `MANUAL` marker | PASS | `conformance-plan.md` §3–§6a |
-| D001-G13 | No unverified claims | Every environment claim carries a command and result | PASS | ADRs 0002–0003; `STATE.md` §Verification runs |
-| D001-G14 | Git state | Work is committed locally on the recorded branch; no unauthorized push | PASS | `git log` shows the bootstrap commit `c5f376a` and the ledger checkpoint `2b964ff` on `main`; `git status` clean after each; `git remote -v` shows only `origin` and no push occurred |
-| D001-G15 | Independent recovery | A fresh session reconstructs state without the transcript | PASS | Two separate `kilo run` processes reconstructed milestone, scope, next action, forbidden actions, and Git state from files alone; the first correctly flagged the missing commit. See `STATE.md` §Independent recovery validation. Limitation: same client and model. |
+| D001-G8 | Recovery completeness | `resume.md` reconstructs directive, scope, state, decisions, pending work, and next action from repository files alone | PASS | `STATE.md` §Independent recovery validation |
+| D001-G9 | Ledger accuracy | `STATE.md` records the branch, the commit preceding this ledger, the audit commit, and the working-tree state, and each is verifiable by a named command | PASS | Criterion `G9-A`, ratified by `D001-11` under Directive 001-R5 §7. The original criterion and its `BLOCKED` history are preserved below and in `D001-09`. Verified first at `2607608` and again against `e707b10`: `STATE.md` records branch `infra/d001-r4-copilot-migration`, `last_verified_commit`, `audit_commit`, and `working_tree`; each is checkable with `git branch --show-current`, `git log --oneline -3`, and `git status --porcelain=v1 -uall`. The commit containing this ledger necessarily postdates the value it records, which is exactly what `G9-A` permits and the original text forbade. Re-verified against `e707b10` in `docs/progress/audit/D001-R5.md` §F.1, where HEAD's parent equals `last_verified_commit` |
+| D001-G10 | Specification consistency | No two normative documents conflict; every diagnostic code defined exactly once | PASS | `STATE.md` §Internal audit resolution and §D001-R1 verification runs |
+| D001-G11 | Grammar derivability | Every example in the specification is derivable from `syntax.ebnf`; FIRST/FOLLOW analysis shows no selection conflict | PASS | `syntax.ebnf` §5, §6.3; `STATE.md` §D001-R1 verification runs |
+| D001-G12 | Traceability | Every normative rule has a test obligation or an explicit `MANUAL` marker | PASS | Directive 001-R3 closed both gaps instead of deferring them. `ARA-SRC-0002` now has a driver test, `ARA-PARSE-0199` a 101-defect fixture, `ARA-SRC-0001` an empty-argument test, `ARA-JVM-0001` an emitter injection test, and the reserved codes `ARA-JVM-0100`/`ARA-NAME-0107` an absence assertion. `ARA-SRC-0005` was added with five negative fixtures. Reproducible check: `REPRODUCIBILITY.md` §9 `g12check.py` reports 68 of 68 defined codes carrying at least one obligation |
+| D001-G13 | No unverified claims | Every environment claim carries a command and result | PASS | Directive 001-R3 replaced the two "ad-hoc audit script (not committed)" rows with executed commands and recorded them in `REPRODUCIBILITY.md`: `ll1final.py` for the grammar lint and FIRST/FOLLOW/selection analysis, `traceaudit.py` for code uniqueness, `shortaudit.py` for shorthand, `g12check.py` for coverage. The D001 and D001-R1 run tables remain separate. Remaining limitation: the checker is reproduced as a listing, not a tracked file, because `D001-G1` forbids tracked `.py` sources |
+| D001-G14 | Git state | Work is committed locally on the recorded branch; no unauthorized push | PASS | `git log` shows `c5f376a` (bootstrap), ledger checkpoints through `717fcc6`, and D001-R1 content commit `ce3c67d`. Until Directive 001-R5 the remote had no refs and no push had occurred; `D001-10` then authorized publishing `main` once and pushing the migration branch. Current state: `main` = `717fcc6` and the migration branch is pushed, both authorized; every other historical commit is local-only. `git remote -v` shows only `origin` |
+| D001-G15 | Independent recovery | A fresh session reconstructs state without the transcript | PASS | A fresh `arara-recovery` invocation under the **GitHub Copilot** harness reconstructed directive, milestone, authorized work, branch, HEAD, open decisions, next safe action, and forbidden actions from files alone, and correctly reported the working tree `UNVERIFIED`. See `docs/progress/audit/D001-R5.md` §F.1. Earlier evidence: two separate `kilo run` processes produced the same result for the Kilo client (`STATE.md` §Independent recovery validation). **Limitation:** both clients were verified against the same durable files; whether either harness survives compaction is `UNVERIFIED` |
 
-**D001 self-assessment:** all D001 gates are `PASS` with recorded evidence.
-Verdict for owner review: `PASS — READY FOR OWNER REVIEW`. This is not milestone
-acceptance: only the owner can accept D001, and acceptance must be recorded in
-`docs/progress/DECISIONS.md`.
+**D001 self-assessment (as ratified by Directive 001-R6):** fifteen gates are
+`PASS` and none is `BLOCKED`. `D001-G9` was reclassified from `BLOCKED` to `PASS`
+after the owner ratified `G9-A` in `D001-11`; the original criterion and the
+`BLOCKED` period remain quoted below, so the reclassification is auditable rather
+than silent.
+
+The owner ratified the eleven outstanding options in `D001-13`–`D001-23`, so the
+obstacle the D001-R5 assessment named — unresolved owner decisions rather than
+unmet gate criteria — is removed. Acceptance is still conditioned on the merge and
+post-merge verification in Directive 001-R6 §8; the verdict is recorded in
+`docs/progress/audit/D001-R6.md` §K and in `D001-24` only when those conditions
+hold.
+
+### Criterion amendments proposed by Directive 001-R3
+
+A gate criterion is never rewritten to make incomplete work look sufficient. Where
+a criterion was defective, the defect is named, the original text is preserved, and
+the replacement is proposed for owner approval rather than applied silently. An
+amendment that has not been approved by a recorded owner decision is **not**
+operative. `G9-A` is the only amendment in this table, and it is now ratified by
+`D001-11`, so it is operative; the original criterion text below is preserved
+verbatim for audit and is not deleted.
+
+| ID | Gate | Original criterion (verbatim) | Proposed criterion | Why the original is defective | Status |
+| --- | --- | --- | --- | --- | --- |
+| `G9-A` | D001-G9 | "`STATE.md` matches actual branch, HEAD, and working tree at report time" | "`STATE.md` records the branch, the commit preceding this ledger, the audit commit, and the working-tree state, and each is verifiable by a named command" | A ledger committed after the work it describes can never contain its own commit SHA, so "matches actual HEAD at report time" is unsatisfiable for any accurate ledger. Every D001 ledger failed it for that reason alone | **RATIFIED** by `D001-11` under Directive 001-R5 §7; `D001-G9` re-evaluated against it |
+
+The correction history is preserved rather than overwritten: D001-R2 recorded G9,
+G12, and G13 as `BLOCKED` on the theory that the work could not be settled inside
+D001. Directive 001-R3 established that G12 and G13 were in fact correctable
+within D001 — the missing obligations were written and the unreproducible
+commands were executed — so those two moved to `PASS` on evidence, not on a
+reworded criterion. G9 was the only genuine criterion defect; Directive 001-R5
+satisfied the condition D001-R3 attached to its replacement, so `G9-A` is now
+operative. The original criterion text above is retained verbatim and is not
+deleted.
 
 ## D002 — Lexer and parser
 
@@ -52,8 +93,8 @@ Entry: D001 accepted by recorded owner decision.
 | D002-G1 | Token model | Token kinds, spans, and line/column semantics match `lexical.md` §1.4 and §3 | NOT_STARTED |
 | D002-G2 | Lexical conformance | All positive and negative cases in `conformance-plan.md` §3 pass | NOT_STARTED |
 | D002-G3 | Grammatical coverage | Every production in `syntax.ebnf` has a positive fixture and a negative fixture where meaningful | NOT_STARTED |
-| D002-G4 | Separation | Automatic separation cases in `lexical.md` §10 pass, including `0107` and `0108` | NOT_STARTED |
-| D002-G5 | Diagnostics | Every `ARA-LEX-*` and `ARA-PARSE-*` code is produced by at least one test with the specified span | NOT_STARTED |
+| D002-G4 | Separation | Automatic separation cases in `lexical.md` §10 pass, including `ARA-PARSE-0107` and `ARA-PARSE-0108` | NOT_STARTED |
+| D002-G5 | Diagnostics | Every producible `ARA-LEX-*` and `ARA-PARSE-*` code is produced by at least one test with the specified span; `ARA-LEX-0102`, which the specification marks as reserved and never produced, is asserted absent instead | NOT_STARTED |
 | D002-G6 | Recovery | Recovery rules in `syntax.ebnf` §8 are implemented and tested: one diagnostic per defect, no cascade | NOT_STARTED |
 | D002-G7 | AST stability | AST dump is deterministic and suitable for goldens | NOT_STARTED |
 | D002-G8 | No leakage | No name resolution, typing, IR, or bytecode code exists | NOT_STARTED |

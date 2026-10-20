@@ -1,11 +1,16 @@
 # Arara Conformance Plan
 
-Status: **DRAFT — D001. Submitted for owner review. Not frozen.**
+Status: **RATIFIED — D001 contract, `D001-13`.** Frozen for the D002–D004
+implementation of the initial subset. Any change requires a new decision that
+names the superseded rule.
 Scope: how each specified rule is proven. It defines test obligations, test
 categories, fixture conventions, and the traceability requirement that connects
 specification to tests to implementation.
 Related: `lexical.md`, `syntax.ebnf`, `semantics.md`,
 `docs/progress/GATES.md`.
+
+Fixture paths use `.ara`, ratified by `D001-18`. Only the fixture suffix depends on
+the extension; the obligations below do not.
 
 No test in this plan exists yet. D001 defines obligations; D002–D005 own their
 execution.
@@ -58,26 +63,26 @@ Exit codes for executable tests follow the CLI contract in
 
 | Rule group | Positive obligations | Negative obligations |
 | --- | --- | --- |
-| UTF-8 decoding | ASCII, BMP, supplementary plane (e.g. U+1F99C) inside a string and a comment | Truncated multi-byte sequence (`ARA-LEX-0001`); overlong encoding (`0001`); surrogate encoded as 3 bytes (`0001`) |
+| UTF-8 decoding | ASCII, BMP, supplementary plane (e.g. U+1F99C) inside a string and a comment | Truncated multi-byte sequence (`ARA-LEX-0001`); overlong encoding (`ARA-LEX-0001`); surrogate encoded as 3 bytes (`ARA-LEX-0001`) |
 | BOM | BOM at offset 0 ignored | BOM after whitespace (`ARA-LEX-0101`) |
 | Line endings | LF, CRLF, CR each produce identical tokens and identical line numbers | — |
-| Character repertoire | Every permitted whitespace character | Non-ASCII outside string/comment (`0101`); DEL (`0101`); NUL (`0101`) |
-| Comments | `//` at EOF; `/* */`; `/** */`; nested-open sequence `/* /* */` | Unterminated block comment (`0301`) |
-| Identifiers | `_`, `a1`, `A_B`, maximal length practical | `$` (`0103`); non-ASCII letters (`0101`) |
+| Character repertoire | Every permitted whitespace character | Non-ASCII outside string/comment (`ARA-LEX-0101`); DEL (`ARA-LEX-0101`); NUL (`ARA-LEX-0101`) |
+| Comments | `//` at EOF; `/* */`; `/** */`; nested-open sequence `/* /* */` | Unterminated block comment (`ARA-LEX-0301`) |
+| Identifiers | `_`, `a1`, `A_B`, maximal length practical | `$` (`ARA-LEX-0103`); non-ASCII letters (`ARA-LEX-0101`) |
 | Keywords | Each of the 12 keywords lexes as its keyword token | Keywords in identifier position produce a parse error, not a lexical error |
-| Reserved words | Each reserved word produces `0401` | — |
-| Integers | `0`, `7`, `2147483647`, `2147483648` all lex successfully | Leading zero (`0205`); value above 2147483648 (`0204`) |
-| Strings | empty, ASCII, escapes `\n \r \t \\ \"`, tab literal, non-ASCII | Raw newline (`0203`); invalid escape (`0202`); control char (`0206`); unterminated at EOF (`0201`) |
-| Operators | Every two-character operator; every single-character operator | Lone `&` (`0103`); lone `|` (`0103`); `++` is a parser case, see §4 |
-| Separation | A `SEMI` after each of the eight trigger tokens at depth 0 (`IDENT`, `INT_LITERAL`, `STRING_LITERAL`, `true`, `false`, `)`, `}`, `return`); no `SEMI` inside parentheses; `+` at line end continues; `;` followed by a line feed produces exactly one `SEMI` | Two consecutive `SEMI` (`ARA-PARSE-0100`); leading `SEMI` (`0100`); `)` at depth 0 preserved for `ARA-PARSE-0117` |
+| Reserved words | Each reserved word produces `ARA-LEX-0401` | — |
+| Integers | `0`, `7`, `2147483647`, `2147483648` all lex successfully | Leading zero (`ARA-LEX-0205`); value above 2147483648 (`ARA-LEX-0204`) |
+| Strings | empty, ASCII, escapes `\n \r \t \\ \"`, tab literal, non-ASCII | Raw newline (`ARA-LEX-0203`); invalid escape (`ARA-LEX-0202`); control char (`ARA-LEX-0206`); unterminated at EOF (`ARA-LEX-0201`) |
+| Operators | Every two-character operator; every single-character operator | Lone `&` (`ARA-LEX-0103`); lone `|` (`ARA-LEX-0103`); `++` is a parser case, see §4 |
+| Separation | A `SEMI` after each of the eight trigger tokens at depth 0 (`IDENT`, `INT_LITERAL`, `STRING_LITERAL`, `true`, `false`, `)`, `}`, `return`); no `SEMI` inside parentheses; `+` at line end continues; `;` followed by a line feed produces exactly one `SEMI` | Two consecutive `SEMI` (`ARA-PARSE-0100`); leading `SEMI` (`ARA-PARSE-0100`); `)` at depth 0 preserved for `ARA-PARSE-0117` |
 
 Note on `++`: maximal munch produces `+` then `+`, both valid tokens. The parser
 then reports `ARA-PARSE-0105` (expected an expression after the first `+` in a
-prefix position) or `0101` in postfix position. `++` is therefore a *parser*
+prefix position) or `ARA-PARSE-0101` in postfix position. `++` is therefore a *parser*
 diagnostic, not a lexical one, and the test belongs in §4. No lexical test asserts
-`0103` for `++`.
+`ARA-LEX-0103` for `++`.
 
-Note on lone `&`/`|`: these are single characters with no token. `0103` is at that
+Note on lone `&`/`|`: these are single characters with no token. `ARA-LEX-0103` is at that
 character. A test MUST assert the exact column.
 
 ## 4. Syntactic test matrix
@@ -86,22 +91,22 @@ For every production in `syntax.ebnf` §2:
 
 | Production | Positive | Negative |
 | --- | --- | --- |
-| `Program` | empty file; declarations only; leading and trailing separators | body-only file (`0106` expected `fun`) |
-| `FunctionList` | one, two, and many functions | missing separator between functions (`0100`); two separators between functions (`0100`) |
-| `FunctionDecl` | no params; one param; many params; omitted return type; explicit `Unit` | `fun (` (`0106`); missing body (`0114`) |
-| `ParameterList` / `Parameter` | trailing comma is invalid; sep by `,` | missing `:` (`0112`); missing type (`0104`); trailing comma (`0113`) |
+| `Program` | empty file; declarations only; trailing separator | body-only file (`ARA-PARSE-0100` expected `fun`); leading separator (`ARA-PARSE-0100`) |
+| `FunctionList` | one, two, and many functions | missing separator between functions (`ARA-PARSE-0100`); two separators between functions (`ARA-PARSE-0100`) |
+| `FunctionDecl` | no params; one param; many params; omitted return type; explicit `Unit` | `fun (` (`ARA-PARSE-0106`); missing body (`ARA-PARSE-0114`); missing `(` after the name (`ARA-PARSE-0111`) |
+| `ParameterList` / `Parameter` | trailing comma is invalid; sep by `,` | missing `:` (`ARA-PARSE-0112`); missing type (`ARA-PARSE-0104`); missing separator (`ARA-PARSE-0113`); trailing comma (`ARA-PARSE-0100`, expected `Parameter`) |
 | `Type` | all four type names | `Unit` as parameter type is a *semantic* error, not syntactic |
-| `Block` | empty; one statement; nested blocks | missing `}` (`0103`); missing `{` (`0115`) |
-| `Statement` | all five forms | expression statement (`0109`); bare identifier (`0110`) |
-| `LocalDecl` | `val`, `var`, every type | missing `=`; missing type (`0104`) |
-| `IdentStatement` | assignment; call; call with args | `x` alone (`0110`); `f(` unclosed (`0102`) |
-| `CallSuffix`/`ArgumentList` | zero, one, many; nested calls | missing `)` (`0102`); missing `,` (`0113`); missing `(` (`0116`) |
+| `Block` | empty; one statement; nested blocks | missing `}` (`ARA-PARSE-0103`); missing `{` (`ARA-PARSE-0115`) |
+| `Statement` | all five forms | expression statement (`ARA-PARSE-0109`); bare identifier (`ARA-PARSE-0110`) |
+| `LocalDecl` | `val`, `var`, every type | missing `=`; missing type (`ARA-PARSE-0104`) |
+| `IdentStatement` | assignment; call; call with args | `x` alone (`ARA-PARSE-0110`); `f(` unclosed (`ARA-PARSE-0102`) |
+| `CallSuffix`/`ArgumentList` | zero, one, many; nested calls | missing `)` (`ARA-PARSE-0102`); missing `,` between arguments (`ARA-PARSE-0101`, preceding token completed an expression); trailing comma (`ARA-PARSE-0105`, expected an expression) |
 | `ReturnStatement` | bare; with expression; each expression form | — |
-| `IfStatement` | no else; else block; else-if chain; nested if | missing `(` (`0116`); missing `)` (`0102`); non-block body (`0115` expected `{`); `if` in expression position (`0109`) |
+| `IfStatement` | no else; else block; else-if chain; nested if | missing `(` (`ARA-PARSE-0116`); missing `)` (`ARA-PARSE-0102`); non-block body (`ARA-PARSE-0115` expected `{`); `if` in expression position (`ARA-PARSE-0109`) |
 | `Expression` and every precedence level | one test per level; mixed-precedence test per adjacent level pair | — |
 | `UnaryExpression` | `-x`, `!b`, `--x`, `!!b`, `-(-x)` | `!` on `Int` is semantic |
-| `PrimaryExpression` | literal, `true`, `false`, identifier, call, parenthesized | empty parens (`0105`); `()` as expression |
-| Newline rules | `{` on the same line as `)`; `else` on the same line as `}` | `{` on the next line (`0107`); `else` on the next line (`0108`) |
+| `PrimaryExpression` | literal, `true`, `false`, identifier, call, parenthesized | empty parens (`ARA-PARSE-0105`); `()` as expression |
+| Newline rules | `{` on the same line as `)`; `else` on the same line as `}` | `{` on the next line (`ARA-PARSE-0107`); `else` on the next line (`ARA-PARSE-0108`) |
 | Recovery | one error in a function does not lose the next function | error cascade: after a bad statement, exactly one diagnostic per bad statement |
 
 Precedence tests must pin exact grouping. Recommended form: an AST dump with fully
@@ -124,7 +129,7 @@ Each row is a rule in `semantics.md` and its obligation.
 | §4.6 no shadowing | sibling scopes with same name in different blocks | `ARA-NAME-0104` |
 | §5.2 duplicate functions | distinct functions | `ARA-NAME-0101` |
 | §5.4 function as value | call form | `ARA-NAME-0109` |
-| §5.6 value called as function | call a function name with a local of the same name present | `ARA-NAME-0111` |
+| §5.4–§5.5 namespace separation | a local or parameter named `f` does not shadow the function `f`; `f()` still calls it, and bare `f` still reads the value | `ARA-NAME-0102` for a call to an undefined function; `ARA-NAME-0109` for a bare function name. `ARA-NAME-0111` is unreachable and MUST NOT be asserted |
 | §5.7 `println` reserved | user function named differently | `ARA-NAME-0108` |
 | §6.2 `println` overloads | all three types | `ARA-TYPE-0206` for zero/two args |
 | §6.7 `println` as value | statement use | `ARA-TYPE-0205` |
@@ -138,9 +143,9 @@ Each row is a rule in `semantics.md` and its obligation.
 | §7.5.3 argument type | exact type | `ARA-TYPE-0215` |
 | §7.5.6 `Unit` as value | `Unit` call as statement | `ARA-TYPE-0205` |
 | §7.6.1 condition type | `Boolean` | `ARA-TYPE-0211` |
-| §8.2 assignment rules | `var` assignment | `0203` for `val`; `0207` for parameter; `0201` for type |
-| §8.6 return rules | both directions | `0212`, `0213`, `0214` |
-| §8.8–8.11 return paths and reachability | nested if/else, early return, block-in-block | `0208`, `0210` |
+| §8.2 assignment rules | `var` assignment | `ARA-TYPE-0203` for `val`; `ARA-TYPE-0207` for parameter; `ARA-TYPE-0201` for type |
+| §8.6 return rules | both directions | `ARA-TYPE-0212`, `ARA-TYPE-0213`, `ARA-TYPE-0214` |
+| §8.8–8.11 return paths and reachability | nested if/else, early return, block-in-block | `ARA-TYPE-0208`, `ARA-TYPE-0210` |
 | §9.3 overflow | `2147483647 + 1 == -2147483648` | execution test |
 | §9.4–9.5 division and remainder signs | all four sign combinations for each operator | execution test |
 | §9.6 division by zero | `1 / 0`, `1 % 0`, `0 / 0` | execution test: `ArithmeticException`, exit status 1 |
@@ -161,21 +166,31 @@ Each row is a rule in `semantics.md` and its obligation.
 | §11.9–11.11 frames | `CheckClassAdapter.verify` with data flow on every fixture class |
 | §11.12 verification | load and run every fixture class under `-Xverify:all` |
 | §11.13 determinism | compile twice; compare SHA-256 of each class file |
-| §11.14 limits | synthesized inputs near each limit; assert the documented code |
+| §11.14 limits | synthesized inputs near each limit; assert the documented code. Named codes: `ARA-JVM-0005` (string constant over 65535 modified-UTF-8 bytes), `ARA-JVM-0006` (method bytecode over 65535 bytes), `ARA-JVM-0007` (over 255 parameter slots) |
+| §11.12 verification failure | `ARA-JVM-0002` — a deliberately corrupted fixture class loaded under `-Xverify:all` must fail, and the compiler must report this code rather than a warning |
+| §11.9 local slot convention | `javap -l` shows slot 0 reserved and the first local at slot 1 for a zero-parameter function. The JVM also accepts the other convention; the test asserts **this project's convention**, not a JVM requirement (`semantics.md` §11.9) |
 
 ## 6a. Driver and diagnostic-plumbing obligations
 
 | Rule | Obligation |
 | --- | --- |
-| §1.2 unit name validity | `ARA-SRC-0004` for a name starting with a digit, containing `-`, or equal to a Java keyword |
+| §1.2 no input files | `ARA-SRC-0001` for an invocation with an empty argument list. Asserts the code, a non-zero exit status, and that no unit compilation is attempted |
+| §1.2b rule 1 pattern | `ARA-SRC-0004` for a name starting with a digit, or containing `-`, `.`, `;`, `[`, or `/` |
+| §1.2b rule 2 keywords | `ARA-SRC-0004` for a unit named after any of the 51 JLS 21 reserved keywords, any of the 17 contextual keywords, or `true`/`false`/`null`. Parameterized over the full 71-name list in `semantics.md` §1.2b so a future JLS change is a fixture edit, not a code change. Includes `_`, `int`, `class`, `var`, `yield`, `record`, `non-sealed`, and `when`. **Policy scope, not a `javac` rule:** 60 of these 71 are rejected by `javac` as class names; 11 (`exports`, `opens`, `requires`, `to`, `uses`, `provides`, `with`, `transitive`, `open`, `module`, `when`) are accepted by `javac` and are excluded by Arara policy only. Fixtures MUST assert the Arara diagnostic, never `javac` behavior |
 | §1.2 duplicate unit names | `ARA-SRC-0003` for two files with the same base name in different directories passed in one invocation |
+| §1.2 unreadable input unit | `ARA-SRC-0002` for a unit path that exists in the argument list but cannot be opened or decoded. Driver-level test: pass a path with mode `0000` and a path that is a directory; assert the code, the offending path in the message, and that no other unit's diagnostics are suppressed |
+| §1.2b rule 3 shadowing | `ARA-SRC-0005` for a unit named `java`, `String`, `System`, `Object`, or `Math`. Five negative fixtures, one per name. The diagnostic is distinct from `ARA-SRC-0004` so a program can tell a keyword clash from a shadowing clash |
+| §1.5a interop evidence | `MANUAL`. For each of the five names: build the unit, load it under `-Xverify:all` (must succeed), then compile a Java fixture that uses the shadowed simple name against a classpath containing that unit (must fail). The Java fixture is test-harness material, not Arara code, and the recorded evidence is the `javac` error text. The reason this is `MANUAL` rather than automated is that the assertion is about `javac`'s behaviour, which is not a dependency of the compiler. The unit's emitted class must also be checked to carry the internal name `String`/`System`/… and **not** `java/lang/…` (§11.2) |
 | §1.6 no `main` | `ARA-NAME-0106` |
 | §1.6 wrong `main` signature | `ARA-NAME-0110` for a parameterized `main` and for a non-`Unit` `main` |
 | §1.7a duplicate versus `main` precedence | a program with two `main` declarations reports only `ARA-NAME-0101` |
 | §12.7.1 ordering | a fixture with three diagnostics at known offsets asserts exact emission order |
 | §12.7.2 one per span | a fixture with two defects on one token asserts one diagnostic |
 | §12.7.3 suppression | a unit with a lexical error produces no parse diagnostics; a unit with a type error produces no class file |
+| §7 `ARA-PARSE-0199` diagnostic ceiling | a generated fixture with 101 independent syntax defects in one unit asserts that exactly 100 `ERROR` diagnostics plus one `ARA-PARSE-0199` `NOTE` are emitted, that parsing stops after the note, and that no diagnostic is emitted for defects past the cutoff. A second fixture with exactly 100 defects asserts no note |
 | §11.9 local slot 0 | `javap -l`/ASM inspection shows slot 0 unused for zero-parameter functions and holding the parameter otherwise |
+| §11.1 internal emission failure | `ARA-JVM-0001` is not reachable from source. Obligation: an injection test in the emitter's own test suite forces a writer failure and asserts the code is reported rather than a stack trace escaping. This is a compiler-internal test, not a language fixture |
+| §11.x reserved codes | `ARA-JVM-0100` and `ARA-NAME-0107` are declared reserved and never produced. The obligation is an assertion that neither appears in the codebase's emission paths and that both remain documented, mirroring the `ARA-LEX-0102` treatment in `D002-G5` |
 | §11.10 no uninitialized refs | `CheckClassAdapter` analysis reports no `uninitialized` verification type on every fixture |
 | §11.11 closed frame table | a unit test asserts the `getCommonSuperClass` override rejects an unknown class name instead of loading it |
 | §11.13 determinism | two compilations of the same program produce equal SHA-256 for every class |

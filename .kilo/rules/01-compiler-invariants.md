@@ -39,8 +39,8 @@ Rules:
 ## Diagnostics
 
 - Diagnostic codes are stable, namespaced, and never reused for a different
-  meaning: `ARA-LEX-####`, `ARA-PARSE-####`, `ARA-NAME-####`, `ARA-TYPE-####`,
-  `ARA-JVM-####`.
+  meaning: `ARA-SRC-####`, `ARA-LEX-####`, `ARA-PARSE-####`, `ARA-NAME-####`,
+  `ARA-TYPE-####`, `ARA-JVM-####`.
 - A diagnostic includes: code, severity, primary span, message, optional related
   spans with notes, and an optional hint.
 - Error recovery must be specified per stage before it is implemented. Recovery
@@ -51,9 +51,9 @@ Rules:
 - The type system is explicitly specified in `docs/spec/semantics.md`. No type
   rule may be delegated to Java, Kotlin, or JVM behavior by default.
 - Values of type `Int` map to JVM `int`, `Boolean` to `boolean`, `String` to
-  `java.lang.String`, and `Unit` to `void` for returns and
-  `kotlin.Unit`-free local representation as specified in the semantics
-  document.
+  `java.lang.String`, and `Unit` to `void` as a method result. `Unit` is not a
+  value type and has no runtime representation; see `docs/spec/semantics.md`
+  §2.4.
 - No implicit coercions exist between `Int`, `Boolean`, and `String`.
 
 ## JVM emission

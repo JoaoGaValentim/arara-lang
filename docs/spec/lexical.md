@@ -1,6 +1,8 @@
 # Arara Lexical Contract
 
-Status: **DRAFT — D001. Submitted for owner review. Not frozen.**
+Status: **RATIFIED — D001 contract, `D001-13`.** Frozen for the D002–D004
+implementation of the initial subset. Any change requires a new decision that
+names the superseded rule.
 Scope: converts normalized source text into a token stream. Normative for
 `ARA-LEX-*` diagnostics and for the statement-termination rules that the parser
 depends on.
@@ -214,7 +216,7 @@ EOF
     and the following character. This includes `\'`, `\0`, `\b`, `\f`, and
     `\uXXXX`. Recovery: skip the backslash and the following character and
     continue the literal. A trailing `\` at end of file is `ARA-LEX-0201`
-    (unterminated literal), not `0202`, and lexing of the unit stops.
+    (unterminated literal), not `ARA-LEX-0202`, and lexing of the unit stops.
 45. There are no raw string literals, no string interpolation, no multi-line
     strings, and no character literals.
 46. The literal's value is the sequence of Unicode scalar values obtained after

@@ -1,6 +1,8 @@
 # Arara Grammar
 
-Status: **DRAFT — D001. Submitted for owner review. Not frozen.**
+Status: **RATIFIED — D001 contract, `D001-13`.** Frozen for the D002–D004
+implementation of the initial subset. Any change requires a new decision that
+names the superseded rule.
 Scope: the concrete syntax of the initial subset, expressed as an EBNF grammar over
 the token stream produced by `lexical.md`. Normative for `ARA-PARSE-*`
 diagnostics.
@@ -162,7 +164,7 @@ separator (`syntax.ebnf` §3 items 6 and 6a).
 
 Source:
 
-```kotlin
+```arara
 fun main() {
     val answer: Int = 40 + 2
     println(answer)
@@ -230,6 +232,12 @@ configuration only. Its output is reproduced in §6.3. A human summary follows.
 
 Nullable nonterminals: `FunctionTail` and `StatementTail` only.
 
+The seven `Expression` precedence levels (`OrExpression` through
+`MultiplicativeExpression`, plus `UnaryExpression`) are omitted from this table
+because each has the same FIRST set as `Expression` and differs only in FOLLOW at
+the operator token above it. They are listed individually in the checker output
+and are covered by conformance-plan §4's per-level obligations.
+
 | Nonterminal | FIRST | FOLLOW |
 | --- | --- | --- |
 | `Program` | `fun`, `EOF` | `$` |
@@ -242,11 +250,11 @@ Nullable nonterminals: `FunctionTail` and `StatementTail` only.
 | `Block` | `{` | `SEMI`, `}`, `else`, `EOF` |
 | `StatementList` | `IDENT`, `if`, `return`, `val`, `var`, `{` | `}` |
 | `StatementTail` | `SEMI` | `}` |
-| `Separator` | `SEMI` | `IDENT`, `fun`, `if`, `return`, `val`, `var`, `{`, `}` |
-| `Statement` | `IDENT`, `if`, `return`, `val`, `var`, `{` | `SEMI` |
+| `Separator` | `SEMI` | `IDENT`, `fun`, `if`, `return`, `val`, `var`, `{`, `}`, `EOF` |
+| `Statement` | `IDENT`, `if`, `return`, `val`, `var`, `{` | `SEMI`, `}` |
 | `LocalDecl` | `val`, `var` | `SEMI`, `}` |
 | `IdentStatement` | `IDENT` | `SEMI`, `}` |
-| `CallSuffix` | `(` | binary operators, `%`, `,`, `)`, `SEMI`, `}`, `EOF` |
+| `CallSuffix` | `(` | binary operators, `%`, `,`, `)`, `SEMI`, `}` |
 | `ArgumentList` | expression-start | `)` |
 | `ReturnStatement` | `return` | `SEMI`, `}` |
 | `IfStatement` | `if` | `SEMI`, `}` |
@@ -270,19 +278,19 @@ Nullable nonterminals: `FunctionTail` and `StatementTail` only.
 | `[ ArgumentList ]` | expression-start vs `)` | disjoint |
 | `[ ":" Type ]` | `:` vs `{` | disjoint |
 | `[ "else" ... ]` | `else` vs FOLLOW(`IfStatement`) | `else` is not in FOLLOW |
-| `( "-" \| "!" )` in `UnaryExpression` | `-`/`!` vs expression-start | disjoint; expression-start excludes both |
+| `( "-" \| "!" )` in `UnaryExpression` | `-`/`!` vs FIRST(`PrimaryExpression`) | disjoint; `PrimaryExpression` starts with `(`, `IDENT`, a literal, `true`, or `false` |
 | `Block \| IfStatement` after `else` | `{` vs `if` | disjoint |
 
 `IdentStatement` is left-factored: after `IDENT` the next token is `=` or `(`,
 which is disjoint. This is the only factoring the grammar requires.
 
-There is no dangling-`else` ambiguity because both branch bodies are `Block`
-values and `else` is not in FOLLOW(`Block`) as an ambiguity source: an `else`
-attaches to the innermost `if` whose `Block` has just closed, which the
-production nesting determines. There is no unary/binary `-` ambiguity because
-unary `-` is reachable only where an expression is expected and binary `-` only
-after a complete operand; `1 - 2` and `1 -2` are the same token sequence and both
-parse as subtraction.
+There is no dangling-`else` ambiguity because every branch body is a `Block`:
+an `else` can only follow the `}` that closes the nearest preceding `if`, and no
+unbraced `if` can appear as a body. `else` is therefore in FOLLOW(`Block`) only
+in the position the production expects. There is no unary/binary `-` ambiguity
+because unary `-` is reachable only where an expression is expected and binary
+`-` only after a complete operand; `1 - 2` and `1 -2` are the same token sequence
+and both parse as subtraction.
 
 ### 6.3 Mechanical check output
 
@@ -308,13 +316,13 @@ language for repeated separators.
 
 ## 7. Parse diagnostics
 
-All are `ERROR`. The primary span is the offending token, or the empty span at
-end of file when the token is missing.
+All are `ERROR` except `ARA-PARSE-0199`, which is a `NOTE`. The primary span is
+the offending token, or the empty span at end of file when the token is missing.
 
 | Code | Condition | Notes |
 | --- | --- | --- |
 | `ARA-PARSE-0100` | Unexpected token for the expected production | Related note lists the expected token set |
-| `ARA-PARSE-0101` | Unexpected token immediately after a complete expression or literal | Covers `123abc` and `f() g()`; takes precedence over `0100` when the preceding token completed an expression |
+| `ARA-PARSE-0101` | Unexpected token immediately after a complete expression or literal | Covers `123abc` and `f() g()`; takes precedence over `ARA-PARSE-0100` when the preceding token completed an expression |
 | `ARA-PARSE-0102` | Expected `)` | Reported at the token that is not `)` |
 | `ARA-PARSE-0103` | Expected `}` | Reported at the token that is not `}` |
 | `ARA-PARSE-0104` | Expected a type name after `:` | Reported at the token that is not a type |
@@ -324,28 +332,30 @@ end of file when the token is missing.
 | `ARA-PARSE-0108` | `else` is not on the same line as the preceding `}` | Rule from `lexical.md` §10 |
 | `ARA-PARSE-0109` | A statement begins with an expression that is neither a call nor an assignment | e.g. `1 + 2` or `-x`; also used when `if` appears where an expression is required, because `if` is not an expression |
 | `ARA-PARSE-0110` | Expected `=` or `(` after an identifier in statement position | Prevents a bare identifier statement |
-| `ARA-PARSE-0111` | Expected `(` after a function name | |
+| `ARA-PARSE-0111` | Expected `(` after a function name in a declaration | Reported at the token that is not `(` |
 | `ARA-PARSE-0112` | Expected `:` after a parameter name | |
 | `ARA-PARSE-0113` | Expected `,` or `)` in a parameter or argument list | |
 | `ARA-PARSE-0114` | Expected a function body block after a function header | Reported at `EOF` or the offending token |
 | `ARA-PARSE-0115` | Expected `{` | After `if (expr)`, after `else`, or where a body was required |
-| `ARA-PARSE-0116` | Expected `(` | After `if`, or after a function name |
+| `ARA-PARSE-0116` | Expected `(` after `if` | |
 | `ARA-PARSE-0117` | Unmatched `)` | A `)` with no open parenthesis; the separation counter never goes below zero (`lexical.md` §10 rule 52) |
 | `ARA-PARSE-0199` | Parse error limit reached (100 errors) | `NOTE`-severity companion diagnostic; parsing stops |
 
 A conforming parser MUST report exactly one of these codes for a single
-syntactic defect. It MUST NOT report both `0100` and a more specific code for the
+syntactic defect. It MUST NOT report both `ARA-PARSE-0100` and a more specific code for the
 same token.
 
 Code selection is deterministic:
 
-1. If the failure is `0107` or `0108` (newline-driven separation), report that
-   code, never `0100`.
+1. If the failure is `ARA-PARSE-0107` or `ARA-PARSE-0108` (newline-driven
+   separation), report that code, never `ARA-PARSE-0100`.
 2. Otherwise, if the token that fails to parse immediately follows a token that
-   completed a `PrimaryExpression` or a full `Expression`, report `0101`.
-3. Otherwise report the specific expected-token code (`0102`–`0106`,
-   `0110`–`0117`) when exactly one such expectation applies.
-4. Otherwise report `0100` with the expected token set as a related note.
+   completed a `PrimaryExpression` or a full `Expression`, report `ARA-PARSE-0101`.
+3. Otherwise report the specific expected-token code (`ARA-PARSE-0102` through
+   `ARA-PARSE-0106`, or `ARA-PARSE-0110` through `ARA-PARSE-0117`) when exactly
+   one such expectation applies.
+4. Otherwise report `ARA-PARSE-0100` with the expected token set as a related
+   note.
 
 ## 8. Error recovery
 
@@ -373,7 +383,7 @@ AST for later stages.
 
 A hand-written recursive-descent parser with:
 
-- one token of lookahead, plus the previous token to produce `0107` and `0108`;
+- one token of lookahead, plus the previous token to produce `ARA-PARSE-0107` and `ARA-PARSE-0108`;
 - one function per precedence level, or precedence climbing within the binary
   levels (either strategy accepts exactly this grammar; the choice is an
   implementation detail that must not change the accepted language);

@@ -187,3 +187,40 @@ The exact command form of this procedure is `.kilo/commands/resume.md`.
   changed, verification commands and actual output, Git evidence, open questions,
   acceptance recommendation, and the next proposed directive.
 - Stop at the gate. Do not proceed into the next milestone automatically.
+
+## 11. Communication language
+
+All agent-authored communication is English only. This covers visible reasoning
+and analysis traces, planning and execution messages, progress updates and
+checkpoint summaries, technical reports, audits and diagnostics, source code
+comments and documentation, Git commit messages and pull request descriptions,
+and error explanations and recovery instructions.
+
+Chinese (Mandarin), Chinese characters, and automatic language switching are
+prohibited in agent-authored communication. If Chinese output is produced
+unexpectedly, return to English immediately and continue the technical task
+without changing it.
+
+Exceptions are permitted only for exact quotations of external material, existing
+source data, or an explicit owner request. Never translate or modify external
+evidence merely to satisfy this rule.
+
+This policy survives context compaction, agent handoffs, and session recovery.
+It is mandatory for every directive until the owner rescinds it.
+
+## 12. Status vocabularies
+
+Two vocabularies exist and must not be mixed.
+
+Gate statuses are closed. A gate row may carry only `NOT_STARTED`,
+`IN_PROGRESS`, `PASS`, `FAIL`, or `BLOCKED`, as declared in
+`docs/progress/GATES.md`. No other identifier may appear in a gate table, and
+adding a value requires an owner decision amending the declaration first.
+
+Milestone verdicts are separate. A verdict is `PASS`, `CONDITIONAL`, or
+`BLOCKED`, and appears only in a self-assessment line or report, never in a gate
+status column.
+
+Never introduce an undocumented status identifier to describe an intermediate
+state. If the declared values do not fit, the vocabulary declaration is wrong and
+must be corrected by explicit decision before use.
