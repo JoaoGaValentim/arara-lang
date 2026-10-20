@@ -11,7 +11,7 @@ current_task: D001 execution complete; awaiting owner review
 current_subtask: none
 last_completed_unit: D001 bootstrap committed and recovery-validated
 branch: main
-last_verified_commit: 2b964ffe90e18f31a0724be24effa3a900461522
+last_verified_commit: 336a2be67c30a435367243c30dc383ec41cb649c
 commit_convention: this ledger is edited before each commit, so last_verified_commit is always the commit immediately preceding the one containing this line; verify with `git log --oneline -3`
 remote: origin https://github.com/JoaoGaValentim/arara-lang.git (private, no push)
 working_tree: clean before this ledger edit
