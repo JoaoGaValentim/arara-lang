@@ -45,7 +45,7 @@ mainline_snapshot_rule: >
 
 # ── Ledger commit identity ──────────────────────────────────────────────────
 ledger_branch: docs/d001-r7-postmerge
-last_verified_commit: 992e84a
+last_verified_commit: a9da659
 ledger_commit_rule: >
   last_verified_commit is the commit preceding the commit that contains this
   ledger, on ledger_branch. It is expected to be the parent of that commit, not
