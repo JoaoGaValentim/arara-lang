@@ -26,9 +26,10 @@ states what to do and what not to do, with no reliance on prior conversation.
   development branch `infra/d001-r4-copilot-migration` is merged and no longer the
   working branch.
 - **Mainline snapshot:** `main` was observed at
-  `5441a9f3a95db09563f5183c7cb8f68532e5a6bf` (merge of PR #1, parents `717fcc6`,
-  `b0c2492`). This is a **historical observation, not a live HEAD pin**; it stays
-  true as `main` advances, and its only hard invariant is that it remains an
+  `992e84a53cf3cfae226e49c03fee076b86820e2c` (merge of PR #2, parents `5441a9f`,
+  `37f1311`). The R6 snapshot `5441a9f` is retained as a prior observation and is
+  still an ancestor. This is a **historical observation, not a live HEAD pin**; it
+  stays true as `main` advances, and its only hard invariant is that it remains an
   ancestor of `main`.
 - **License:** Apache-2.0, root `LICENSE`, unmodified ASF text
   (SHA-256 `cfc7749b…3d30`), present on `main`.
