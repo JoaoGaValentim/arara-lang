@@ -23,6 +23,7 @@ audit_commit: D001-R6 report in docs/progress/audit/D001-R6.md; previous 230abd6
 commit_convention: this ledger is edited before each commit, so last_verified_commit is always the commit immediately preceding the one containing this line; verify with `git log --oneline -3`
 remote: origin https://github.com/JoaoGaValentim/arara-lang.git (public; default branch `main` at 5441a9f after the authorized merge)
 working_tree: clean at the recorded last_verified_commit before this checkpoint commit
+acceptance_record: D001-24 is on docs/d001-r6-acceptance (Draft PR #2, head 2fe0a06); main carries the foundation only until #2 merges
 ```
 
 ## D001-R1 changed paths
