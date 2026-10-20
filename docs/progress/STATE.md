@@ -18,7 +18,7 @@ current_task: D001-R6 — contract ratified and frozen, PR #1 description correc
 current_subtask: none — D001 boundary reached; D002 not authorized
 last_completed_unit: D001-R6 — eleven ratifications, contract freeze at hashed revision, PR description correction, merge-commit integration
 branch: infra/d001-r4-copilot-migration
-last_verified_commit: PENDING_R6_COMMIT
+last_verified_commit: c4ef617
 audit_commit: D001-R6 report in docs/progress/audit/D001-R6.md; previous 230abd6 (R5), 2607608 (R4)
 commit_convention: this ledger is edited before each commit, so last_verified_commit is always the commit immediately preceding the one containing this line; verify with `git log --oneline -3`
 remote: origin https://github.com/JoaoGaValentim/arara-lang.git (public; default branch `main`)
