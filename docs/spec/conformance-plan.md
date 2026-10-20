@@ -165,7 +165,9 @@ Each row is a rule in `semantics.md` and its obligation.
 | §11.9–11.11 frames | `CheckClassAdapter.verify` with data flow on every fixture class |
 | §11.12 verification | load and run every fixture class under `-Xverify:all` |
 | §11.13 determinism | compile twice; compare SHA-256 of each class file |
-| §11.14 limits | synthesized inputs near each limit; assert the documented code |
+| §11.14 limits | synthesized inputs near each limit; assert the documented code. Named codes: `ARA-JVM-0005` (string constant over 65535 modified-UTF-8 bytes), `ARA-JVM-0006` (method bytecode over 65535 bytes), `ARA-JVM-0007` (over 255 parameter slots) |
+| §11.12 verification failure | `ARA-JVM-0002` — a deliberately corrupted fixture class loaded under `-Xverify:all` must fail, and the compiler must report this code rather than a warning |
+| §11.9 local slot convention | `javap -l` shows slot 0 reserved and the first local at slot 1 for a zero-parameter function. The JVM also accepts the other convention; the test asserts **this project's convention**, not a JVM requirement (`semantics.md` §11.9) |
 
 ## 6a. Driver and diagnostic-plumbing obligations
 
@@ -173,6 +175,7 @@ Each row is a rule in `semantics.md` and its obligation.
 | --- | --- |
 | §1.2 unit name validity | `ARA-SRC-0004` for a name starting with a digit, containing `-`, or equal to a Java keyword |
 | §1.2 duplicate unit names | `ARA-SRC-0003` for two files with the same base name in different directories passed in one invocation |
+| §1.5a `java.lang` shadowing | a unit named `java`, `String`, `System`, `Object`, or `Math` compiles and its bytecode runs under `-Xverify:all`; the same class name placed on the classpath of a Java source file that uses the shadowed simple name makes `javac` fail. The test asserts the compiler's behaviour, not `javac`'s: the current rule reports nothing, so this is a `MANUAL` regression note until `OQ-11` is decided |
 | §1.6 no `main` | `ARA-NAME-0106` |
 | §1.6 wrong `main` signature | `ARA-NAME-0110` for a parameterized `main` and for a non-`Unit` `main` |
 | §1.7a duplicate versus `main` precedence | a program with two `main` declarations reports only `ARA-NAME-0101` |

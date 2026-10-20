@@ -230,6 +230,12 @@ configuration only. Its output is reproduced in §6.3. A human summary follows.
 
 Nullable nonterminals: `FunctionTail` and `StatementTail` only.
 
+The seven `Expression` precedence levels (`OrExpression` through
+`MultiplicativeExpression`, plus `UnaryExpression`) are omitted from this table
+because each has the same FIRST set as `Expression` and differs only in FOLLOW at
+the operator token above it. They are listed individually in the checker output
+and are covered by conformance-plan §4's per-level obligations.
+
 | Nonterminal | FIRST | FOLLOW |
 | --- | --- | --- |
 | `Program` | `fun`, `EOF` | `$` |
@@ -242,11 +248,11 @@ Nullable nonterminals: `FunctionTail` and `StatementTail` only.
 | `Block` | `{` | `SEMI`, `}`, `else`, `EOF` |
 | `StatementList` | `IDENT`, `if`, `return`, `val`, `var`, `{` | `}` |
 | `StatementTail` | `SEMI` | `}` |
-| `Separator` | `SEMI` | `IDENT`, `fun`, `if`, `return`, `val`, `var`, `{`, `}` |
-| `Statement` | `IDENT`, `if`, `return`, `val`, `var`, `{` | `SEMI` |
+| `Separator` | `SEMI` | `IDENT`, `fun`, `if`, `return`, `val`, `var`, `{`, `}`, `EOF` |
+| `Statement` | `IDENT`, `if`, `return`, `val`, `var`, `{` | `SEMI`, `}` |
 | `LocalDecl` | `val`, `var` | `SEMI`, `}` |
 | `IdentStatement` | `IDENT` | `SEMI`, `}` |
-| `CallSuffix` | `(` | binary operators, `%`, `,`, `)`, `SEMI`, `}`, `EOF` |
+| `CallSuffix` | `(` | binary operators, `%`, `,`, `)`, `SEMI`, `}` |
 | `ArgumentList` | expression-start | `)` |
 | `ReturnStatement` | `return` | `SEMI`, `}` |
 | `IfStatement` | `if` | `SEMI`, `}` |

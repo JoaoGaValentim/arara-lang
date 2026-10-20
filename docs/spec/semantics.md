@@ -45,10 +45,27 @@ written; they produce no diagnostics of their own.
 parameters and return type `Unit`. The **entry unit** is the unit declaring it,
 and the **entry class** is that unit's generated class. A unit name that equals a
 function name is permitted: functions are members of the class, not classes.
-A unit name that equals `java` or would collide with `java.lang` is not a
-concern because there are no packages and generated classes are in the unnamed
-package; the compiler MUST still reject a name that is a Java reserved word
-(§1.2).
+
+1.5a. A unit whose name equals `java`, or equals the simple name of a `java.lang`
+type that the subset can emit or reference (`String`, `Object`, `System`, `Math`),
+produces bytecode that is itself valid and executable: the compiler emits internal
+names such as `java/lang/String`, so Arara code is unaffected. It nevertheless
+makes **Java source** compiled against the same classpath fail, because `javac`
+resolves the simple name in the unnamed package before `java.lang`:
+
+```text
+C.java:1: error: cannot find symbol
+  symbol:   class lang
+  location: class java
+```
+
+with `System.class` the failure is `cannot find symbol: variable out`; with
+`String.class` it is `java.lang.String cannot be converted to String`. The control
+case compiles. This matters because D005 is bidirectional Java interop, so a unit
+named this way is a real interop limitation rather than a non-issue. The compiler
+MUST still reject a name that is a Java reserved word (§1.2). Whether to forbid
+the shadowing names as well is `OQ-11`; the current rule permits them and reports
+nothing.
 
 1.6. `main` MUST be `Unit`-returning with exactly zero parameters; otherwise
 `ARA-NAME-0110`. A program without `main` is `ARA-NAME-0106`. A program with two
@@ -565,9 +582,15 @@ three `PrintStream.println` calls in §6.2. No other I/O is emitted.
 
 11.9. **Stack and locals.** The backend emits stack map frames valid under the
 JDK 21 verifier. `max_stack` and `max_locals` are computed, not guessed. Local
-slot 0 holds the parameter (or is unused for zero-parameter methods), and no slot
-is read before it is written, because every local declaration has an initializer
-(§3.5).
+slot 0 is reserved, holding the parameter when there is exactly one, and unused
+for zero-parameter methods; the first declared local therefore takes slot 1 in a
+zero-parameter method. This is a **deliberate convention, not a JVM requirement**:
+the verifier accepts a zero-parameter static method whose first local occupies
+slot 0, and `javac` in fact generates it that way (`istore_0`). Reserving slot 0
+keeps local numbering uniform across functions, which makes `javap` inspection
+and the conformance frame tests easier to write; no function may depend on the
+reserved slot either way. No slot is read before it is written, because every
+local declaration has an initializer (§3.5).
 
 11.10. **No uninitialized references.** Because no `<init>` is emitted, no
 `uninitialized` or `uninitializedThis` verification type can appear.

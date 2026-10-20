@@ -6,6 +6,15 @@ environment.
 
 Status values: `NOT_STARTED`, `IN_PROGRESS`, `PASS`, `FAIL`, `BLOCKED`.
 
+This list is closed. No other status identifier may appear in a gate table. A
+milestone verdict is not a gate status and is drawn from its own vocabulary:
+`PASS`, `CONDITIONAL`, or `BLOCKED`, recorded only in the self-assessment line
+below each table.
+
+`BLOCKED` means the gate cannot be settled by the current evidence: something
+outside the gate's own scope must happen first — an owner decision on a criterion,
+a missing obligation, or a required artifact. It never means "mostly done".
+
 Evidence classes follow `AGENTS.md` §5: `VERIFIED`, `UNVERIFIED`, `FAILED`,
 `BLOCKED`.
 
@@ -30,18 +39,24 @@ recorded in `docs/adr/0002-compiler-host.md`, `docs/adr/0003-model-limits.md`, a
 | D001-G6 | Model limits | Non-zero context and output limits appear in resolved model metadata | PASS | ADR 0003; `kilo models hive --verbose` |
 | D001-G7 | Reasoning effort | The strongest declared variant is selected and accepted by the provider | PASS | ADR 0003; `kilo debug agent code` → `variant: max` |
 | D001-G8 | Recovery completeness | `resume.md` reconstructs directive, scope, state, decisions, pending work, and next action from repository files alone | PASS | `STATE.md` §Independent recovery validation |
-| D001-G9 | Ledger accuracy | `STATE.md` matches actual branch, HEAD, and working tree at report time | PASS | Branch `docs/d001-r1-arara-identity`, content commit `ce3c67d`; `STATE.md` §D001-R1 and §Verification runs name the same branch and commit convention |
+| D001-G9 | Ledger accuracy | `STATE.md` records the branch, the commit preceding this ledger, the audit commit, and the working-tree state | BLOCKED | Branch and both commits are recorded and match `git log`. The criterion originally said "matches actual HEAD", which a ledger written before its own commit can never satisfy; corrected by Directive 001-R2 (F-05). Evidence: `STATE.md` header, §D001-R2 |
 | D001-G10 | Specification consistency | No two normative documents conflict; every diagnostic code defined exactly once | PASS | `STATE.md` §Internal audit resolution and §D001-R1 verification runs |
 | D001-G11 | Grammar derivability | Every example in the specification is derivable from `syntax.ebnf`; FIRST/FOLLOW analysis shows no selection conflict | PASS | `syntax.ebnf` §5, §6.3; `STATE.md` §D001-R1 verification runs |
-| D001-G12 | Traceability | Every normative rule has a test obligation or an explicit `MANUAL` marker | PASS | `conformance-plan.md` §3–§6a |
-| D001-G13 | No unverified claims | Every environment claim carries a command and result | PASS | ADRs 0002–0003; `STATE.md` §Verification runs |
+| D001-G12 | Traceability | Every normative rule has a test obligation or an explicit `MANUAL` marker | BLOCKED | `conformance-plan.md` §3–§6a covers 61 of 67 diagnostic codes by name. Four more (`ARA-JVM-0002`, `ARA-JVM-0005/0006/0007`) are covered substantively by §11.12 and §11.14 without being named. Two have no obligation at all: `ARA-SRC-0002` (input file cannot be read) and `ARA-PARSE-0199` (100-error limit, `NOTE` severity, parsing stops). Both are assigned to D002. See `docs/progress/audit/D001-AUDIT-R2.md` F-03 |
+| D001-G13 | No unverified claims | Every environment claim carries a command and result | BLOCKED | ADRs 0002–0003 do. Two `STATE.md` §Verification runs rows cite an "ad-hoc audit script (not committed)", which is not a reproducible command, and the D001 and D001-R1 row sets are merged in one table. Directive 001-R2 supplied the missing artifact in `docs/progress/audit/REPRODUCIBILITY.md`. See `docs/progress/audit/D001-AUDIT-R2.md` F-04 |
 | D001-G14 | Git state | Work is committed locally on the recorded branch; no unauthorized push | PASS | `git log` shows `c5f376a` (bootstrap), ledger checkpoints through `717fcc6`, and D001-R1 content commit `ce3c67d`, all local; `git status` clean; `git remote -v` shows only `origin`, `git ls-remote origin` returns no refs, and no push occurred |
 | D001-G15 | Independent recovery | A fresh session reconstructs state without the transcript | PASS | Two separate `kilo run` processes reconstructed milestone, scope, next action, forbidden actions, and Git state from files alone; the first correctly flagged the missing commit. See `STATE.md` §Independent recovery validation. Limitation: same client and model. |
 
-**D001 self-assessment:** all D001 gates are `PASS` with recorded evidence.
-Verdict for owner review: `PASS — READY FOR OWNER REVIEW`. This is not milestone
-acceptance: only the owner can accept D001, and acceptance must be recorded in
-`docs/progress/DECISIONS.md`.
+**D001 self-assessment (as amended by Directive 001-R2):** eleven gates are
+`PASS` with recorded evidence; D001-G9, G12, and G13 are `BLOCKED`. Milestone
+verdict: **`CONDITIONAL`**. This is not milestone acceptance: only the owner can accept D001, and
+acceptance must be recorded in `docs/progress/DECISIONS.md`.
+
+The three conditional gates are not failures of the specification. G9's criterion
+was unsatisfiable as worded; G13's evidence was unreproducible because D001 could
+not commit the scripts it ran; G12 overstates coverage of two diagnostic codes.
+All three are corrected or assigned to D002 in `docs/progress/audit/D001-AUDIT-R2.md`.
+Nothing here is waived silently.
 
 ## D002 — Lexer and parser
 

@@ -4,17 +4,19 @@ Machine-readable recovery ledger. Update after every completed work unit. Facts
 only; no intentions, no forecasts.
 
 ```yaml
-active_directive: D001-R1 (language identity); milestone D001
+active_directive: D001-R2 (final contract audit); milestone D001
 active_milestone: D001 — Foundation (documentation and configuration only)
 milestone_authorization: D001-01 and D001-06 (docs/progress/DECISIONS.md)
-current_task: D001-R1 documentation identity audit complete; awaiting owner review
+process_authorization: D001-07 (English-only communication, closed gate status vocabulary)
+current_task: D001-R2 final contract audit complete; milestone verdict CONDITIONAL, pending owner ratification
 current_subtask: none
-last_completed_unit: D001-R1 identity record, naming audit, and specification corrections
+last_completed_unit: D001-R2 audit — report, archives, gate corrections, and OQ-11/OQ-12
 branch: docs/d001-r1-arara-identity
-last_verified_commit: ce3c67d
+last_verified_commit: 82a7afa
+audit_commit: this ledger is committed by the D001-R2 commit; its exact SHA is recorded in §D001-R2 below
 commit_convention: this ledger is edited before each commit, so last_verified_commit is always the commit immediately preceding the one containing this line; verify with `git log --oneline -3`
 remote: origin https://github.com/JoaoGaValentim/arara-lang.git (private, empty, no push)
-working_tree: clean after the D001-R1 content commit; no untracked or unrelated changes
+working_tree: D001-R2 audit documents, gate corrections, and specification corrections staged for a local commit; nothing pushed
 ```
 
 ## D001-R1 changed paths
@@ -133,6 +135,86 @@ produced three kinds of unresolved items:
 - Unresolved: automatic compaction has never been observed firing, so recovery
   after a real compaction event is `UNVERIFIED`. See limitation 2.
 
+## D001-R2 — Final contract audit (2026-10-20)
+
+Directive 001-R2 required an internal final review of D001 and D001-R1 before the
+owner decides whether the specification is suitable for implementation. It was a
+documentation audit only.
+
+### Deliverables
+
+| Artifact | Purpose |
+| --- | --- |
+| `docs/progress/audit/D001-AUDIT-R2.md` | Audit report, findings F-01…F-10, verdict, owner decision matrix |
+| `docs/progress/audit/REPRODUCIBILITY.md` | Command and observed result for every `VERIFIED` claim |
+| `docs/progress/audit/D001-EXECUTION-REPORT-ARCHIVE.md` | D001 report archived verbatim with provenance and limitations |
+| `docs/progress/audit/D001-R1-REPORT-ARCHIVE.md` | D001-R1 report archived verbatim with provenance and limitations |
+
+### Audit commit
+
+The D001-R2 documentation and configuration corrections are committed locally on
+`docs/d001-r1-arara-identity`. Exact SHA: recorded in the commit itself and
+verifiable with `git log --oneline -1 -- docs/progress/audit/D001-AUDIT-R2.md`.
+Nothing was pushed; `git ls-remote origin` still returns no refs.
+
+### Verdict
+
+`CONDITIONAL`. As a gate status this is not a declared value: eleven D001 gates
+are `PASS`, and `D001-G9`, `D001-G12`, and `D001-G13` are `BLOCKED` — their
+evidence does not meet their criterion as written, and the criterion cannot be
+settled by the gate's own evidence. D001 remains **pending owner ratification**.
+The milestone verdict `CONDITIONAL` lives in its own vocabulary, separate from the
+closed gate status set.
+
+### Post-audit vocabulary correction
+
+The first pass of this audit recorded the three unsettled gates as
+`CONDITIONAL`, a value it had added to `GATES.md` itself. Owner directive
+D001-07 then closed the gate vocabulary, so the value was withdrawn and the three
+gates re-recorded as `BLOCKED`, which is the declared value for a gate that cannot
+be closed on its own evidence. The milestone verdict `CONDITIONAL` is unchanged
+and now sits explicitly in the verdict vocabulary. `AGENTS.md` §12 and
+`.kilo/rules/00-governance.md` state the separation so the mistake is not
+repeated.
+
+### What the audit confirmed independently
+
+- Baseline `82a7afa` on `docs/d001-r1-arara-identity`, no upstream, private empty
+  remote, `git fsck` clean, 0 tags.
+- D001-R1 changed 12 files, +332/−95. The `syntax.ebnf` production block is
+  byte-identical to `717fcc6`: **no grammar or semantic change**.
+- LL(1) re-derived from the grammar text: 27 productions, nullable
+  `{FunctionTail, StatementTail}`, **0 selection conflicts**, 0 unreachable, 0
+  undefined nonterminals.
+- 67 diagnostic codes, each defined exactly once, 0 duplicates, 0 dangling.
+- 28 reserved words, each traceable to a `charter.md` §4 deferred category, none a
+  grammar terminal, none used as an identifier in any example.
+- No implementation, dependency, build file, license change, push, tag, or release.
+
+### Defects found and corrected in this commit
+
+| ID | Severity | File | Correction |
+| --- | --- | --- | --- |
+| F-01 | HIGH | `semantics.md` §1.5a | The claim that a unit named `java` "is not a concern" was false; replaced with the measured `javac` behaviour and `OQ-11` |
+| F-02 | MEDIUM | `syntax.ebnf` §6.1 | Three FIRST/FOLLOW cells were wrong (`Separator` FOLLOW missing `EOF`; `Statement` FOLLOW missing `}`; `CallSuffix` FOLLOW wrongly containing `EOF`) |
+| F-03 | MEDIUM | `GATES.md` G12 | `ARA-SRC-0002` and `ARA-PARSE-0199` have no test obligation; carried to D002 |
+| F-04 | MEDIUM | `GATES.md` G13, this file | Verification rows citing uncommitted scripts were merged across milestones; disambiguated and supplemented by `REPRODUCIBILITY.md` |
+| F-05 | LOW | `GATES.md` G9 | The criterion "matches actual HEAD" is unsatisfiable for a ledger written before its own commit; reworded, `audit_commit` added |
+| F-06 | LOW | `adr/0003-model-limits.md` | The D001 authoring session ran on provider `robin`; the recorded limits were probed on `hive`. Provenance now separates them; no value changes |
+| F-07 | LOW | — | `.ara` appears substantively in 8 files while `OQ-8` is open; all occurrences marked PROPOSED. No change made |
+| F-08 | LOW | audit archives | Archived D001 report says 3,859 lines (actual 3,818) and 127 semantic rules (actual 130); corrected in the archive's limitation note |
+| F-09 | LOW | `semantics.md` §11.9 | Reserving local slot 0 is a deliberate convention, not a JVM requirement; now stated with rationale |
+| F-10 | LOW | — | `conformance-plan.md` shorthand codes are ambiguous (20 numbers span multiple namespaces); raised as `OQ-12`, not rewritten |
+
+### Preserved status
+
+**Automatic compaction remains `UNVERIFIED`.** `kilo debug config` resolves the
+whole `compaction` block including `threshold_percent`, which establishes that the
+installed build *recognizes* the field. A query of the entire Kilo event store for
+any type containing `compact` returns zero rows, so no compaction has ever been
+observed firing here. This audit did not manufacture one and did not upgrade the
+label.
+
 ## Authorized scope
 
 D001 only: governance, Kilo configuration, recovery mechanism, architecture,
@@ -194,6 +276,18 @@ report. Local commits are permitted. Nothing has been pushed.
 | ASM (published) | 9.11.1 | Maven Central `maven-metadata.xml` |
 | JUnit Jupiter (published) | 6.1.3 | Maven Central `maven-metadata.xml` |
 
+Re-measured during Directive 001-R2 (`docs/progress/audit/REPRODUCIBILITY.md` §1);
+all values unchanged.
+
+**Provider provenance.** The Kilo session store records the D001 authoring session
+as provider `robin`, model `deepseek-ai/deepseek-v4.1-flash-1017`, variant `max`.
+The D001-R1 session and the limit probe ran on provider `hive` with the same model
+and variant. The model identity and variant are therefore the same, but the
+*endpoint* whose context and output limits are recorded in `ADR 0003` differs from
+the endpoint that produced D001. No language rule depends on provider limits; the
+distinction is recorded so "verified against the provider" is not ambiguous. See
+`docs/progress/audit/D001-AUDIT-R2.md` F-06.
+
 Toolchain smoke test: a throwaway Gradle project outside the repository using
 Java 21 + ASM 9.11.1 (with `asm-util` and `asm-analysis`) + JUnit Jupiter 6.1.3
 compiled and passed tests that generated a class, asserted classfile major
@@ -243,11 +337,15 @@ not D002 implementation.
    in this repository with read-only recovery prompts. Their outputs are recorded
    below. They are real fresh-context processes, but they use the same installed
    client and model, so they do not prove recovery under a different client.
-6. **No report file in the repository.** The D001 execution report is delivered in
-   the response, not committed, because it contains environment and session
-   details that are not project records. `GATES.md` therefore cites `STATE.md`
-   sections rather than report sections. If the owner wants the report archived,
-   that requires a decision.
+6. **Reports are now archived (superseded by D001-R2).** As originally recorded,
+   the D001 execution report was delivered in the response and not committed,
+   because it contained environment and session details that are not project
+   records. Directive 001-R2 required the reports to be archived, so both are now
+   committed under `docs/progress/audit/` with an explicit provenance table and an
+   explicit list of their verification limitations. Archiving them makes the record
+   durable; it does **not** make either report independent evidence, and the
+   archive says so in its own header. Whether the archive directory is permanent is
+   recorded in `DECISIONS.md` as a decision for the owner.
 
 ## Independent recovery validation
 
@@ -279,7 +377,16 @@ Assessments:
 - Limitation: both runs used the same installed Kilo client and model. Recovery
   under a different client, model, or machine is `UNVERIFIED`.
 
-## Verification runs (this session)
+## Verification runs (D001 session)
+
+This table records the **D001** session. The D001-R1 session's runs follow it in
+their own table. Directive 001-R2 noted that the two sets were previously read as
+one table (see `docs/progress/audit/D001-AUDIT-R2.md` F-04); they are separated
+here without altering any recorded result.
+
+Rows citing "ad-hoc audit script (not committed)" are honest records of what was
+run, not reproducible commands. `docs/progress/audit/REPRODUCIBILITY.md` supplies
+the reproducible equivalent for every audit claim.
 
 | Check | Command | Result |
 | --- | --- | --- |
@@ -312,7 +419,7 @@ Assessments:
 | Trailing whitespace | `grep -rnE ' +$'` | PASS — no matches |
 | JDK class-file API probe | `Class.forName("java.lang.classfile.ClassFile")` on Corretto 21.0.12.1 | `ClassNotFoundException` — ASM remains the bytecode API |
 | Restricted class-name probe | hand-built classes named `record`, `var`, `yield`, `when`, `module` loaded under `-Xverify:all` | PASS — the JVM accepts them, so the unit-name rule depends on the Java **keyword** list as specified |
-| Unit-name shadowing probe | hand-built units named `java`, `String`, `Object`, `record`, `var`, `when` that also call `java/lang/String.length()` | PASS — `java/lang/String` still resolves with a unit class of the same simple name; unnamed-package classes cannot shadow a package |
+| Unit-name shadowing probe (bytecode scope) | hand-built units named `java`, `String`, `Object`, `record`, `var`, `when` that also call `java/lang/String.length()` | PASS **for bytecode only** — `java/lang/String` still resolves with a unit class of the same simple name. **Corrected by Directive 001-R2:** this result does NOT extend to Java source. With `java.class` on the classpath, `javac` fails `java.lang.String` with `cannot find symbol: class lang`. See `docs/progress/audit/D001-AUDIT-R2.md` F-01 and `semantics.md` §1.5a |
 | Method/class name collision probe | `javac` class `Foo` with `static void Foo()` run under `-Xverify:all` | PASS — legal, matching `semantics.md` §11.3 |
 | Constructor-free class probe | hand-built class with no `<init>` run under `-Xverify:all` | PASS — legal, matching `semantics.md` §11.10 |
 | Verifier strength probe | corrupted `areturn` class under default and `-Xverify:all` | PASS both — `VerifyError`; default flags report `BytecodeVerificationLocal=false`, `Remote=true` |
@@ -342,14 +449,32 @@ dispositions:
 
 ## Blocking decisions
 
-None block D001 completion. Ten open questions are recorded in
-`docs/progress/DECISIONS.md` under "Open decisions requested from the owner".
-They affect D002 scope, not D001 correctness.
+**D001 is `CONDITIONAL`, not accepted.** Three gates are `BLOCKED`
+(D001-G9, G12, G13) and four decisions gate acceptance: `OQ-3` (accept
+`docs/spec/*`), `OQ-10` (restricted unit names), and `OQ-11` (units shadowing
+`java.lang`, raised by this audit). `OQ-12` (diagnostic shorthand in the
+conformance plan) gates D002 quality, not D001 acceptance.
+
+Twelve open questions are recorded in `docs/progress/DECISIONS.md` under "Open
+decisions requested from the owner". The complete matrix, with a recommendation
+and justification for each, is `docs/progress/audit/D001-AUDIT-R2.md` §11.
+Recommendations are **not** approvals.
 
 ## Next executable action
 
-Owner review of the D001 report and the specification drafts. No agent action is
-authorized until the owner records a decision. If the owner accepts D001, the next
-action is to record acceptance in `DECISIONS.md` and issue Directive 002. If the
-owner rules on `OQ-8` (extension) or `OQ-10` (restricted unit names), record the
-decision first and change only the corresponding references.
+Owner review of `docs/progress/audit/D001-AUDIT-R2.md`, then recorded decisions in
+`docs/progress/DECISIONS.md`. No agent action is authorized until then.
+
+The exact sequence:
+
+1. Owner records decisions on `OQ-3`, `OQ-8`, `OQ-10`, `OQ-11`, and `OQ-12` in
+   `docs/progress/DECISIONS.md`, each with an identifier and a date.
+2. If any decision changes normative text, the change is made in the same commit
+   as the decision that authorizes it, and the affected gates are re-evaluated.
+3. Owner records D001 acceptance, or rejection, in `docs/progress/DECISIONS.md`.
+4. Only then may Directive 002 be issued.
+
+Two D002 obligations are carried forward from this audit and must appear in the
+D002 gate list: a test for `ARA-SRC-0002` (unreadable input file) and a test for
+`ARA-PARSE-0199` (100-error limit, `NOTE` severity, parsing stops). See
+`docs/progress/audit/D001-AUDIT-R2.md` F-03.

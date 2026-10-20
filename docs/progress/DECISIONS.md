@@ -129,6 +129,42 @@ Format: `Dxxx-yy` where `xxx` is the directive number and `yy` is a sequence.
 
 ---
 
+## D001-07 — Communication language and status vocabularies
+
+- **Date:** 2026-10-20
+- **Decider:** Repository owner (`JoaoGaValentim`)
+- **Status:** ACTIVE
+- **Scope:**
+  - All agent-authored communication is English only: reasoning and analysis
+    traces, planning and execution messages, progress and checkpoint summaries,
+    reports, audits, diagnostics, source comments and documentation, commit
+    messages and pull request descriptions, and error and recovery instructions.
+  - Chinese (Mandarin), Chinese characters, and automatic language switching are
+    prohibited in agent-authored communication. An unexpected Chinese output is
+    corrected by returning to English and continuing the unchanged technical task.
+  - Exceptions are limited to exact quotations of external material, existing
+    source data, or an explicit owner request. External evidence is never
+    translated or modified to satisfy the rule.
+  - The policy survives context compaction, agent handoffs, and session recovery,
+    and applies to every subsequent directive until the owner rescinds it.
+  - Gate statuses are restricted to the closed set declared in
+    `docs/progress/GATES.md`: `NOT_STARTED`, `IN_PROGRESS`, `PASS`, `FAIL`,
+    `BLOCKED`. Undocumented status identifiers may not be introduced.
+  - Milestone verdicts are a separate vocabulary — `PASS`, `CONDITIONAL`,
+    `BLOCKED` — and may not be written into a gate status column.
+- **Explicitly not authorized:** adding a gate status value without an amending
+  decision; translating repository evidence; switching language on the basis of
+  an input's language.
+- **Rationale:** The repository is reviewed by more than one agent and resumed
+  across sessions. Language drift and invented status identifiers both degrade
+  auditability, and neither is detectable from a single transcript.
+- **Evidence of authority:** Owner directive "MANDATORY LANGUAGE POLICY — ENGLISH
+  ONLY", 2026-10-20, with the explicit statement "This policy is mandatory for
+  every subsequent directive." Recorded in `AGENTS.md` §11 and §12 and in
+  `.kilo/rules/00-governance.md`.
+
+---
+
 ## Open decisions requested from the owner
 
 These are recorded here so they are not lost; they are **not** decisions yet.
@@ -158,3 +194,22 @@ D002.
     `sealed`, and `permits` as type names. Keeping them legal preserves the
     bytecode-only contract; forbidding them costs nothing in the initial subset
     and avoids a future Java-interop surprise in D005. Confirm either choice.
+    *Evidence added by Directive 001-R2:* JLS 21 §3.9 defines 52 reserved
+    keywords and 17 contextual keywords; JVMS 21 §4.2.1 forbids only `.` `;` `[`
+    `/` in a class name. Measured on Corretto 21.0.12.1 under `-Xverify:all`, the
+    JVM accepts every Java keyword as a class and method name, and `javac` rejects
+    the five names above **plus** every Java keyword used as a class name. The
+    choice therefore governs a class of names, not five.
+11. **OQ-11 — Units that shadow `java.lang`.** `semantics.md` §1.5a records that a
+    unit named `java`, `String`, `System`, `Object`, or `Math` emits valid
+    bytecode but makes Java source on the same classpath uncompilable
+    (`cannot find symbol: class lang`). Decide whether to forbid that fixed list
+    as unit names, given that D005 is bidirectional interop. The current rule
+    permits them and reports nothing.
+12. **OQ-12 — Diagnostic shorthand in the conformance plan.**
+    `conformance-plan.md` abbreviates codes as bare four-digit numbers after a
+    full code on the same line. 20 of the 67 numbers are ambiguous across
+    namespaces and 54 lines carry a shorthand number with no full code, so the
+    intended code must be inferred from the table's subject. Decide whether to
+    rewrite them in full `ARA-NS-NNNN` form before D002. §7 of that document makes
+    traceability its purpose, and inference is not traceability.

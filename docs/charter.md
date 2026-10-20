@@ -117,7 +117,9 @@ See `docs/adr/0001-jvm-target.md`.
   module words) are not keywords and are currently legal; see `OQ-10`.
   Validity is checked by the compiler and reported as `ARA-SRC-0004`, not
   assumed. The exact reserved-word list is the JLS keyword list for Java 21 plus
-  the literals `true`, `false`, and `null`.
+  the literals `true`, `false`, and `null`. A name equal to `java` or to a
+  `java.lang` type simple name stays legal and emits valid bytecode but breaks
+  Java source on the same classpath; see `semantics.md` §1.5a and `OQ-11`.
 - There are no package declarations in the initial subset. All classes are in the
   unnamed package.
 - Multiple compilation units may be compiled together. Function names share one

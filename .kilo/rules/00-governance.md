@@ -57,3 +57,10 @@ If a requested change conflicts with a higher-authority record:
   recorded in `docs/progress/STATE.md`.
 - D001's specification is **draft for owner review**, not frozen. It becomes
   frozen only when the owner accepts D001.
+
+## Language and status vocabulary
+
+See `AGENTS.md` §11 and §12: agent communication is English only, and gate statuses
+are restricted to the closed set declared in `docs/progress/GATES.md`. Milestone
+verdicts are a separate vocabulary and must not be written into a gate status
+column.
