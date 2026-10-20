@@ -1,0 +1,37 @@
+# Kilo local UI/session state
+.kilo/agent-manager.json
+
+# Build output
+build/
+out/
+bin/
+*.class
+*.jar
+
+# Gradle
+.gradle/
+gradle-app.setting
+!gradle/wrapper/gradle-wrapper.jar
+
+# IDEs
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.classpath
+.project
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Logs and temporary output
+*.log
+tmp/

@@ -1,0 +1,392 @@
+# Arara Grammar
+
+Status: **DRAFT — D001. Submitted for owner review. Not frozen.**
+Scope: the concrete syntax of the initial subset, expressed as an EBNF grammar over
+the token stream produced by `lexical.md`. Normative for `ARA-PARSE-*`
+diagnostics.
+Related: `lexical.md` (tokens, statement separation), `semantics.md` (typing,
+JVM mapping), `conformance-plan.md` (syntax test matrix).
+
+## 1. Conventions
+
+| Notation | Meaning |
+| --- | --- |
+| `Name ::= ... .` | production; the period terminates it |
+| `a b` | concatenation |
+| `a \| b` | ordered alternative (first token decides; see §6) |
+| `{ a }` | zero or more repetitions |
+| `[ a ]` | optional |
+| `"text"` | exact token text (keyword or punctuation) |
+| `UPPER` | a token class from `lexical.md` §3 |
+| `(* ... *)` | explanatory comment, not grammar |
+
+Terminals used here and defined in `lexical.md`:
+`IDENT`, `INT_LITERAL`, `STRING_LITERAL`, `SEMI`, `EOF`.
+Keywords and punctuation are written as quoted text because their token class and
+their spelling are identical.
+
+`SEMI` is produced by the statement-separation rules in `lexical.md` §10. The
+grammar never sees `NEWLINE` or `RESERVED`; a `RESERVED` token has already
+produced a lexical error, and parsing of that unit stops.
+
+## 2. Grammar
+
+```ebnf
+Program        ::= [ FunctionList ] EOF .
+
+FunctionList   ::= FunctionDecl FunctionTail .
+
+FunctionTail   ::= Separator [ FunctionList ]
+                 | (* empty *) .
+
+FunctionDecl   ::= "fun" IDENT "(" [ ParameterList ] ")" [ ":" Type ] Block .
+
+ParameterList  ::= Parameter { "," Parameter } .
+Parameter      ::= IDENT ":" Type .
+
+Type           ::= "Int" | "Boolean" | "String" | "Unit" .
+
+Block          ::= "{" [ StatementList ] "}" .
+
+StatementList  ::= Statement StatementTail .
+
+StatementTail  ::= Separator [ StatementList ]
+                 | (* empty *) .
+
+Separator      ::= SEMI .
+
+Statement      ::= LocalDecl
+                 | IdentStatement
+                 | ReturnStatement
+                 | IfStatement
+                 | Block .
+
+LocalDecl      ::= ( "val" | "var" ) IDENT ":" Type "=" Expression .
+
+IdentStatement ::= IDENT ( "=" Expression | CallSuffix ) .
+
+CallSuffix     ::= "(" [ ArgumentList ] ")" .
+ArgumentList   ::= Expression { "," Expression } .
+
+ReturnStatement ::= "return" [ Expression ] .
+
+IfStatement    ::= "if" "(" Expression ")" Block
+                   [ "else" ( Block | IfStatement ) ] .
+
+Expression     ::= OrExpression .
+
+OrExpression   ::= AndExpression { "||" AndExpression } .
+
+AndExpression  ::= EqualityExpression { "&&" EqualityExpression } .
+
+EqualityExpression ::= RelationalExpression
+                       { ( "==" | "!=" ) RelationalExpression } .
+
+RelationalExpression ::= AdditiveExpression
+                         { ( "<" | "<=" | ">" | ">=" ) AdditiveExpression } .
+
+AdditiveExpression ::= MultiplicativeExpression
+                       { ( "+" | "-" ) MultiplicativeExpression } .
+
+MultiplicativeExpression ::= UnaryExpression
+                             { ( "*" | "/" | "%" ) UnaryExpression } .
+
+UnaryExpression ::= ( "-" | "!" ) UnaryExpression
+                  | PrimaryExpression .
+
+PrimaryExpression ::= INT_LITERAL
+                    | STRING_LITERAL
+                    | "true"
+                    | "false"
+                    | IDENT [ CallSuffix ]
+                    | "(" Expression ")" .
+```
+
+`FunctionTail` and `StatementTail` are right-recursive tails. They exist for two
+reasons: they accept an optional separator after the last function or statement
+without creating an ambiguity, and they keep the grammar LL(1) (§6).
+
+## 3. What the grammar deliberately omits
+
+1. There is no expression form for assignment; assignment exists only as
+   `IdentStatement`.
+2. There are no expression-bodied functions. A function body is always a `Block`.
+3. There are no single-statement `if`/`else` bodies. Braces are mandatory.
+4. There are no loops, classes, lambdas, `when`, type aliases, packages, imports,
+   annotations, or exception syntax. Their keywords are reserved in
+   `lexical.md` §6 and are rejected before parsing.
+5. There are no declarations inside blocks other than local bindings. Nested
+   functions are not part of the subset.
+6. There is no empty statement and no empty declaration. `Separator` is a
+   separator, never a statement. Consequently: a leading `SEMI` in a block or at
+   the start of a file is `ARA-PARSE-0100`; two consecutive `SEMI` tokens are
+   `ARA-PARSE-0100` at the second; a single trailing `SEMI` after the last
+   statement or declaration is accepted; and a block or file containing only
+   `SEMI` tokens is `ARA-PARSE-0100` (a declaration or statement was required
+   before the separator). This matches `lexical.md` §10 rules 57 and 58.
+6a. A `SEMI` is **required** between two statements in the same block and
+   between two top-level declarations. On a single line, `fun a() {} fun b() {}`
+   is `ARA-PARSE-0100` (expected `;`), and `val x: Int = 1 val y: Int = 2` is
+   `ARA-PARSE-0101` because the preceding token (`1`) completed an expression
+   (§7 code selection). Both codes are deliberate: the position of the missing
+   separator determines which expectation was violated. This makes statement
+   boundaries explicit and prevents an expression from silently ending where a
+   new statement was intended.
+7. There is no chained assignment, no compound assignment, and no increment or
+   decrement.
+8. `Unit` is syntactically accepted anywhere a `Type` is accepted. Its use as
+   anything other than a function return type is rejected semantically
+   (`semantics.md` §2.4, §3.3, §3.6).
+
+## 4. Statement termination
+
+The grammar is written against the post-separation token stream. Two rules from
+`lexical.md` §10 are visible here as parse errors rather than grammar
+productions:
+
+- `ARA-PARSE-0107` — a `)` that ends a parameter list or an `if` condition is
+  followed by `SEMI`, so the required `Block` (or the `:` of a return type) is not
+  on the same line.
+- `ARA-PARSE-0108` — an `else` appears after a `SEMI` that follows the closing `}`
+  of the then-block.
+
+Both are detectable with one token of lookahead plus the previous token, and both
+must be reported with these codes rather than the generic `ARA-PARSE-0100`.
+
+A third rule is visible here as a parse error: a `SEMI` immediately after `{`, at
+the start of a file, or twice in a row is `ARA-PARSE-0100`, because `Separator`
+has no empty alternative and `Program`/`Block` require content before the first
+separator (`syntax.ebnf` §3 items 6 and 6a).
+
+## 5. Derivation of the canonical example
+
+Source:
+
+```kotlin
+fun main() {
+    val answer: Int = 40 + 2
+    println(answer)
+}
+```
+
+Token stream after separation (the line feed after `)` and after the final `}`
+are not shown because no `SEMI` is produced there; the line feeds after `2` and
+after the inner `)` produce `SEMI`):
+
+```text
+fun IDENT(main) ( ) { val IDENT(answer) : Int = INT_LITERAL(40) + INT_LITERAL(2)
+SEMI IDENT(println) ( IDENT(answer) ) SEMI }
+```
+
+Derivation:
+
+```text
+Program
+  FunctionList
+    FunctionDecl
+      "fun" IDENT(main) "(" [ParameterList] ")" [":" Type] Block
+      Block
+        "{"
+        StatementList
+          Statement
+            LocalDecl
+              "val" IDENT(answer) ":" Type("Int") "=" Expression
+              Expression -> OrExpression -> ... -> AdditiveExpression
+                MultiplicativeExpression(INT_LITERAL(40))
+                "+"
+                MultiplicativeExpression(INT_LITERAL(2))
+          StatementTail
+            Separator
+              SEMI
+            StatementList
+              Statement
+                IdentStatement
+                  IDENT(println) CallSuffix
+                    "(" ArgumentList ")"
+                      Expression -> ... -> PrimaryExpression(IDENT(answer))
+              StatementTail
+                Separator
+                  SEMI
+        "}"
+    FunctionTail
+      (* empty: end of file *)
+```
+
+The example is therefore derivable, and it exercises: a declaration, a binary
+expression, a call statement, and newline-driven separation.
+
+## 6. Parser classification
+
+The grammar as written is **LL(1)**. This is a claim about this grammar text
+only; it is not a claim that every possible formulation of Arara's syntax is
+LL(1), and no broader grammar class is claimed.
+
+The analysis was performed mechanically with a FIRST/FOLLOW checker over the
+grammar block above; the checker is an ad-hoc audit script and is deliberately
+**not** part of this repository, because D001 permits documentation and
+configuration only. Its output is reproduced in §6.3. A human summary follows.
+
+### 6.1 FIRST and FOLLOW
+
+Nullable nonterminals: `FunctionTail` and `StatementTail` only.
+
+| Nonterminal | FIRST | FOLLOW |
+| --- | --- | --- |
+| `Program` | `fun`, `EOF` | `$` |
+| `FunctionList` | `fun` | `EOF` |
+| `FunctionTail` | `SEMI` | `EOF` |
+| `FunctionDecl` | `fun` | `SEMI`, `EOF` |
+| `ParameterList` | `IDENT` | `)` |
+| `Parameter` | `IDENT` | `,`, `)` |
+| `Type` | `Int`, `Boolean`, `String`, `Unit` | `)`, `,`, `=`, `{` |
+| `Block` | `{` | `SEMI`, `}`, `else`, `EOF` |
+| `StatementList` | `IDENT`, `if`, `return`, `val`, `var`, `{` | `}` |
+| `StatementTail` | `SEMI` | `}` |
+| `Separator` | `SEMI` | `IDENT`, `fun`, `if`, `return`, `val`, `var`, `{`, `}` |
+| `Statement` | `IDENT`, `if`, `return`, `val`, `var`, `{` | `SEMI` |
+| `LocalDecl` | `val`, `var` | `SEMI`, `}` |
+| `IdentStatement` | `IDENT` | `SEMI`, `}` |
+| `CallSuffix` | `(` | binary operators, `%`, `,`, `)`, `SEMI`, `}`, `EOF` |
+| `ArgumentList` | expression-start | `)` |
+| `ReturnStatement` | `return` | `SEMI`, `}` |
+| `IfStatement` | `if` | `SEMI`, `}` |
+| `Expression` | expression-start | `)`, `,`, `SEMI`, `}` |
+| `PrimaryExpression` | `(`, `IDENT`, `INT_LITERAL`, `STRING_LITERAL`, `true`, `false` | binary operators, `%`, `,`, `)`, `SEMI`, `}` |
+
+`expression-start` is `{ "!", "(", "-", IDENT, INT_LITERAL, STRING_LITERAL, "false", "true" }`.
+
+### 6.2 Why each choice is decidable with one token
+
+| Choice point | Decision | Conflict |
+| --- | --- | --- |
+| `[ FunctionList ]` in `Program` | `fun` vs `EOF` | disjoint |
+| `FunctionTail`: separator or end | `SEMI` vs `EOF` | disjoint |
+| `[ StatementList ]` in `Block` | statement-start vs `}` | disjoint |
+| `StatementTail`: separator or end | `SEMI` vs `}` | disjoint |
+| `Statement` alternatives | `val`/`var`, `IDENT`, `return`, `if`, `{` | pairwise disjoint |
+| `PrimaryExpression` alternatives | `(`, `IDENT`, literals, `true`, `false` | pairwise disjoint |
+| `IDENT [ CallSuffix ]` | `(` vs FOLLOW(`PrimaryExpression`) | `(` is not in FOLLOW, so disjoint |
+| `[ ParameterList ]` | `IDENT` vs `)` | disjoint |
+| `[ ArgumentList ]` | expression-start vs `)` | disjoint |
+| `[ ":" Type ]` | `:` vs `{` | disjoint |
+| `[ "else" ... ]` | `else` vs FOLLOW(`IfStatement`) | `else` is not in FOLLOW |
+| `( "-" \| "!" )` in `UnaryExpression` | `-`/`!` vs expression-start | disjoint; expression-start excludes both |
+| `Block \| IfStatement` after `else` | `{` vs `if` | disjoint |
+
+`IdentStatement` is left-factored: after `IDENT` the next token is `=` or `(`,
+which is disjoint. This is the only factoring the grammar requires.
+
+There is no dangling-`else` ambiguity because both branch bodies are `Block`
+values and `else` is not in FOLLOW(`Block`) as an ambiguity source: an `else`
+attaches to the innermost `if` whose `Block` has just closed, which the
+production nesting determines. There is no unary/binary `-` ambiguity because
+unary `-` is reachable only where an expression is expected and binary `-` only
+after a complete operand; `1 - 2` and `1 -2` are the same token sequence and both
+parse as subtraction.
+
+### 6.3 Mechanical check output
+
+```text
+productions: 27
+nullable nonterminals: ['FunctionTail', 'StatementTail']
+LL(1) result: no conflicts
+```
+
+Re-running this check is a D002 obligation: the D002 build must contain an
+equivalent automated first/follow test, and §6.2 must remain true after any
+grammar change.
+
+### 6.4 Why tail productions rather than `{ Separators ... }`
+
+An earlier formulation used `[ Separators ]` before, between, and after items.
+That formulation is ambiguous for a run of two or more `SEMI` tokens: the parser
+cannot tell whether a separator belongs to the preceding repetition or the
+following optional prefix without unbounded lookahead. The tail form
+(`Separator [ ... ]`) makes each separator have exactly one owner and is LL(1).
+This is recorded because the difference is not cosmetic: it changes the accepted
+language for repeated separators.
+
+## 7. Parse diagnostics
+
+All are `ERROR`. The primary span is the offending token, or the empty span at
+end of file when the token is missing.
+
+| Code | Condition | Notes |
+| --- | --- | --- |
+| `ARA-PARSE-0100` | Unexpected token for the expected production | Related note lists the expected token set |
+| `ARA-PARSE-0101` | Unexpected token immediately after a complete expression or literal | Covers `123abc` and `f() g()`; takes precedence over `0100` when the preceding token completed an expression |
+| `ARA-PARSE-0102` | Expected `)` | Reported at the token that is not `)` |
+| `ARA-PARSE-0103` | Expected `}` | Reported at the token that is not `}` |
+| `ARA-PARSE-0104` | Expected a type name after `:` | Reported at the token that is not a type |
+| `ARA-PARSE-0105` | Expected an expression | Reported at the token that cannot start an expression |
+| `ARA-PARSE-0106` | Expected a function name after `fun` | Reported at the token that is not `IDENT` |
+| `ARA-PARSE-0107` | A block or return type after `)` is not on the same line as `)` | Rule from `lexical.md` §10 |
+| `ARA-PARSE-0108` | `else` is not on the same line as the preceding `}` | Rule from `lexical.md` §10 |
+| `ARA-PARSE-0109` | A statement begins with an expression that is neither a call nor an assignment | e.g. `1 + 2` or `-x`; also used when `if` appears where an expression is required, because `if` is not an expression |
+| `ARA-PARSE-0110` | Expected `=` or `(` after an identifier in statement position | Prevents a bare identifier statement |
+| `ARA-PARSE-0111` | Expected `(` after a function name | |
+| `ARA-PARSE-0112` | Expected `:` after a parameter name | |
+| `ARA-PARSE-0113` | Expected `,` or `)` in a parameter or argument list | |
+| `ARA-PARSE-0114` | Expected a function body block after a function header | Reported at `EOF` or the offending token |
+| `ARA-PARSE-0115` | Expected `{` | After `if (expr)`, after `else`, or where a body was required |
+| `ARA-PARSE-0116` | Expected `(` | After `if`, or after a function name |
+| `ARA-PARSE-0117` | Unmatched `)` | A `)` with no open parenthesis; the separation counter never goes below zero (`lexical.md` §10 rule 52) |
+| `ARA-PARSE-0199` | Parse error limit reached (100 errors) | `NOTE`-severity companion diagnostic; parsing stops |
+
+A conforming parser MUST report exactly one of these codes for a single
+syntactic defect. It MUST NOT report both `0100` and a more specific code for the
+same token.
+
+Code selection is deterministic:
+
+1. If the failure is `0107` or `0108` (newline-driven separation), report that
+   code, never `0100`.
+2. Otherwise, if the token that fails to parse immediately follows a token that
+   completed a `PrimaryExpression` or a full `Expression`, report `0101`.
+3. Otherwise report the specific expected-token code (`0102`–`0106`,
+   `0110`–`0117`) when exactly one such expectation applies.
+4. Otherwise report `0100` with the expected token set as a related note.
+
+## 8. Error recovery
+
+Recovery is specified so that negative tests are deterministic:
+
+1. **Top level.** On an error while parsing a `FunctionDecl`, skip tokens until
+   `"fun"` at parenthesis depth 0 or `EOF`, then resume `FunctionList`.
+2. **Block.** On an error while parsing a `Statement`, skip tokens until `SEMI`,
+   `"}"`, or `EOF`, then resume `StatementList` (consuming the separator).
+3. **Expression.** On an error inside an expression, do not skip; report once and
+   return an error expression to the caller. The enclosing statement then
+   synchronizes per rule 2.
+4. **Missing closer.** If `}` is missing at `EOF`, report `ARA-PARSE-0103` with a
+   note pointing at the opening `{`.
+5. **Cascades.** Recovery must not produce a second error for a token already
+   reported. The parser tracks the last reported token offset and suppresses
+   duplicates at that offset.
+6. **Limit.** After 100 `ERROR` diagnostics, stop parsing and emit
+   `ARA-PARSE-0199` as a `NOTE`. The resulting AST is discarded.
+
+Recovery never invents a successful parse. A unit with any parse error produces no
+AST for later stages.
+
+## 9. Recommended parser strategy
+
+A hand-written recursive-descent parser with:
+
+- one token of lookahead, plus the previous token to produce `0107` and `0108`;
+- one function per precedence level, or precedence climbing within the binary
+  levels (either strategy accepts exactly this grammar; the choice is an
+  implementation detail that must not change the accepted language);
+- panic-mode recovery as specified in §8;
+- no parser generator.
+
+This is recommended, not mandated: any implementation whose accepted language is
+exactly this grammar and whose diagnostics match §7 conforms.
+
+## 10. Non-goals
+
+This grammar does not define: type inference syntax, generics, string templates,
+lambda syntax, expression-bodied functions, single-statement bodies, loop forms,
+package/import declarations, annotations, or operator declarations. Constructs
+outside the grammar must be rejected; no construct may be accepted with
+unspecified behavior.

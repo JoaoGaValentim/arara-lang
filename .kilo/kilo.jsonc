@@ -1,0 +1,59 @@
+{
+  "$schema": "https://app.kilo.ai/config.json",
+
+  // Ambient project instructions. AGENTS.md is loaded automatically; these rules
+  // add operational detail and are subordinate to it.
+  "instructions": [".kilo/rules/*.md"],
+
+  // Context protection (Layer A). Verified against Kilo CLI 7.8.12:
+  // `kilo debug config` preserves every field below.
+  "compaction": {
+    "auto": true,
+    "threshold_percent": 70,
+    "prune": true,
+    "tail_turns": 4,
+    "preserve_recent_tokens": 8000,
+    "reserved": 20000
+  },
+
+  // Highest reasoning effort supported by the configured DeepSeek model.
+  // Model metadata (Kilo CLI 7.8.12) exposes variants low/medium/high/max for
+  // both hive and robin `deepseek-ai/deepseek-v4.1-flash-1017`; `max` is the
+  // strongest declared variant and the provider accepts
+  // `reasoning_effort: "max"`. A variant only takes effect when the agent has a
+  // configured model, so the model is pinned to the provider that this
+  // environment was already using (hive). Limits are declared for both
+  // providers so an intentional provider switch keeps working.
+  "agent": {
+    "code": {
+      "model": "hive/deepseek-ai/deepseek-v4.1-flash-1017",
+      "variant": "max"
+    }
+  },
+
+  // The provider's built-in metadata reports `limit.context = 0` and
+  // `limit.output = 0`, which prevents context-aware compaction. The values
+  // below are measured, not invented. See docs/adr/0003-model-limits.md.
+  //   - 1048576 max_tokens with a 31-token prompt is rejected as too long.
+  //   - 1048544 max_tokens with a 31-token prompt is accepted.
+  //   - Therefore the provider enforces prompt_tokens + max_tokens <= 1048576.
+  // There is no separately observable output cap below the context window, so
+  // output is set to the context window; effective output is bounded by the
+  // remaining context.
+  "provider": {
+    "robin": {
+      "models": {
+        "deepseek-ai/deepseek-v4.1-flash-1017": {
+          "limit": { "context": 1048576, "output": 1048576 }
+        }
+      }
+    },
+    "hive": {
+      "models": {
+        "deepseek-ai/deepseek-v4.1-flash-1017": {
+          "limit": { "context": 1048576, "output": 1048576 }
+        }
+      }
+    }
+  }
+}
