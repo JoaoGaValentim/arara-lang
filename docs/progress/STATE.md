@@ -10,15 +10,15 @@ milestone_authorization: D001-01 and D001-06 (docs/progress/DECISIONS.md)
 process_authorization: D001-07 (English-only communication, closed gate status vocabulary)
 visibility_and_license_authorization: D001-08 (public visibility, Apache-2.0, Copilot migration)
 gate_correction_authorization: D001-09 (D001-G9 is BLOCKED; G9-A not operative)
-current_task: D001-R4 in progress — F-R4-01/F-R4-02/F-R4-03 corrected, license adopted, Copilot config created; visibility change and final commit pending
-current_subtask: final verification, visibility change, and checkpoint commit
-last_completed_unit: D001-R4 §3 corrections and §4 license adoption
+current_task: D001-R4 complete — F-R4-01/F-R4-02/F-R4-03 corrected, Apache-2.0 adopted, repository public, Copilot configuration created; Copilot agent loading and fresh-session recovery remain UNVERIFIED
+current_subtask: none — awaiting owner rulings on G9-A, OQ-3, OQ-10, OQ-11
+last_completed_unit: D001-R4 — R3 corrections, license adoption, public visibility, Copilot migration files, final report
 branch: infra/d001-r4-copilot-migration
-last_verified_commit: 78ca162
-audit_commit: pending (this branch, first commit)
+last_verified_commit: 32884b4
+audit_commit: 32884b4 (D001-R4); previous audit 49ad593 (D001-R3)
 commit_convention: this ledger is edited before each commit, so last_verified_commit is always the commit immediately preceding the one containing this line; verify with `git log --oneline -3`
 remote: origin https://github.com/JoaoGaValentim/arara-lang.git (public after D001-R4, still zero pushed refs until separately authorized)
-working_tree: dirty — D001-R4 changes staged for the first commit on this branch
+working_tree: clean at 32884b4 before this checkpoint commit; nothing pushed
 ```
 
 ## D001-R1 changed paths
