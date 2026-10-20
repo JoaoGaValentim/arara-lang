@@ -128,7 +128,7 @@ Each row is a rule in `semantics.md` and its obligation.
 | §5.7 `println` reserved | user function named differently | `ARA-NAME-0108` |
 | §6.2 `println` overloads | all three types | `ARA-TYPE-0206` for zero/two args |
 | §6.7 `println` as value | statement use | `ARA-TYPE-0205` |
-| §7.1 evaluation order | left-to-right is structurally enforced; arguments are pure in the initial subset because calls cannot appear as nested expression operands except through `println` statement position | `MANUAL`: the initial subset has no side-effecting expression, so order is not observable; the obligation is that evaluation order is documented and that the *absence* of observable effects is stated, not tested by output |
+| §7.1 evaluation order | left-to-right is observable through user functions that print. Fixture: `fun a(): Int { println("a"); return 1 }` and `fun b(): Int { println("b"); return 2 }`, then `println(a() + b())` must produce `a`, `b`, `3` in that order; also `f(a(), b())` for a two-parameter `f` | output test asserts exact stdout order |
 | §7.1.3 short-circuit | `false && f()` does not call `f`; `true \|\| f()` does not call `f` | output-based test |
 | §7.2.2–7.2.4 literal range | `2147483647`, `-2147483648` | `ARA-TYPE-0204` in the four positions listed |
 | §7.3.1 operator typing | every valid combination | `ARA-TYPE-0209` per invalid combination |

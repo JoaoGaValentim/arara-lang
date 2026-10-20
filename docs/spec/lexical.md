@@ -150,20 +150,23 @@ EOF
 
     | Reserved words | Deferred category |
     | --- | --- |
-    | `class`, `object`, `interface`, `enum`, `this`, `super`, `new`, `init`, `constructor` | classes, inheritance, interfaces |
+    | `class`, `object`, `interface`, `enum`, `this`, `super`, `new`, `init`, `constructor` | classes, inheritance, interfaces, objects, enums |
     | `when` | pattern matching |
     | `while`, `for`, `do`, `break`, `continue` | loops and loop control |
     | `try`, `catch`, `finally`, `throw` | exception syntax |
     | `null` | nullable types |
-    | `package`, `import` | packages and modules |
+    | `package`, `import` | packages and modules (charter §4) |
     | `typealias` | type declarations |
-    | `suspend` | coroutines |
+    | `suspend` | coroutines and async |
     | `annotation` | custom annotations |
     | `in`, `is`, `as` | type tests, casts, and operator forms |
 
 32. The reserved list may only change by an owner decision recorded in
     `docs/progress/DECISIONS.md`, because adding a reserved word is a breaking
-    source change.
+    source change. Every reserved word above is justified by a category in
+    `docs/charter.md` §4; a word with no corresponding charter category MUST NOT
+    be reserved. Conversely, reserving a word for a category that the charter
+    does not list is scope expansion and is prohibited.
 33. Identifiers that differ only by case are distinct. There is no Unicode
     normalization because non-ASCII identifiers are not permitted.
 

@@ -68,8 +68,12 @@ introduced to simplify an implementation:
 - Multiplatform compilation.
 - A general standard library.
 - Packages and modules.
-- Loops (`while`, `for`). Iteration is expressed by recursion in the initial
-  subset.
+- Loops (`while`, `for`, `do`) and loop control (`break`, `continue`).
+  Iteration is expressed by recursion in the initial subset.
+- Pattern matching (`when`).
+- Type aliases (`typealias`).
+- Type tests and casts (`is`, `as`) and the `in` operator form.
+- Enums as a distinct declaration kind; classes and objects cover the category.
 - String concatenation and string interpolation.
 - Floating-point types.
 - Exception handling syntax (`try`/`catch`/`throw`).

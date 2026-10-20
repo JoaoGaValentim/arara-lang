@@ -183,6 +183,28 @@ Assessments:
 | FIRST/FOLLOW | ad-hoc LL(1) analysis | PASS — no selection conflict |
 | Fresh-process recovery | `kilo run --agent plan`, twice, read-only | PASS with limitation — §Independent recovery validation |
 
+## Internal audit resolution
+
+An independent read-only audit was run against the D001 documents. Findings and
+dispositions:
+
+| Finding | Resolution |
+| --- | --- |
+| Grammar accepted a leading `SEMI` while `lexical.md` forbade it | Grammar rewritten with `FunctionTail`/`StatementTail`; both documents now agree that a leading or doubled `SEMI` is `ARA-PARSE-0100` |
+| Name resolution described two incompatible rules for a local named like a function | `semantics.md` §5.3–§5.10 rewritten as two explicit namespaces; `ARA-NAME-0111` marked unreachable |
+| `alwaysReturns` ignored unreachability | Replaced with a deterministic one-pass block algorithm plus three worked consequences |
+| Two worked examples had headings that contradicted their code | `semantics.md` §13.2 and §13.5 corrected; §13.5a added |
+| `architecture.md` claimed a single generated reference type | Corrected to every generated unit class with `java/lang/Object` as the only common supertype |
+| CLI contract pointed at a gate that did not exist | CLI contract made explicit per milestone; `D002-G11` and `D004-G9` added |
+| `charter.md` referenced an undefined "`Arara` digit pattern" | Replaced with the regex plus the Java reserved-word rule, reported as `ARA-SRC-0004` |
+| Toolchain and provider probes lacked reproducible evidence | ADR 0002 gained the probe project description and command output; ADR 0003 gained the request shape and full probe table |
+| A committed helper script violated the "documentation only" rule | Removed from the repository; analyses re-run externally and results recorded as data |
+| Conformance plan claimed output-observable evaluation order was untestable | Corrected: user functions that print make it observable; a fixture is specified |
+| Conformance plan assigned two codes to one defect; missing `(` had no code | Corrected; `ARA-PARSE-0115`, `0116`, `0117` added |
+| Missing obligations for driver, ordering, suppression, frames, determinism | `conformance-plan.md` §6a added |
+| Reserved-word list was not traceable to charter categories | `lexical.md` §31–32 now require a charter category per word |
+| `GATES.md` reported PASS before the bootstrap commit existed | Rewritten to `BLOCKED` at the time, then to `PASS` only after the commit and after fresh-process recovery |
+
 ## Blocking decisions
 
 None block D001 completion. Nine open questions are recorded in

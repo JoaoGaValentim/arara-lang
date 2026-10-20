@@ -240,14 +240,19 @@ and produces no effects. Otherwise evaluate the right operand.
 
 7.1.4. For a call `f(a, b)`: evaluate arguments left to right, then invoke.
 
+7.1.5. For `if (c) A else B`: evaluate `c`, then execute exactly one of `A` or
+`B`.
+
 7.1.6. For a block: execute statements in order until one transfers control.
 
 7.1.7. A local declaration evaluates its initializer, then binds the name.
 
-7.1.8. There are no side effects other than `println` output, assignment to
-`var` locals, and non-termination or exceptional termination. This makes
-left-to-right order observable only through those effects, but the order remains
-normative.
+7.1.8. The only effects are `println` output, assignment to a `var` local,
+non-termination, and exceptional termination. Left-to-right order is observable
+through the first two: a called function may print before a later argument's
+function prints, and assignment is sequenced after its initializer. §7.1 is
+therefore testable, not merely declaratory; `conformance-plan.md` §5 gives the
+fixture.
 
 ### 7.2 Literals
 
