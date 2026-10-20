@@ -16,8 +16,8 @@ current_task: D001-R5 complete — numerical defect corrected, agents and allowl
 current_subtask: none — awaiting owner rulings on OQ-3, OQ-10, OQ-11, and D001 acceptance
 last_completed_unit: D001-R5 — R5 corrections, agent verification, publication, branch protection, report
 branch: infra/d001-r4-copilot-migration
-last_verified_commit: 230abd6
-audit_commit: 230abd6 (D001-R5); previous audit 2607608 (D001-R4), 49ad593 (D001-R3)
+last_verified_commit: 28ae488
+audit_commit: 230abd6 (D001-R5 content); previous audit 2607608 (D001-R4), 49ad593 (D001-R3)
 commit_convention: this ledger is edited before each commit, so last_verified_commit is always the commit immediately preceding the one containing this line; verify with `git log --oneline -3`
 remote: origin https://github.com/JoaoGaValentim/arara-lang.git (public; `main` published 2026-10-20, default branch `main`)
 working_tree: HEAD is 230abd6 (R5 content commit); after that commit a concurrent process modified four tracked paths that this session did not author — .github/agents/arara-recovery.agent.md, .github/copilot-instructions.md, docs/progress/DECISIONS.md, docs/spec/semantics.md. They are preserved uncommitted and not staged. See docs/progress/audit/D001-R5.md §N
