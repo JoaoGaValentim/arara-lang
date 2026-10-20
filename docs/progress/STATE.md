@@ -16,11 +16,11 @@ current_task: D001-R5 complete — numerical defect corrected, agents and allowl
 current_subtask: none — awaiting owner rulings on OQ-3, OQ-10, OQ-11, and D001 acceptance
 last_completed_unit: D001-R5 — R5 corrections, agent verification, publication, branch protection, report
 branch: infra/d001-r4-copilot-migration
-last_verified_commit: e707b10
+last_verified_commit: 77565ce
 audit_commit: 230abd6 (D001-R5 content); previous audit 2607608 (D001-R4), 49ad593 (D001-R3)
 commit_convention: this ledger is edited before each commit, so last_verified_commit is always the commit immediately preceding the one containing this line; verify with `git log --oneline -3`
 remote: origin https://github.com/JoaoGaValentim/arara-lang.git (public; `main` published 2026-10-20, default branch `main`)
-working_tree: clean at bde81a3 before this checkpoint commit; the earlier concurrent edits were reconciled, consolidated, and committed, not discarded
+working_tree: clean at 77565ce before this checkpoint commit; the earlier concurrent edits were reconciled, consolidated, and committed, not discarded
 ```
 
 ## D001-R1 changed paths
