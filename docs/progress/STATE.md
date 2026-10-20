@@ -5,7 +5,7 @@ only; no intentions, no forecasts.
 
 ```yaml
 # ── Milestone ───────────────────────────────────────────────────────────────
-active_directive: D001-R7 (acceptance reconciliation and PR #2 integration); milestone D001
+active_directive: D001-R7 post-merge completion (PR #2 integrated; mainline record written); milestone D001
 active_milestone: D001 — Foundation
 milestone_status: ACCEPTED_AND_INTEGRATED
 milestone_authorization: D001-01 and D001-06 (docs/progress/DECISIONS.md)
@@ -32,10 +32,11 @@ contract_ratification: D001-13 through D001-23 (OQ-3,4,5,6,7,8,10,11,12,13,14)
 r7_authorization: D001-25 (R7 reconciliation, ledger snapshot, PR #2 integration)
 
 # ── Mainline snapshot (historical observation, NOT a live HEAD pin) ─────────
-mainline_observed_at: 2026-10-20 (D001-R6 post-merge verification)
-mainline_merge_commit: 5441a9f3a95db09563f5183c7cb8f68532e5a6bf
-mainline_merge_parents: 717fcc667f1397252c66d9a6e854fac2fb33ca64, b0c2492eec39a3ae8877f70d6607afcc3dd128fa
-mainline_tree: 9536279fdf12c708e0c6eaf2319faf920520fe65
+mainline_observed_at: 2026-10-20T21:50:24Z (D001-R7 post-merge verification)
+mainline_merge_commit: 992e84a53cf3cfae226e49c03fee076b86820e2c
+mainline_merge_parents: 5441a9f3a95db09563f5183c7cb8f68532e5a6bf, 37f1311e08df8b31798d0666a9bb5b2d73c67556
+mainline_tree: 8c1c70f94015d7a694722a7301ac789f4490da58
+mainline_prior_snapshot: 5441a9f3a95db09563f5183c7cb8f68532e5a6bf (observed at D001-R6, superseded by this snapshot but still an ancestor)
 mainline_snapshot_rule: >
   This is the main revision observed during verification, not an assertion about
   the current tip of main. Later commits on main do not make it wrong. Compare it
@@ -43,8 +44,8 @@ mainline_snapshot_rule: >
   where it is NOT an ancestor as a hard failure.
 
 # ── Ledger commit identity ──────────────────────────────────────────────────
-ledger_branch: docs/d001-r6-acceptance
-last_verified_commit: e067aa0
+ledger_branch: docs/d001-r7-postmerge
+last_verified_commit: a9da659
 ledger_commit_rule: >
   last_verified_commit is the commit preceding the commit that contains this
   ledger, on ledger_branch. It is expected to be the parent of that commit, not
@@ -536,7 +537,7 @@ actions. It correctly reported `working tree: UNVERIFIED` rather than guessing,
 because its allowlist has no terminal.
 
 It also found a real defect that this section corrects: `STATE.md` recorded
-`last_verified_commit: 32884b4` while HEAD was `2607608`, and `.git/packed-refs`
+`last_verified_commit: PENDING_POSTMERGE_COMMIT while HEAD was `2607608`, and `.git/packed-refs`
 was stale for the current branch. The first is the normal ledger lag of one
 commit that `commit_convention` describes and `G9-A` permits; the second is
 ordinary Git behaviour that the recovery procedure did not explain, causing it to
