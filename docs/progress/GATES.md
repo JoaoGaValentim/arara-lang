@@ -35,7 +35,7 @@ recorded in `docs/adr/0002-compiler-host.md`, `docs/adr/0003-model-limits.md`, a
 | D001-G11 | Grammar derivability | Every example in the specification is derivable from `syntax.ebnf`; FIRST/FOLLOW analysis shows no selection conflict | PASS | `syntax.ebnf` §5, §6.3; `STATE.md` §Audit findings |
 | D001-G12 | Traceability | Every normative rule has a test obligation or an explicit `MANUAL` marker | PASS | `conformance-plan.md` §3–§6a |
 | D001-G13 | No unverified claims | Every environment claim carries a command and result | PASS | ADRs 0002–0003; `STATE.md` §Verification runs |
-| D001-G14 | Git state | Work is committed locally on the recorded branch; no unauthorized push | PASS | `git log` shows `c5f376a` on `main`; `git status` clean; `git remote -v` shows only `origin` and no push occurred |
+| D001-G14 | Git state | Work is committed locally on the recorded branch; no unauthorized push | PASS | `git log` shows the bootstrap commit `c5f376a` and the ledger checkpoint `2b964ff` on `main`; `git status` clean after each; `git remote -v` shows only `origin` and no push occurred |
 | D001-G15 | Independent recovery | A fresh session reconstructs state without the transcript | PASS | Two separate `kilo run` processes reconstructed milestone, scope, next action, forbidden actions, and Git state from files alone; the first correctly flagged the missing commit. See `STATE.md` §Independent recovery validation. Limitation: same client and model. |
 
 **D001 self-assessment:** all D001 gates are `PASS` with recorded evidence.

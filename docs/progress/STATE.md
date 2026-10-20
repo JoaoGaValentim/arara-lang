@@ -9,11 +9,12 @@ active_milestone: D001 — Foundation (documentation and configuration only)
 milestone_authorization: D001-01 (docs/progress/DECISIONS.md)
 current_task: D001 execution complete; awaiting owner review
 current_subtask: none
-last_completed_unit: D001 bootstrap committed and recovery-validated (c5f376a)
+last_completed_unit: D001 bootstrap committed and recovery-validated
 branch: main
-last_verified_commit: c5f376af28ea76c9f802e258331185aab666cde4
+last_verified_commit: 2b964ffe90e18f31a0724be24effa3a900461522
+commit_convention: this ledger is edited before each commit, so last_verified_commit is always the commit immediately preceding the one containing this line; verify with `git log --oneline -3`
 remote: origin https://github.com/JoaoGaValentim/arara-lang.git (private, no push)
-working_tree: clean at c5f376a (this ledger update is the only later change)
+working_tree: clean before this ledger edit
 ```
 
 ## Authorized scope
