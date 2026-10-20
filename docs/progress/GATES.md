@@ -44,8 +44,8 @@ recorded in `docs/adr/0002-compiler-host.md`, `docs/adr/0003-model-limits.md`, a
 | D001-G11 | Grammar derivability | Every example in the specification is derivable from `syntax.ebnf`; FIRST/FOLLOW analysis shows no selection conflict | PASS | `syntax.ebnf` §5, §6.3; `STATE.md` §D001-R1 verification runs |
 | D001-G12 | Traceability | Every normative rule has a test obligation or an explicit `MANUAL` marker | PASS | Directive 001-R3 closed both gaps instead of deferring them. `ARA-SRC-0002` now has a driver test, `ARA-PARSE-0199` a 101-defect fixture, `ARA-SRC-0001` an empty-argument test, `ARA-JVM-0001` an emitter injection test, and the reserved codes `ARA-JVM-0100`/`ARA-NAME-0107` an absence assertion. `ARA-SRC-0005` was added with five negative fixtures. Reproducible check: `REPRODUCIBILITY.md` §9 `g12check.py` reports 68 of 68 defined codes carrying at least one obligation |
 | D001-G13 | No unverified claims | Every environment claim carries a command and result | PASS | Directive 001-R3 replaced the two "ad-hoc audit script (not committed)" rows with executed commands and recorded them in `REPRODUCIBILITY.md`: `ll1final.py` for the grammar lint and FIRST/FOLLOW/selection analysis, `traceaudit.py` for code uniqueness, `shortaudit.py` for shorthand, `g12check.py` for coverage. The D001 and D001-R1 run tables remain separate. Remaining limitation: the checker is reproduced as a listing, not a tracked file, because `D001-G1` forbids tracked `.py` sources |
-| D001-G14 | Git state | Work is committed locally on the recorded branch; no unauthorized push | PASS | `git log` shows `c5f376a` (bootstrap), ledger checkpoints through `717fcc6`, and D001-R1 content commit `ce3c67d`, all local; `git status` clean; `git remote -v` shows only `origin`, `git ls-remote origin` returns no refs, and no push occurred |
-| D001-G15 | Independent recovery | A fresh session reconstructs state without the transcript | PASS | Two separate `kilo run` processes reconstructed milestone, scope, next action, forbidden actions, and Git state from files alone; the first correctly flagged the missing commit. See `STATE.md` §Independent recovery validation. **Limitation (updated by 001-R4):** both runs used the same client and model, so recovery is verified for the Kilo client only. Recovery under GitHub Copilot is `UNVERIFIED` — see `docs/progress/audit/D001-R4.md` §7 |
+| D001-G14 | Git state | Work is committed locally on the recorded branch; no unauthorized push | PASS | `git log` shows `c5f376a` (bootstrap), ledger checkpoints through `717fcc6`, and D001-R1 content commit `ce3c67d`. Until Directive 001-R5 the remote had no refs and no push had occurred; `D001-10` then authorized publishing `main` once and pushing the migration branch. Current state: `main` = `717fcc6` and the migration branch is pushed, both authorized; every other historical commit is local-only. `git remote -v` shows only `origin` |
+| D001-G15 | Independent recovery | A fresh session reconstructs state without the transcript | PASS | A fresh `arara-recovery` invocation under the **GitHub Copilot** harness reconstructed directive, milestone, authorized work, branch, HEAD, open decisions, next safe action, and forbidden actions from files alone, and correctly reported the working tree `UNVERIFIED`. See `docs/progress/audit/D001-R5.md` §F. Earlier evidence: two separate `kilo run` processes produced the same result for the Kilo client (`STATE.md` §Independent recovery validation). **Limitation:** both clients were verified against the same durable files; whether either harness survives compaction is `UNVERIFIED` |
 
 **D001 self-assessment (as corrected by Directive 001-R5):** fifteen gates are
 `PASS` and none is `BLOCKED`. `D001-G9` was reclassified from `BLOCKED` to `PASS`
@@ -60,8 +60,11 @@ See `docs/progress/audit/D001-R5.md` §L.
 
 A gate criterion is never rewritten to make incomplete work look sufficient. Where
 a criterion was defective, the defect is named, the original text is preserved, and
-the replacement is proposed for owner approval rather than applied silently. Until
-approved, the amendment is **not** operative.
+the replacement is proposed for owner approval rather than applied silently. An
+amendment that has not been approved by a recorded owner decision is **not**
+operative. `G9-A` is the only amendment in this table, and it is now ratified by
+`D001-11`, so it is operative; the original criterion text below is preserved
+verbatim for audit and is not deleted.
 
 | ID | Gate | Original criterion (verbatim) | Proposed criterion | Why the original is defective | Status |
 | --- | --- | --- | --- | --- | --- |
