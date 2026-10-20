@@ -14,14 +14,14 @@ r5_authorization: D001-10 (R5 operations, publication)
 gate_ratification: D001-11 (G9-A ratified; D001-G9 BLOCKED -> PASS)
 r6_authorization: D001-12 (R6 workflow; ratification delegated, language design not delegated)
 contract_ratification: D001-13 through D001-23 (OQ-3,4,5,6,7,8,10,11,12,13,14)
-current_task: D001-R6 — contract ratified and frozen, PR #1 description corrected, pre-merge verification complete
-current_subtask: none — awaiting merge of the reviewed revision, then post-merge verification
-last_completed_unit: D001-R6 — eleven ratifications, contract freeze at hashed revision, PR description correction, pre-merge verification
+current_task: D001-R6 complete — contract ratified and frozen, PR #1 integrated as merge commit 5441a9f, post-merge verified, D001 ACCEPTED (D001-24)
+current_subtask: none — D001 boundary reached; D002 not authorized
+last_completed_unit: D001-R6 — eleven ratifications, contract freeze, merge 5441a9f, post-merge verification, D001 acceptance
 branch: infra/d001-r4-copilot-migration
 last_verified_commit: d35e8be
 audit_commit: D001-R6 report in docs/progress/audit/D001-R6.md; previous 230abd6 (R5), 2607608 (R4)
 commit_convention: this ledger is edited before each commit, so last_verified_commit is always the commit immediately preceding the one containing this line; verify with `git log --oneline -3`
-remote: origin https://github.com/JoaoGaValentim/arara-lang.git (public; default branch `main`)
+remote: origin https://github.com/JoaoGaValentim/arara-lang.git (public; default branch `main` at 5441a9f after the authorized merge)
 working_tree: clean at the recorded last_verified_commit before this checkpoint commit
 ```
 
@@ -782,7 +782,8 @@ dispositions:
 **No decision remains open.** After Directive 001-R6 every option raised during
 D001 is resolved by a recorded owner decision; the index lives in
 `docs/progress/DECISIONS.md`. The eleven outstanding items were ratified as
-`D001-13`–`D001-23`, each with its own scope and limitations.
+`D001-13`–`D001-23`, each with its own scope and limitations, and D001 itself was
+accepted as `D001-24` after the integration was verified.
 
 | Option | Decision | Status |
 | --- | --- | --- |
@@ -806,13 +807,18 @@ decision naming the superseded rule; the decision index lists those targets.
 
 ## Next executable action
 
-1. Read `docs/progress/audit/D001-R6.md` §K for the D001 acceptance verdict.
-2. If `D001-24` records acceptance: D002 may begin only under a separate
-   directive. D001-R6 does not authorize implementation.
-3. Reconcile the ledger for post-merge `main` only through a narrowly scoped
-   documentation follow-up, never a direct commit to protected `main`.
-4. `OQ-14` remains ratified as "retain Kilo"; retiring it still requires a new
+D001 is `ACCEPTED` (`D001-24`). The next action is **owner-issued, not
+agent-initiated**:
+
+1. Issue a D002 directive. D002 is not authorized by D001-R6 and no compiler code
+   may be written before that directive exists.
+2. Optionally authorize a narrowly scoped documentation-only follow-up branch to
+   reconcile this ledger for post-merge `main`, per `D001-R6.md` §I. Never commit
+   that reconciliation directly to protected `main`.
+3. `OQ-14` remains ratified as "retain Kilo"; retiring it still requires a new
    decision.
+4. D002's first task is to write a lexer against the frozen contract, and it will
+   need CI that actually executes tests: none exists today.
 
 Two D002 obligations were closed by Directive 001-R3 rather than carried forward:
 `ARA-SRC-0002` and `ARA-PARSE-0199` now have explicit obligations in

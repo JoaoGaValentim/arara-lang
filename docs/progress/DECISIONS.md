@@ -566,6 +566,43 @@ Format: `Dxxx-yy` where `xxx` is the directive number and `yy` is a sequence.
 
 ---
 
+## D001-24 — D001 formally ACCEPTED
+
+- **Date:** 2026-10-20
+- **Decider:** Repository owner (`JoaoGaValentim`), via Directive 001-R6 §8
+- **Status:** ACTIVE — **D001 ACCEPTED**
+- **Verdict:** `PASS`, not `CONDITIONAL`. No gate is `BLOCKED` or `FAIL`, and no
+  condition of Directive 001-R6 §8 is deferred.
+- **Conditions satisfied:**
+  - Decisions recorded: `D001-13`–`D001-23` (eleven ratifications) under `D001-12`.
+  - Gates: fifteen `PASS`, including `D001-G9` against the ratified `G9-A`.
+  - Contract frozen at an exact revision by SHA-256 in
+    `docs/progress/audit/D001-R6.md` §B.1, re-verified on `main`.
+  - Merge performed as a merge commit `5441a9f3a95db09563f5183c7cb8f68532e5a6bf`
+    with parents `717fcc6` and `b0c2492`, tree-identical to the reviewed branch.
+  - Post-merge verification complete: license, agents, specification hashes, and
+    branch protection all confirmed on `main`.
+  - Ledger reconciliation status disclosed in `D001-R6.md` §I.
+- **What this acceptance is:** D001 delivered governance, a ratified and frozen
+  language contract for the initial subset, a verified verification record, and a
+  published foundation. D001 is complete.
+- **What this acceptance is NOT:**
+  - It does not authorize D002. A separate directive is required.
+  - It does not assert that an implementation exists; none does.
+  - It does not release, tag, or publish an artifact.
+  - It does not validate anything beyond the documented initial subset.
+- **Supersedes:** the D001 verdict statement in `docs/progress/audit/D001-R5.md`
+  §N, which recommended not accepting until the owner decided `OQ-3`, `OQ-10`, and
+  `OQ-11`. Those decisions now exist. The R5 recommendation is retained unmodified
+  as the record of what was true at that time.
+- **Rationale:** Acceptance was blocked on owner authority, not on missing
+  evidence. Once the owner ratified the contract and the integration was verified,
+  continuing to withhold acceptance would have been a process claim rather than a
+  factual one.
+- **Evidence of authority:** Directive 001-R6 §8; the R6 report sections A–L.
+
+---
+
 ## Decision index
 
 Every option raised during D001 is now resolved by a recorded owner decision.

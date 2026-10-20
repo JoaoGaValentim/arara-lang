@@ -13,19 +13,18 @@ states what to do and what not to do, with no reliance on prior conversation.
   agent environment), `D001-09` (G9 reclassification), `D001-10` (R5 operations,
   publication), `D001-11` (`G9-A` ratified), `D001-12` (R6 authorization),
   `D001-13`–`D001-23` (the eleven contract ratifications).
-- **Status:** the contract is **RATIFIED and frozen** at the hashed revision in
-  `docs/progress/audit/D001-R6.md` §B. Fifteen gates are `PASS`, none `BLOCKED`,
-  and no decision remains open. D001 acceptance depends on the merge and
-  post-merge verification; the verdict is recorded in `D001-R6.md` §K and, if
-  acceptance holds, in `D001-24`. No implementation exists or is authorized.
+- **Status:** **D001 IS ACCEPTED** (`D001-24`, verdict `PASS`). The contract is
+  ratified and frozen at the hashed revision in `docs/progress/audit/D001-R6.md`
+  §B. Fifteen gates are `PASS`, none `BLOCKED`, and no decision remains open.
+  Integration completed as merge commit `5441a9f`. No implementation exists, and
+  D002 is not authorized.
 - **Branch:** `infra/d001-r4-copilot-migration`.
 - **Remote:** `origin` → `https://github.com/JoaoGaValentim/arara-lang.git`.
-  Public, default branch `main`. The merge of PR #1 under `D001-12` is a merge
-  commit; `D001-R6.md` §F records the exact SHA and parents once executed. No
-  commit is squashed, rebased, or force-pushed.
+  Public, default branch `main` at `5441a9f3a95db09563f5183c7cb8f68532e5a6bf`, the
+  merge commit integrating PR #1 (parents `717fcc6`, `b0c2492`). No commit was
+  squashed, rebased, or force-pushed.
 - **License:** Apache-2.0, root `LICENSE`, unmodified ASF text
-  (SHA-256 `cfc7749b…3d30`). It reaches `main` through the authorized merge; until
-  then it exists only on the review branch.
+  (SHA-256 `cfc7749b…3d30`), present on `main` and verified post-merge.
 - **Agent environment:** GitHub Copilot is primary (`.github/`). Kilo is retained
   as the fallback and must not be deleted (`D001-23`).
 
@@ -60,14 +59,15 @@ states what to do and what not to do, with no reliance on prior conversation.
 2. Run recovery through the Copilot entry point: select the `arara-recovery` agent,
    or use the `resume` skill. `.github/prompts/resume.prompt.md` is for the Local
    harness only. Compare the result against `STATE.md`.
-3. If they agree, report readiness and wait for the owner. Do not start D002.
-4. If the owner rules on `OQ-3`, `OQ-10`, or `OQ-11`, record each as a new decision
-   entry. Do not rewrite `D001-01`, `D001-06`, or any audit record. These three are
-   the only remaining obstacles to D001 acceptance.
-5. If the owner rules on `OQ-14`, retire Kilo in one separate, minimal, reversible
-   commit. Until then, `.kilo/` stays.
-6. If the owner authorizes merging the Draft PR, that is a new decision entry. Do
-   not merge because the branch is green.
+3. If they agree, report readiness and wait for the owner. D001 is accepted; do
+   not start D002 without a D002 directive.
+4. If the owner issues a D002 directive, read the frozen contract first. The
+   normative text is `docs/spec/*` at the hashes in `D001-R6.md` §B.1; do not
+   re-derive rules from audit prose.
+5. If the owner authorizes the ledger reconciliation for post-merge `main`, open a
+   separate documentation-only branch and Draft PR. Never commit it to `main`.
+6. If the owner rules to retire Kilo, do it in one separate, minimal, reversible
+   commit. Until then, `.kilo/` stays (`D001-23`).
 7. If the owner reports a defect, fix only that defect, re-check the grammar with
    the checkers in `REPRODUCIBILITY.md` §9a, update `STATE.md`, and commit with
    `checkpoint:`.
