@@ -148,23 +148,30 @@ primary offset ascending, then code ascending, then insertion order.
   inserted in a documented, input-derived order rather than from a hash-based
   collection, because `HashMap` iteration order is not a contract.
 
-## 6. Command-line contract (proposed)
+## 6. Command-line contract
+
+The full surface is defined here so that stages have a stable destination. Only
+the D002 subset is implemented in D002; the rest is gated by later milestones.
 
 ```text
-arara compile [--out <dir>] <file.ara>...
-arara run     [--out <dir>] <file.ara>...
-arara verify  <class-file>...
+arara lex     <file.ara>...            # D002: tokens and lexical diagnostics
+arara parse   <file.ara>...            # D002: AST dump and parse diagnostics
+arara check   <file.ara>...            # D003: name and type diagnostics, IR dump
+arara compile [--out <dir>] <file.ara>...   # D004: class files
+arara run     [--out <dir>] <file.ara>...   # D004: compile, verify, execute
 ```
 
+- `lex` and `parse` never write class files and never execute user code.
 - `compile` writes class files and never executes user code.
 - `run` compiles, verifies, then launches the entry class in a child JVM.
-- Both accept one or more `.ara` units in a single invocation; the set is the
-  program (`semantics.md` §1.3). The entry class is the unit that declares
-  `main` (§1.5), so no command-line flag selects it.
+- Commands that accept multiple units treat the set as the program
+  (`semantics.md` §1.3). The entry class is the unit that declares `main`
+  (§1.5), so no flag selects it.
 - Exit codes: `0` success, `1` user program failure, `2` compile-time
   diagnostics, `3` internal error, `4` verification failure.
-- This CLI contract is normative for D002 and is gated by `D002-G11`. It is not
-  implemented in D001.
+- `--out` defaults to the current directory; it is created if absent.
+- This CLI contract is normative for D002 (`D002-G11` covers `lex`/`parse`) and
+  for `compile`/`run` in D004 (`D004-G9`). It is not implemented in D001.
 
 ## 7. Alternatives considered
 

@@ -56,10 +56,10 @@ Entry: D001 accepted by recorded owner decision.
 | D002-G5 | Diagnostics | Every `ARA-LEX-*` and `ARA-PARSE-*` code is produced by at least one test with the specified span | NOT_STARTED |
 | D002-G6 | Recovery | Recovery rules in `syntax.ebnf` §8 are implemented and tested: one diagnostic per defect, no cascade | NOT_STARTED |
 | D002-G7 | AST stability | AST dump is deterministic and suitable for goldens | NOT_STARTED |
-| D002-G10 | LL(1) regression | An automated FIRST/FOLLOW check over the committed grammar reports no selection conflict, and the grammar text is unchanged from D001 or a decision records the change | NOT_STARTED |
-| D002-G11 | CLI surface | `compile` and `run` accept multiple units and select the entry class from `main`, matching `architecture.md` §6 | NOT_STARTED |
 | D002-G8 | No leakage | No name resolution, typing, IR, or bytecode code exists | NOT_STARTED |
 | D002-G9 | Determinism | Identical input produces identical token and AST dumps across runs | NOT_STARTED |
+| D002-G10 | LL(1) regression | An automated FIRST/FOLLOW check over the committed grammar reports no selection conflict, and the grammar text is unchanged from D001 or a decision records the change | NOT_STARTED |
+| D002-G11 | CLI surface | `lex` and `parse` subcommands expose tokens and AST dumps without compiling, matching `architecture.md` §6 | NOT_STARTED |
 
 ---
 
@@ -89,6 +89,7 @@ Entry: D001 accepted by recorded owner decision.
 | D004-G6 | Entry point | `main([Ljava/lang/String;)V` bridge delegates correctly and ignores its argument | NOT_STARTED |
 | D004-G7 | Determinism | Byte-identical output across repeated compilations | NOT_STARTED |
 | D004-G8 | No interop claim | No document or test claims Java interoperability | NOT_STARTED |
+| D004-G9 | CLI surface | `compile` and `run` behave as specified in `architecture.md` §6, including `--out` and exit codes | NOT_STARTED |
 
 ---
 
