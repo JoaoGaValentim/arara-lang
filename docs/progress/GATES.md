@@ -30,12 +30,12 @@ recorded in `docs/adr/0002-compiler-host.md`, `docs/adr/0003-model-limits.md`, a
 | D001-G6 | Model limits | Non-zero context and output limits appear in resolved model metadata | PASS | ADR 0003; `kilo models hive --verbose` |
 | D001-G7 | Reasoning effort | The strongest declared variant is selected and accepted by the provider | PASS | ADR 0003; `kilo debug agent code` → `variant: max` |
 | D001-G8 | Recovery completeness | `resume.md` reconstructs directive, scope, state, decisions, pending work, and next action from repository files alone | PASS | `STATE.md` §Independent recovery validation |
-| D001-G9 | Ledger accuracy | `STATE.md` matches actual branch, HEAD, and working tree at report time | PASS | Branch `docs/d001-r1-arara-identity`, HEAD at the D001-R1 commit; see `STATE.md` §D001-R1 and §Verification runs |
+| D001-G9 | Ledger accuracy | `STATE.md` matches actual branch, HEAD, and working tree at report time | PASS | Branch `docs/d001-r1-arara-identity`, content commit `ce3c67d`; `STATE.md` §D001-R1 and §Verification runs name the same branch and commit convention |
 | D001-G10 | Specification consistency | No two normative documents conflict; every diagnostic code defined exactly once | PASS | `STATE.md` §Internal audit resolution and §D001-R1 verification runs |
 | D001-G11 | Grammar derivability | Every example in the specification is derivable from `syntax.ebnf`; FIRST/FOLLOW analysis shows no selection conflict | PASS | `syntax.ebnf` §5, §6.3; `STATE.md` §D001-R1 verification runs |
 | D001-G12 | Traceability | Every normative rule has a test obligation or an explicit `MANUAL` marker | PASS | `conformance-plan.md` §3–§6a |
 | D001-G13 | No unverified claims | Every environment claim carries a command and result | PASS | ADRs 0002–0003; `STATE.md` §Verification runs |
-| D001-G14 | Git state | Work is committed locally on the recorded branch; no unauthorized push | PASS | `git log` shows the bootstrap commit `c5f376a`, ledger checkpoints through `717fcc6`, and the D001-R1 commit, all local; `git status` clean after each; `git remote -v` shows only `origin`, `git ls-remote origin` returns no refs, and no push occurred |
+| D001-G14 | Git state | Work is committed locally on the recorded branch; no unauthorized push | PASS | `git log` shows `c5f376a` (bootstrap), ledger checkpoints through `717fcc6`, and D001-R1 content commit `ce3c67d`, all local; `git status` clean; `git remote -v` shows only `origin`, `git ls-remote origin` returns no refs, and no push occurred |
 | D001-G15 | Independent recovery | A fresh session reconstructs state without the transcript | PASS | Two separate `kilo run` processes reconstructed milestone, scope, next action, forbidden actions, and Git state from files alone; the first correctly flagged the missing commit. See `STATE.md` §Independent recovery validation. Limitation: same client and model. |
 
 **D001 self-assessment:** all D001 gates are `PASS` with recorded evidence.

@@ -11,10 +11,10 @@ current_task: D001-R1 documentation identity audit complete; awaiting owner revi
 current_subtask: none
 last_completed_unit: D001-R1 identity record, naming audit, and specification corrections
 branch: docs/d001-r1-arara-identity
-last_verified_commit: 717fcc6
+last_verified_commit: ce3c67d
 commit_convention: this ledger is edited before each commit, so last_verified_commit is always the commit immediately preceding the one containing this line; verify with `git log --oneline -3`
 remote: origin https://github.com/JoaoGaValentim/arara-lang.git (private, empty, no push)
-working_tree: modified paths are exactly the D001-R1 file list below; no untracked or unrelated changes
+working_tree: clean after the D001-R1 content commit; no untracked or unrelated changes
 ```
 
 ## D001-R1 changed paths
