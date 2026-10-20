@@ -35,19 +35,30 @@ git tag -l
 git remote -v
 ```
 
-## 3. Reconcile
+## 3. Reconcile three distinct things
 
-Compare the recorded values with the command output. Cover:
+Do not merge these into one "matches" verdict. Doing so produced a false
+consistency claim in D001-R6.
+
+| # | Thing | Recorded in | Compare against | Failure condition |
+| --- | --- | --- | --- | --- |
+| a | **Mainline snapshot** — the `main` revision observed at verification | `STATE.md` `mainline_merge_commit` | `git merge-base --is-ancestor <sha> origin/main` | Not an ancestor of `main` → **failure** (rewrite or wrong repo). A newer `main` is normal, not a failure |
+| b | **Ledger branch and preceding commit** | `STATE.md` `ledger_branch`, `last_verified_commit` | the ledger commit's parent on that branch | Parent relation broken → **discrepancy** |
+| c | **Live branch and HEAD now** | discovered from `.git` | `.git/HEAD`, loose ref, reflog | Live branch differs from `ledger_branch` → **note** (snapshot of another branch), unless (a) or (b) also fails |
+
+Also compare:
 
 | Item | Recorded in | Compare against |
 | --- | --- | --- |
-| Active milestone | `STATE.md` | `DECISIONS.md` |
+| Active milestone and status | `STATE.md` | `DECISIONS.md`, `GATES.md` |
 | Active directive | `STATE.md` | `DECISIONS.md` |
-| Branch | `STATE.md` | `git branch --show-current` |
-| Last verified commit | `STATE.md` | `git log --oneline` |
-| Audit commit | `STATE.md` | `git log --oneline` |
-| Working tree | `STATE.md` | `git status --porcelain` |
+| Contract hashes | `STATE.md` `spec_hashes_sha256` | `shasum -a 256 docs/spec/*` |
+| D002 authorization | `STATE.md` | `DECISIONS.md` |
+| Working tree | never asserted by the ledger | `git status --porcelain`; if unavailable, report `UNVERIFIED` |
 | Remote and refs | `STATE.md` | `git remote -v`, `git ls-remote origin` |
+
+A historical snapshot does not become false when `main` advances. Only the
+ancestor test can fail. Never weaken that test to make a report look clean.
 
 ## 4. Detect unfinished work
 
@@ -60,14 +71,18 @@ Compare the recorded values with the command output. Cover:
 ## 5. Report before acting
 
 ```text
-Active milestone:
+Active milestone / status:
 Authorized scope:
-Branch / HEAD:
-Working tree:
-Discrepancies:      none | <list>
-Unfinished work:    none | <details>
-Next authorized action: <exact command or file>
-Prohibited now:     <list>
+Live branch / HEAD:
+Ledger branch / preceding commit:   relation: parent/equal/other
+Mainline snapshot:                  ancestor of main: yes/no
+Contract:                           FROZEN at <hash> / mismatch
+D002:                               NOT AUTHORIZED | <value>
+Working tree:                       UNVERIFIED | <value>
+Discrepancies:                      none | <list>
+Unfinished work:                    none | <details>
+Next authorized action:             <exact command or file>
+Prohibited now:                     <list>
 ```
 
 ## 6. Rules

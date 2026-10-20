@@ -6,27 +6,35 @@ states what to do and what not to do, with no reliance on prior conversation.
 ## Where we are
 
 - **Active milestone:** D001 — Foundation. Documentation and configuration only.
-- **Active directive:** `D001-R6` — owner contract ratification, PR #1
-  integration, and foundation closure.
+- **Active directive:** `D001-R7` — acceptance reconciliation and PR #2
+  integration.
 - **Authorization:** `D001-01` (milestone), `D001-06` (language identity),
   `D001-07` (language and vocabulary policy), `D001-08` (visibility, license,
   agent environment), `D001-09` (G9 reclassification), `D001-10` (R5 operations,
   publication), `D001-11` (`G9-A` ratified), `D001-12` (R6 authorization),
-  `D001-13`–`D001-23` (the eleven contract ratifications).
-- **Status:** **D001 IS ACCEPTED** (`D001-24`, verdict `PASS`). The contract is
-  ratified and frozen at the hashed revision in `docs/progress/audit/D001-R6.md`
-  §B. Fifteen gates are `PASS`, none `BLOCKED`, and no decision remains open.
-  Integration completed as merge commit `5441a9f`. No implementation exists, and
-  D002 is not authorized.
-- **Branch:** `infra/d001-r4-copilot-migration`.
-- **Remote:** `origin` → `https://github.com/JoaoGaValentim/arara-lang.git`.
-  Public, default branch `main` at `5441a9f3a95db09563f5183c7cb8f68532e5a6bf`, the
-  merge commit integrating PR #1 (parents `717fcc6`, `b0c2492`). No commit was
-  squashed, rebased, or force-pushed.
+  `D001-13`–`D001-23` (the eleven contract ratifications), `D001-R7` directive
+  (reconciliation and PR #2 integration).
+- **Status:** **D001 — ACCEPTED AND INTEGRATED.** The contract is ratified and
+  frozen at the hashed revision in `docs/progress/audit/D001-R6.md` §B. Fifteen
+  gates are `PASS`, none `BLOCKED`, and no decision remains open.
+- **Three separate facts**, which R6 wrongly merged into one:
+  1. **Contract accepted** by the owner — `D001-24`.
+  2. **Foundation integrated** into `main` — merge `5441a9f`.
+  3. **Recovery ledger reconciled** for `main` — completed under `D001-R7`, after
+     being recorded as outstanding at R6 (`D001-R6.md` §I, §K).
+- **Branch:** the ledger is committed on `docs/d001-r6-acceptance`; the previous
+  development branch `infra/d001-r4-copilot-migration` is merged and no longer the
+  working branch.
+- **Mainline snapshot:** `main` was observed at
+  `5441a9f3a95db09563f5183c7cb8f68532e5a6bf` (merge of PR #1, parents `717fcc6`,
+  `b0c2492`). This is a **historical observation, not a live HEAD pin**; it stays
+  true as `main` advances, and its only hard invariant is that it remains an
+  ancestor of `main`.
 - **License:** Apache-2.0, root `LICENSE`, unmodified ASF text
-  (SHA-256 `cfc7749b…3d30`), present on `main` and verified post-merge.
+  (SHA-256 `cfc7749b…3d30`), present on `main`.
 - **Agent environment:** GitHub Copilot is primary (`.github/`). Kilo is retained
   as the fallback and must not be deleted (`D001-23`).
+- **D002:** NOT AUTHORIZED. No implementation exists.
 
 ## What exists
 

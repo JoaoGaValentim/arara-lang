@@ -571,18 +571,32 @@ Format: `Dxxx-yy` where `xxx` is the directive number and `yy` is a sequence.
 - **Date:** 2026-10-20
 - **Decider:** Repository owner (`JoaoGaValentim`), via Directive 001-R6 §8
 - **Status:** ACTIVE — **D001 ACCEPTED**
-- **Verdict:** `PASS`, not `CONDITIONAL`. No gate is `BLOCKED` or `FAIL`, and no
-  condition of Directive 001-R6 §8 is deferred.
-- **Conditions satisfied:**
-  - Decisions recorded: `D001-13`–`D001-23` (eleven ratifications) under `D001-12`.
-  - Gates: fifteen `PASS`, including `D001-G9` against the ratified `G9-A`.
-  - Contract frozen at an exact revision by SHA-256 in
+- **Verdict:** `PASS` as an owner acceptance decision. No gate is `BLOCKED` or
+  `FAIL`, and no language-contract condition of Directive 001-R6 §8 is deferred.
+- **Conditions, stated by category** (corrected by Directive 001-R7 §3, because
+  the original text listed ledger reconciliation as satisfied while
+  `D001-R6.md` §I called it outstanding):
+  - **Acceptance — SATISFIED.** Decisions recorded as `D001-13`–`D001-23`
+    (eleven ratifications) under `D001-12`. Gates: fifteen `PASS`, including
+    `D001-G9` against the ratified `G9-A`.
+  - **Frozen contract — SATISFIED.** Four SHA-256 hashes in
     `docs/progress/audit/D001-R6.md` §B.1, re-verified on `main`.
-  - Merge performed as a merge commit `5441a9f3a95db09563f5183c7cb8f68532e5a6bf`
-    with parents `717fcc6` and `b0c2492`, tree-identical to the reviewed branch.
-  - Post-merge verification complete: license, agents, specification hashes, and
-    branch protection all confirmed on `main`.
-  - Ledger reconciliation status disclosed in `D001-R6.md` §I.
+  - **Integration — SATISFIED.** Merge commit
+    `5441a9f3a95db09563f5183c7cb8f68532e5a6bf`, parents `717fcc6` and `b0c2492`,
+    tree-identical to the reviewed branch. Post-merge verification confirmed
+    license, agents, specification hashes, and branch protection on `main`.
+  - **Recovery-ledger reconciliation — NOT SATISFIED at acceptance time.** The
+    ledger still described `infra/d001-r4-copilot-migration`, not `main`. It was
+    recorded as outstanding in `D001-R6.md` §I and completed under Directive
+    001-R7 (`docs/progress/audit/D001-R7.md` §C).
+- **Why acceptance was still valid:** the reconciliation is a recovery-record
+  obligation, not a language-contract condition. The owner accepted the contract
+  and the gate set; what remained was bookkeeping that had to be finished and
+  reported honestly, not a defect in the accepted language.
+- **Correction note:** this entry originally asserted that every §8 condition was
+  satisfied, including ledger reconciliation. That was false and is corrected
+  here rather than deleted, so the record shows what was claimed and why it was
+  wrong.
 - **What this acceptance is:** D001 delivered governance, a ratified and frozen
   language contract for the initial subset, a verified verification record, and a
   published foundation. D001 is complete.

@@ -55,9 +55,20 @@ than silent.
 
 The owner ratified the eleven outstanding options in `D001-13`–`D001-23`, and the
 integration was verified after the merge. **Milestone verdict: `PASS`** — D001 is
-formally **ACCEPTED** in `D001-24`. Every §8 condition of Directive 001-R6 holds:
-no gate is `BLOCKED` or `FAIL`, and no decision remains open. See
-`docs/progress/audit/D001-R6.md` §K.
+formally **ACCEPTED** in `D001-24`.
+
+Accepted, integrated, and reconciled are three distinct facts, and the first R6
+text wrongly reported them as one:
+
+| Fact | Status | Evidence |
+| --- | --- | --- |
+| Contract accepted by the owner | **SATISFIED** | `D001-24`, `D001-13`–`D001-23` |
+| Foundation integrated into `main` | **SATISFIED** | merge `5441a9f`, tree verified |
+| Recovery ledger reconciled for `main` | **SATISFIED under D001-R7** | was outstanding at R6; `docs/progress/audit/D001-R7.md` §C |
+
+No gate is `BLOCKED` or `FAIL`, and no decision remains open. Gate status is
+independent of the ledger reconciliation: no gate criterion referenced it, which is
+why the gap did not block acceptance but still had to be disclosed and closed.
 
 Acceptance is not authorization to implement. D002 requires its own directive.
 
