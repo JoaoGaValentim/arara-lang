@@ -414,6 +414,371 @@ Observed: zero rows. No Kilo session row for this repository has a non-null
 `time_compacting`. **Automatic compaction has still never been observed firing.**
 The `UNVERIFIED` label in `STATE.md` limitation 2 is correct and is preserved.
 
+
+## 9a. D001-R3 verification checkers
+
+Directive 001-R3 replaced the two "ad-hoc audit script (not committed)" rows in
+`STATE.md` with executed commands. The listings below are the exact programs. All
+run from a scratch directory outside the repository, because `D001-G1` forbids a
+tracked `.py` source. Paths assume the repository root is `$REPO`.
+
+### 9a.1 `ll1final.py` — grammar lint, FIRST/FOLLOW, selection sets
+
+Consumes `bnf2.txt`, the EBNF lowered to BNF by `ll1v5.py`. Neither file is
+tracked; both are retypeable from this listing. Result on the D001-R3 tree:
+53 nonterminals, 97 productions, nullable `{FunctionTail, StatementTail}`,
+0 unreachable, 0 undefined, **0 LL(1) conflicts**, 38 terminals.
+
+```python
+import ast,collections
+bnf=ast.literal_eval(open('bnf2.txt').read())
+bnf={k:[list(a) for a in v] for k,v in bnf.items()}
+NON=set(bnf)
+nullable=set(); ch=True
+while ch:
+    ch=False
+    for nt,alts in bnf.items():
+        for items in alts:
+            if len(items)==0 or all(t=='N' and v in nullable for t,v in items):
+                if nt not in nullable: nullable.add(nt); ch=True
+                break
+FIRST=collections.defaultdict(set); ch=True
+while ch:
+    ch=False
+    for nt,alts in bnf.items():
+        for items in alts:
+            if not items:
+                if 'EPS' not in FIRST[nt]: FIRST[nt].add('EPS'); ch=True
+                continue
+            for t,v in items:
+                if t=='T':
+                    if v not in FIRST[nt]: FIRST[nt].add(v); ch=True
+                    break
+                add=FIRST[v]-{'EPS'}
+                if not add<=FIRST[nt]: FIRST[nt]|=add; ch=True
+                if v not in nullable: break
+            else:
+                if 'EPS' not in FIRST[nt]: FIRST[nt].add('EPS'); ch=True
+FOLLOW=collections.defaultdict(set); FOLLOW['Program'].add('EOF'); ch=True
+while ch:
+    ch=False
+    for nt,alts in bnf.items():
+        for items in alts:
+            for i,(t,v) in enumerate(items):
+                if t!='N': continue
+                rest=items[i+1:]; fr=set(); an=True
+                for t2,v2 in rest:
+                    if t2=='T': fr.add(v2); an=False; break
+                    fr|=FIRST[v2]-{'EPS'}
+                    if v2 not in nullable: an=False; break
+                if not fr<=FOLLOW[v]: FOLLOW[v]|=fr; ch=True
+                if an and not FOLLOW[nt]<=FOLLOW[v]: FOLLOW[v]|=FOLLOW[nt]; ch=True
+reach={'Program'}; st=['Program']
+while st:
+    x=st.pop()
+    for items in bnf[x]:
+        for t,v in items:
+            if t=='N' and v not in reach: reach.add(v); st.append(v)
+conf=[]
+for nt,alts in bnf.items():
+    sels=[]
+    for items in alts:
+        s=set(); an=True
+        for t,v in items:
+            if t=='T': s.add(v); an=False; break
+            s|=FIRST[v]-{'EPS'}
+            if v not in nullable: an=False; break
+        if an: s|=FOLLOW[nt]
+        sels.append(s)
+    for a in range(len(sels)):
+        for b in range(a+1,len(sels)):
+            ov=sels[a]&sels[b]
+            if ov: conf.append((nt,a,b,sorted(ov)))
+print('nonterminals',len(NON),'productions',sum(len(v) for v in bnf.values()))
+print('nullable',sorted(nullable))
+print('unreachable',sorted(NON-reach))
+print('undefined',sorted({v for al in bnf.values() for it in al for t,v in it if t=='N' and v not in NON}))
+print('LL(1) conflicts',len(conf))
+```
+
+### 9a.2 `ll1v5.py` — EBNF to BNF lowering
+
+Three details are easy to get wrong and each changes the verdict. `{ X }` must be
+lowered **right-recursively**; left recursion manufactures a false conflict.
+Alternation must be split **outside** quotes and brackets, or `"||"` becomes two
+empty alternatives. Multi-line productions must be joined before splitting.
+Result: 53 nonterminals, 97 productions.
+
+```python
+import re,ast
+src=open('$REPO/docs/spec/syntax.ebnf').read()
+g=re.search(r'```ebnf\n(.*?)```',src,re.S).group(1)
+g=re.sub(r'\(\*.*?\*\)','',g,flags=re.S)
+lines=g.splitlines(); rules=[]; cur=None
+for ln in lines:
+    if not ln.strip(): continue
+    if '::=' in ln:
+        if cur: rules.append(cur)
+        cur=ln.strip()
+    elif cur is not None: cur+=' '+ln.strip()
+if cur: rules.append(cur)
+def split_alts(rhs):
+    out=[]; buf=''; inq=False; depth=0
+    for ch in rhs:
+        if ch=='"': inq=not inq; buf+=ch; continue
+        if not inq:
+            if ch in '([{': depth+=1
+            elif ch in ')]}': depth-=1
+            elif ch=='|' and depth==0: out.append(buf); buf=''; continue
+        buf+=ch
+    out.append(buf); return [a.strip() for a in out]
+prods={}
+for r in rules:
+    lhs,rhs=r.split('::=',1)
+    rhs=re.sub(r'\s*\.\s*$','',rhs.strip())
+    prods.setdefault(lhs.strip(),[]).extend(split_alts(rhs))
+NON=set(prods)
+def classify(rhs):
+    out=[];i=0
+    while i<len(rhs):
+        c=rhs[i]
+        if c.strip()=='': i+=1; continue
+        if c=='"':
+            j=rhs.index('"',i+1); out.append(('T',rhs[i+1:j])); i=j+1; continue
+        m=re.match(r'[A-Za-z_][A-Za-z0-9_]*',rhs[i:])
+        if m:
+            w=m.group(0); i+=len(w)
+            out.append(('N',w) if w in NON else ('T',w)); continue
+        out.append(('P',c)); i+=1
+    return out
+bnf={}; ctr=[0]
+def newname(b):
+    ctr[0]+=1; return f'{b}#{ctr[0]}'
+def expand(toks, base):
+    out=[]; i=0
+    while i<len(toks):
+        t,v=toks[i]
+        if t=='P' and v in '[{(':
+            closer={'[':']','{':'}','(':')'}[v]
+            depth=1; j=i+1; inner=[]
+            while j<len(toks):
+                if toks[j]==('P',v): depth+=1
+                elif toks[j]==('P',closer):
+                    depth-=1
+                    if depth==0: break
+                inner.append(toks[j]); j+=1
+            if v=='[':
+                h=newname(base+'_opt'); bnf[h]=[expand(inner,base),[]]
+            elif v=='{':
+                h=newname(base+'_star')
+                bnf[h]=[expand(inner,base)+[('N',h)],[]]
+            else:
+                h=newname(base+'_grp')
+                alts=[]; cur2=[]; d2=0
+                for sym in inner:
+                    if sym[0]=='P' and sym[1] in '([{': d2+=1
+                    if sym[0]=='P' and sym[1] in ')]}': d2-=1
+                    if sym[0]=='P' and sym[1]=='|' and d2==0:
+                        alts.append(cur2); cur2=[]; continue
+                    cur2.append(sym)
+                alts.append(cur2)
+                bnf[h]=[expand(a,base) for a in alts]
+            out.append(('N',h)); i=j+1; continue
+        out.append((t,v)); i+=1
+    return out
+for nt,alts in prods.items():
+    bnf.setdefault(nt,[])
+    for a in alts: bnf[nt].append(expand(classify(a),nt))
+open('bnf2.txt','w').write(repr(bnf))
+print('nonterminals',len(bnf),'rules',sum(len(v) for v in bnf.values()))
+```
+
+### 9a.3 `traceaudit.py` — diagnostic definition and reference audit
+
+Definitions are the rows of the diagnostic tables in `lexical.md`,
+`syntax.ebnf`, and `semantics.md`. Result on the D001-R3 tree: **68** defined
+codes (LEX 12, PARSE 19, SRC 5, NAME 11, TYPE 15, JVM 6), **0** duplicated
+definitions, 68 referenced, **0** referenced but undefined.
+
+```python
+import re,glob,collections,os
+R=os.environ['REPO']
+DEF=re.compile(r'^\|\s*`(ARA-([A-Z]+)-(\d{4}))`\s*\|',re.M)
+defs=collections.defaultdict(list)
+for rel in ['docs/spec/lexical.md','docs/spec/syntax.ebnf','docs/spec/semantics.md']:
+    for m in DEF.finditer(open(os.path.join(R,rel)).read()):
+        defs[m.group(1)].append(rel)
+print('total defined',len(defs))
+print('duplicated',[c for c,v in defs.items() if len(v)>1])
+print('by namespace',dict(collections.Counter(c.split('-')[1] for c in defs)))
+full=re.compile(r'ARA-([A-Z]+)-(\d{4})')
+refs=collections.defaultdict(set)
+for f in glob.glob(R+'/**/*.md',recursive=True)+glob.glob(R+'/**/*.ebnf',recursive=True):
+    for line in open(f):
+        if DEF.match(line): continue
+        for m in full.finditer(line): refs[m.group(0)].add(os.path.relpath(f,R))
+print('referenced',len(refs))
+print('referenced but UNDEFINED',sorted(c for c in refs if c not in defs))
+```
+
+### 9a.4 `g12check.py` — one obligation per defined code
+
+Result: **68 of 68** codes carry at least one obligation in
+`conformance-plan.md`. Zero uncovered.
+
+```python
+import re,os
+R=os.environ['REPO']
+defs={}
+for rel in ['docs/spec/lexical.md','docs/spec/syntax.ebnf','docs/spec/semantics.md']:
+    for m in re.finditer(r'^\|\s*`(ARA-[A-Z]+-\d{4})`\s*\|',open(os.path.join(R,rel)).read(),re.M):
+        defs[m.group(1)]=rel
+conf=open(R+'/docs/spec/conformance-plan.md').read()
+missing=[c for c in sorted(defs) if c not in conf]
+print('defined',len(defs),'with obligation',len(defs)-len(missing))
+print('no obligation',missing)
+```
+
+### 9a.5 `shortaudit.py` — shorthand detection
+
+Matches a backticked four-digit token not preceded by `ARA-NS-`. Run against
+`docs/spec/*` only, since `docs/progress/*` legitimately quotes historical
+shorthand. Result after the rewrite: **0** in the normative files.
+
+```python
+import re,glob,os
+R=os.environ['REPO']
+sh=re.compile(r'(?<![\w-])`(\d{4})`')
+for f in glob.glob(R+'/docs/spec/*.md'):
+    for i,line in enumerate(open(f),1):
+        for m in sh.finditer(line):
+            print(os.path.basename(f),i,m.group(1))
+```
+
+### 9a.6 `parsecfg.py` — grammar-driven example verification
+
+A table-driven LL(1) recursive-descent parser built from the same FIRST/FOLLOW
+computation, plus a tokenizer for the Arara subset. Used to check that every
+documented example is derivable. Result: of 11 `arara` blocks, the 9 labelled
+*Valid* and the 1 labelled *Runtime behavior* parse; the 1 labelled
+`ARA-PARSE-0108` invalid is rejected; the semantic-error examples parse (they
+must, since their defect is not syntactic). 0 unexpected outcomes.
+
+The parser must be written so `Program` consumes `EOF` itself and the caller
+compares the cursor to the token count rather than peeking again — peeking after
+`EOF` is consumed raises `IndexError`, which is a bug in the harness and not a
+finding about the grammar.
+
+## 9b. Java 21 keyword inventory
+
+The inventory must come from the specification text for the **matching** release.
+Extracted from `https://docs.oracle.com/javase/specs/jls/se21/html/jls-3.html`
+§3.9, then counted mechanically.
+
+```python
+import re
+s=open('jls-3.html',encoding='utf-8',errors='replace').read()
+sec=s[s.find('<a name="jls-3.9">'):s.find('<a name="jls-3.10">')]
+txt=re.sub(r'<[^>]+>',' ',sec)
+res=txt.split('ReservedKeyword:')[1].split('ContextualKeyword:')[0]
+ctx=txt.split('ContextualKeyword:')[1].split('The keywords const')[0]
+print(len(re.findall(r'[A-Za-z_][A-Za-z0-9_]*',res)))          # 52, including the gloss word
+print(len(re.findall(r'[A-Za-z_][A-Za-z0-9_\-]*',ctx)))        # 17
+```
+
+**This count is the trap that produced the wrong answer twice.** The raw regex
+returns 52 because the reserved-keyword block ends with `_ (underscore)`, and the
+gloss word `underscore` matches the identifier pattern. The specification states
+the count in prose: *"51 character sequences ... are reserved for use as keywords
+and cannot be used as identifiers"*. After removing the gloss word the list is
+**51**, and that is the correct figure. The authoritative check is the prose
+count, not the regex.
+
+## 9c. Naming probes (all five namespaces)
+
+Each probe has a control that compiles cleanly. Without the control the result is
+meaningless, which is how the D001-R2 five-name claim went wrong.
+
+### 9c.1 JVM accepts every keyword as a class name
+
+Generate one class file per name with a minimal writer, then define each under
+`-Xverify:all` with a loader whose parent is the platform loader.
+
+```java
+static class Bytes extends ClassLoader {
+  Bytes(){ super(ClassLoader.getPlatformClassLoader()); }
+  Class<?> def(String n, byte[] b){ return defineClass(n,b,0,b.length); }
+}
+```
+
+Result: **68 accepted, 0 rejected** for the 51 reserved plus 17 contextual names.
+`true`, `false`, and `null` are also accepted (3 more).
+
+The class-file writer needs four things right, and each wrong version produced a
+`ClassFormatError` that looks like a JVM restriction but is not:
+
+1. the constant pool must be complete before the header is serialized — building
+   entries lazily while emitting methods truncates the pool;
+2. a `Code` attribute is `attribute_name_index, attribute_length(4), max_stack,
+   max_locals, code_length(4), code, exception_table_length, attributes_count`;
+3. the class file has `fields_count` before `methods_count`; omitting an empty
+   `fields_count` shifts every later field;
+4. `<init>` must carry `ACC_PUBLIC` only. `ACC_PUBLIC|ACC_STATIC` (`0x9`) is
+   rejected with *"Method &lt;init&gt; has illegal modifiers"*.
+
+### 9c.2 `javac` rejects every keyword as a class name
+
+```sh
+while read -r nm; do
+  [ -z "$nm" ] && continue
+  printf 'public class %s { }\n' "$nm" > t.java
+  javac -d out t.java 2>/dev/null && echo "ACCEPT $nm" || echo "REJECT $nm"
+done < all68.txt
+```
+
+Result: **0 accepted, 68 rejected**, plus `true`, `false`, `null` rejected with
+`error: <identifier> expected`. Total 71.
+
+### 9c.3 Whitespace package prohibition is enforced independently
+
+A class whose internal name begins `java/` cannot be defined; this is
+`defineClass`'s `IllegalName` check, not the verifier.
+
+```text
+REJECTED java/evil -> NoClassDefFoundError: IllegalName: java/evil
+REJECTED java/lang/Evil -> NoClassDefFoundError: IllegalName: java/lang/Evil
+```
+
+Arara has no packages, so no unit can reach this namespace.
+
+### 9c.4 Shadowing probes, each with a control
+
+Fixtures live in separate directories so the shadow classes cannot leak onto the
+control classpath. The control compiles the identical Java source with no shadow
+class present.
+
+| Probe | Control | With shadow class | Verdict |
+| --- | --- | --- | --- |
+| `String` | compiles | `incompatible types: java.lang.String cannot be converted to String` | breaks unqualified use |
+| `System` | compiles | `cannot find symbol: variable out` | breaks unqualified use |
+| `Object` | compiles | `incompatible types: Integer cannot be converted to Object` | breaks unqualified use |
+| `Math` | compiles | `cannot find symbol: method abs(int)` | breaks unqualified use |
+| `java` with `java.lang.String s` | compiles | `cannot find symbol: class lang` | breaks **qualified** use only |
+| `java` with unqualified `String` | compiles | compiles | no visible effect |
+
+The last two rows are why §1.5a is a table and not a sentence. The D001-R2 claim
+that `java` breaks `java.lang.String` was true only for the qualified form.
+
+## 9d. FIRST/FOLLOW table comparison
+
+Compares the 20 published rows of `syntax.ebnf` §6.1 against the computed sets.
+Cells must be parsed by extracting backticked symbols verbatim, because a naive
+comma split destroys `` `,` `` and turns a matching row into a false mismatch.
+The prose cells `expression-start` and `binary operators` stand for sets and must
+be expanded before comparison.
+
+Result: **20 rows checked, 0 discrepancies.**
+
 ## 10. Provenance recovery for the archived reports
 
 The two delivered reports were never committed. They were recovered from the

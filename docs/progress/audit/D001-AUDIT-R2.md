@@ -206,7 +206,7 @@ Arara keyword used as a *class* name is rejected, and `OQ-10`'s decision affects
 a class of names, not five names.
 
 **Recommendation (not an approval):** forbid all 17 contextual keywords plus the
-52 reserved keywords as *unit names*, and keep them legal as *function names*.
+52 reserved keywords as *unit names*, and keep them legal as *function names*. **Corrected by Directive 001-R3:** the JLS 21 §3.9 count is **51**, not 52; the extra item was the gloss word `underscore` in `_ (underscore)` captured by a regex. The recommendation stands with 51 reserved plus 17 contextual, and `semantics.md` §1.2b now states the policy.
 Rationale: a unit name is the class-file name, which is exactly the boundary the
 D005 interop milestone has to cross; a function name is a method name in an
 unnamed-package class that Arara calls with `invokestatic`, so keyword method
@@ -489,6 +489,27 @@ evidence of behaviour.
 | Updated recovery ledger | `docs/progress/STATE.md` §D001-R2, `docs/progress/CONTINUATION.md` | complete |
 | Gate corrections | `docs/progress/GATES.md` G9, G12, G13, verdict line | complete |
 | Final recommendation | §11 | **CONDITIONAL** |
+
+### Resolution (Directive 001-R3)
+
+The shorthand described in F-10 and `OQ-12` has been resolved in the specification
+files. `conformance-plan.md`, `lexical.md`, and `semantics.md` now carry only full
+`ARA-NS-NNNN` codes in every normative obligation; the ranges in `semantics.md`
+§12.2 and §12.3 were rewritten as explicit lists. Two further problems surfaced
+during the rewrite:
+
+- The count in F-10 was low. A strict scan found **83** shorthand occurrences over
+  **35** distinct numbers, not 54. Of those, 20 numbers mapped to more than one
+  namespace (`0001` to JVM, LEX, and SRC; `0100` to JVM and PARSE; the whole
+  `0101`–`0111` band to both PARSE and NAME), so the ambiguity was wider than
+  first reported.
+- Two obligations were missing rather than merely unnamed: `ARA-SRC-0002` and
+  `ARA-PARSE-0199`. Both now have explicit obligations in
+  `conformance-plan.md` §6a, closing the `D001-G12` gap without deferring it.
+
+References in this report and in `STATE.md` keep their original shorthand, because
+they are historical statements about the state of the tree at commit `15f25b2`
+rather than normative specifications.
 
 ## 11. Final recommendation and owner decision matrix
 

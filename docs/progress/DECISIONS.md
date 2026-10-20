@@ -188,28 +188,49 @@ D002.
 8. **OQ-8 — File extension.** Confirm `.ara` as the source extension.
 9. **OQ-9 — License.** No license file is included; the repository is private.
    Choose a license before any publication.
-10. **OQ-10 — Restricted unit names.** `semantics.md` §1.2 excludes Java keywords
-    only. The JVM accepts class files named `var`, `yield`, `record`, `sealed`,
-    `permits`, and the module words, but `javac` rejects `var`, `yield`, `record`,
-    `sealed`, and `permits` as type names. Keeping them legal preserves the
-    bytecode-only contract; forbidding them costs nothing in the initial subset
-    and avoids a future Java-interop surprise in D005. Confirm either choice.
-    *Evidence added by Directive 001-R2:* JLS 21 §3.9 defines 52 reserved
-    keywords and 17 contextual keywords; JVMS 21 §4.2.1 forbids only `.` `;` `[`
-    `/` in a class name. Measured on Corretto 21.0.12.1 under `-Xverify:all`, the
-    JVM accepts every Java keyword as a class and method name, and `javac` rejects
-    the five names above **plus** every Java keyword used as a class name. The
-    choice therefore governs a class of names, not five.
-11. **OQ-11 — Units that shadow `java.lang`.** `semantics.md` §1.5a records that a
-    unit named `java`, `String`, `System`, `Object`, or `Math` emits valid
-    bytecode but makes Java source on the same classpath uncompilable
-    (`cannot find symbol: class lang`). Decide whether to forbid that fixed list
-    as unit names, given that D005 is bidirectional interop. The current rule
-    permits them and reports nothing.
-12. **OQ-12 — Diagnostic shorthand in the conformance plan.**
-    `conformance-plan.md` abbreviates codes as bare four-digit numbers after a
-    full code on the same line. 20 of the 67 numbers are ambiguous across
-    namespaces and 54 lines carry a shorthand number with no full code, so the
-    intended code must be inferred from the table's subject. Decide whether to
-    rewrite them in full `ARA-NS-NNNN` form before D002. §7 of that document makes
-    traceability its purpose, and inference is not traceability.
+10. **OQ-10 — Restricted unit names.** RESOLVED IN THE SPECIFICATION, PENDING
+    RATIFICATION. `semantics.md` §1.2b states a three-part unit-name rule:
+    pattern (rule 1), exclusion of all 51 reserved and 17 contextual keywords of
+    JLS 21 §3.9 plus `true`/`false`/`null` (`ARA-SRC-0004`, rule 2), and
+    exclusion of shadowing names (`ARA-SRC-0005`, rule 3, see `OQ-11`). The owner
+    ratifies or reverses; the previous text proposed excluding keywords only.
+    *Evidence, Directive 001-R2, corrected by 001-R3:* JLS 21 §3.9 declares
+    **51** reserved and **17** contextual keywords. The R2 figure of 52 was
+    wrong; the extra item came from a regex capturing the gloss word
+    `underscore` in `_ (underscore)`. JVMS 21 §4.2.1 forbids only `.` `;` `[`
+    `/` in a class name, so the JVM constraint and the Java-source constraint
+    are different questions, not approximations of each other. Measured on
+    Corretto 21.0.12.1 under `-Xverify:all`: the JVM accepts **all 68** names as
+    class names; `javac` rejects **all 68** as class names, plus `true`, `false`,
+    and `null` (71 total). The earlier claim that `javac` rejects only five was
+    wrong.
+11. **OQ-11 — Units that shadow `java.lang`.** RESOLVED IN THE SPECIFICATION,
+    PENDING RATIFICATION. `semantics.md` §1.2b rule 3 forbids `java`, `String`,
+    `System`, `Object`, and `Math` as unit names, reported as `ARA-SRC-0005`.
+    §1.5a records the measured behaviour in a per-name table, each with a control
+    that compiles. The previous text said the rule permits them and reports
+    nothing.
+    *Correction, Directive 001-R3:* the R2 statement that a unit named `java`
+    breaks `java.lang.String` holds only when the Java source writes a **fully
+    qualified** `java.` name; a file using only simple names compiles unaffected.
+    A unit named `String` or `System` breaks the unqualified form directly. Both
+    behaviours are now recorded separately in §1.5a instead of being collapsed
+    into one universal claim.
+12. **OQ-12 — Diagnostic shorthand in the conformance plan.** RESOLVED, PENDING
+    RATIFICATION OF THE REWRITE. Every normative obligation in
+    `conformance-plan.md`, `lexical.md`, and `semantics.md` now uses a full
+    `ARA-NS-NNNN` code; the ranges in `semantics.md` §12.2 and §12.3 were
+    rewritten as explicit lists.
+    *Correction, Directive 001-R3:* the R2 count was low. A strict scan found
+    **83** shorthand occurrences over **35** distinct numbers, not 54, and 20
+    numbers spanned more than one namespace. Two codes were not merely unnamed
+    but uncovered: `ARA-SRC-0002` and `ARA-PARSE-0199`. Both now carry explicit
+    obligations in `conformance-plan.md` §6a, and all **68** defined codes have
+    at least one obligation.
+13. **OQ-13 — Vocabulary separation.** Whether to retain the split between the
+    closed gate status set (`NOT_STARTED`, `IN_PROGRESS`, `PASS`, `FAIL`,
+    `BLOCKED`) and the milestone verdict set (`PASS`, `CONDITIONAL`, `BLOCKED`)
+    as the permanent convention. Recorded in `AGENTS.md` §12 and `D001-07`. The
+    alternative is one vocabulary, which would force a verdict value into a gate
+    column — the defect Directive 001-R3 corrected.
+

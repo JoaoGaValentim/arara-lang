@@ -4,19 +4,19 @@ Machine-readable recovery ledger. Update after every completed work unit. Facts
 only; no intentions, no forecasts.
 
 ```yaml
-active_directive: D001-R2 (final contract audit); milestone D001
+active_directive: D001-R3 (contract closure, gate integrity, final owner review); milestone D001
 active_milestone: D001 — Foundation (documentation and configuration only)
 milestone_authorization: D001-01 and D001-06 (docs/progress/DECISIONS.md)
 process_authorization: D001-07 (English-only communication, closed gate status vocabulary)
-current_task: D001-R2 final contract audit complete; milestone verdict CONDITIONAL, pending owner ratification
+current_task: D001-R3 complete — all 15 gates PASS, verdict CONDITIONAL pending owner ratification of 5 decisions and 1 criterion amendment
 current_subtask: none
-last_completed_unit: D001-R2 audit — report, archives, gate corrections, and OQ-11/OQ-12
+last_completed_unit: D001-R3 — gate reassessment, Java 21 naming policy, diagnostic traceability closure, grammar revalidation, owner decision package
 branch: docs/d001-r1-arara-identity
-last_verified_commit: 82a7afa
-audit_commit: 15f25b2 (D001-R2 audit; record SHA in the checkpoint commit that follows it)
+last_verified_commit: e408966
+audit_commit: 15f25b2 (D001-R2); D001-R3 audit commit recorded in §D001-R3 after its commit
 commit_convention: this ledger is edited before each commit, so last_verified_commit is always the commit immediately preceding the one containing this line; verify with `git log --oneline -3`
 remote: origin https://github.com/JoaoGaValentim/arara-lang.git (private, empty, no push)
-working_tree: clean after commit 15f25b2; nothing pushed
+working_tree: D001-R3 corrections in progress; nothing pushed
 ```
 
 ## D001-R1 changed paths
@@ -215,6 +215,63 @@ installed build *recognizes* the field. A query of the entire Kilo event store f
 any type containing `compact` returns zero rows, so no compaction has ever been
 observed firing here. This audit did not manufacture one and did not upgrade the
 label.
+
+## D001-R3 — Contract closure and final owner review (2026-10-20)
+
+Documentation and verification only. No implementation file, no D002 activity, no
+push.
+
+### What changed and why
+
+| File | Change | Class |
+| --- | --- | --- |
+| `docs/spec/semantics.md` | §1.2 rewritten; new §1.2a five-namespace table, §1.2b three-rule unit-name policy, §1.2c JVM package note; §1.5a rewritten as a measured per-name table; `ARA-SRC-0005` added | semantic clarification, previously authorized subject matter |
+| `docs/spec/conformance-plan.md` | 83 shorthand references expanded to full codes; 7 new obligations (`ARA-SRC-0001`, `ARA-SRC-0002`, `ARA-SRC-0005`, `ARA-PARSE-0199`, `ARA-JVM-0001`, reserved-code absence); naming rows split into rules 1/2/3 | documentation correction |
+| `docs/spec/lexical.md` | one shorthand reference expanded | documentation correction |
+| `docs/charter.md` | unit-name rule aligned to §1.2b | documentation correction |
+| `docs/progress/GATES.md` | G9, G12, G13 reassessed to `PASS`; `G9-A` criterion amendment proposed with original text preserved; self-assessment rewritten | governance correction |
+| `docs/progress/DECISIONS.md` | `OQ-10`, `OQ-11`, `OQ-12` recorded as resolved-in-specification pending ratification, with the R2 errors corrected; new `OQ-13` | governance correction |
+| `docs/progress/audit/D001-AUDIT-R2.md` | keyword-count and shorthand-count errors corrected in place, marked as corrected by R3 | provenance |
+| `docs/progress/STATE.md`, `CONTINUATION.md` | this section and the handoff | recovery |
+
+### Corrections to the D001-R2 audit
+
+Three R2 claims were wrong. Each is corrected at its source, not merely noted.
+
+| R2 claim | Reality | Cause |
+| --- | --- | --- |
+| JLS 21 declares 52 reserved keywords | **51** | a regex captured the gloss word `underscore` from `_ (underscore)` |
+| `javac` rejects 5 contextual keywords as class names | `javac` rejects all 68 keyword names, plus `true`/`false`/`null` | generalized from a five-name probe |
+| 54 lines carry a diagnostic shorthand | **83 occurrences over 35 numbers** | the counter matched only some patterns |
+
+One R2 statement was imprecise rather than wrong: `java` breaks Java source only
+in the fully qualified `java.` form. `String` and `System` break the unqualified
+form. §1.5a now separates the cases.
+
+### Gate status
+
+All fifteen D001 gates are `PASS`. Milestone verdict remains `CONDITIONAL`
+because `G9-A` needs owner approval and five decisions are open. G12 and G13 were
+closed by doing the missing work, not by redefining the criterion.
+
+### Naming policy summary (§1.2a–§1.2c)
+
+Five namespaces — Arara identifiers, Arara unit names, JVM binary names,
+Java-source-accessible names, protected platform packages — with separate
+constraints. Function names are deliberately permissive; unit names are
+restricted on the 71-keyword list and the five shadowing names. Every claim is a
+probe result, and every probe had a control that compiled cleanly.
+
+### Verification performed
+
+Recorded with commands in `docs/progress/audit/REPRODUCIBILITY.md` §9:
+`ll1final.py` (97 productions after EBNF lowering, 0 LL(1) conflicts, 0
+unreachable, 0 undefined), `traceaudit.py` (68 codes, 0 duplicates, 0 undefined
+references), `shortaudit.py` (shorthand eliminated from normative files),
+`g12check.py` (68 of 68 codes carry an obligation), a table comparison (all 20
+FIRST/FOLLOW rows match the computed sets), and a grammar-driven parser run over
+every documentation example (11 valid examples parse; the one example documented
+as a parse error is rejected; semantic-error examples parse, as they should).
 
 ## Authorized scope
 
@@ -450,32 +507,49 @@ dispositions:
 
 ## Blocking decisions
 
-**D001 is `CONDITIONAL`, not accepted.** Three gates are `BLOCKED`
-(D001-G9, G12, G13) and four decisions gate acceptance: `OQ-3` (accept
-`docs/spec/*`), `OQ-10` (restricted unit names), and `OQ-11` (units shadowing
-`java.lang`, raised by this audit). `OQ-12` (diagnostic shorthand in the
-conformance plan) gates D002 quality, not D001 acceptance.
+**D001 is `CONDITIONAL`, not accepted.** No gate is `BLOCKED`; all fifteen are
+`PASS`. What remains is authorization, not evidence.
 
-Twelve open questions are recorded in `docs/progress/DECISIONS.md` under "Open
-decisions requested from the owner". The complete matrix, with a recommendation
-and justification for each, is `docs/progress/audit/D001-AUDIT-R2.md` §11.
-Recommendations are **not** approvals.
+| # | Decision | Gates acceptance? | Gates D002? |
+| --- | --- | --- | --- |
+| `OQ-3` | Accept `docs/spec/*` as the D001 contract | yes — this *is* acceptance | yes |
+| `OQ-10` | Ratify the 71-name unit-name rule (§1.2b rule 2) | yes | yes |
+| `OQ-11` | Ratify the five shadowing names (§1.2b rule 3, `ARA-SRC-0005`) | yes | yes |
+| `G9-A` | Approve the amended G9 criterion | yes | no |
+| `OQ-8` | Ratify `.ara` | no — D001 holds either way | yes |
+| `OQ-7` | Ratify the 28 reserved words | no | yes |
+| `OQ-1`, `OQ-2` | Repository visibility; push authorization | no | no |
+| `OQ-4`, `OQ-5`, `OQ-6` | Division by zero; shadowing ban; multi-unit | no | yes |
+| `OQ-9` | License | no — private repository | no |
+| `OQ-12` | Ratify the diagnostic rewrite (already applied) | no | yes |
+| `OQ-13` | Keep the vocabulary split | no | no |
+
+Thirteen open questions are recorded in `docs/progress/DECISIONS.md` under "Open
+decisions requested from the owner". The consolidated matrix with alternatives,
+recommendation, justification, compatibility impact, and D002 effect is
+`docs/progress/audit/D001-R3.md` §9. Recommendations are **not** approvals.
 
 ## Next executable action
 
-Owner review of `docs/progress/audit/D001-AUDIT-R2.md`, then recorded decisions in
+Owner review of `docs/progress/audit/D001-R3.md`, then recorded decisions in
 `docs/progress/DECISIONS.md`. No agent action is authorized until then.
 
 The exact sequence:
 
-1. Owner records decisions on `OQ-3`, `OQ-8`, `OQ-10`, `OQ-11`, and `OQ-12` in
-   `docs/progress/DECISIONS.md`, each with an identifier and a date.
-2. If any decision changes normative text, the change is made in the same commit
-   as the decision that authorizes it, and the affected gates are re-evaluated.
-3. Owner records D001 acceptance, or rejection, in `docs/progress/DECISIONS.md`.
-4. Only then may Directive 002 be issued.
+1. Owner approves or rejects `G9-A` in `docs/progress/DECISIONS.md`.
+2. Owner records decisions on `OQ-3`, `OQ-10`, and `OQ-11`. These three gate D001
+   acceptance. Any reversal of a decision already applied to the specification is
+   made in the same commit as the decision that authorizes it.
+3. Owner records decisions on the D002-facing questions: `OQ-4`, `OQ-5`, `OQ-6`,
+   `OQ-7`, `OQ-8`, `OQ-12`, and `OQ-13`. These do not block D001 acceptance.
+4. Owner records D001 acceptance or rejection in `docs/progress/DECISIONS.md`.
+5. Only then may Directive 002 be issued.
 
-Two D002 obligations are carried forward from this audit and must appear in the
-D002 gate list: a test for `ARA-SRC-0002` (unreadable input file) and a test for
-`ARA-PARSE-0199` (100-error limit, `NOTE` severity, parsing stops). See
-`docs/progress/audit/D001-AUDIT-R2.md` F-03.
+Two D002 obligations were closed by Directive 001-R3 rather than carried forward:
+`ARA-SRC-0002` and `ARA-PARSE-0199` now have explicit obligations in
+`conformance-plan.md` §6a. No traceability debt remains from D001.
+
+Compaction remains **UNVERIFIED**. Zero compaction events exist in the Kilo store
+(`SELECT COUNT(*) FROM event WHERE type LIKE '%compact%'` → 0; no session has a
+non-null `time_compacting`). Config *recognition* is verified; config *effect* is
+not, and must not be upgraded without an observed event.

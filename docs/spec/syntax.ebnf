@@ -320,7 +320,7 @@ the offending token, or the empty span at end of file when the token is missing.
 | Code | Condition | Notes |
 | --- | --- | --- |
 | `ARA-PARSE-0100` | Unexpected token for the expected production | Related note lists the expected token set |
-| `ARA-PARSE-0101` | Unexpected token immediately after a complete expression or literal | Covers `123abc` and `f() g()`; takes precedence over `0100` when the preceding token completed an expression |
+| `ARA-PARSE-0101` | Unexpected token immediately after a complete expression or literal | Covers `123abc` and `f() g()`; takes precedence over `ARA-PARSE-0100` when the preceding token completed an expression |
 | `ARA-PARSE-0102` | Expected `)` | Reported at the token that is not `)` |
 | `ARA-PARSE-0103` | Expected `}` | Reported at the token that is not `}` |
 | `ARA-PARSE-0104` | Expected a type name after `:` | Reported at the token that is not a type |
@@ -340,18 +340,20 @@ the offending token, or the empty span at end of file when the token is missing.
 | `ARA-PARSE-0199` | Parse error limit reached (100 errors) | `NOTE`-severity companion diagnostic; parsing stops |
 
 A conforming parser MUST report exactly one of these codes for a single
-syntactic defect. It MUST NOT report both `0100` and a more specific code for the
+syntactic defect. It MUST NOT report both `ARA-PARSE-0100` and a more specific code for the
 same token.
 
 Code selection is deterministic:
 
-1. If the failure is `0107` or `0108` (newline-driven separation), report that
-   code, never `0100`.
+1. If the failure is `ARA-PARSE-0107` or `ARA-PARSE-0108` (newline-driven
+   separation), report that code, never `ARA-PARSE-0100`.
 2. Otherwise, if the token that fails to parse immediately follows a token that
-   completed a `PrimaryExpression` or a full `Expression`, report `0101`.
-3. Otherwise report the specific expected-token code (`0102`–`0106`,
-   `0110`–`0117`) when exactly one such expectation applies.
-4. Otherwise report `0100` with the expected token set as a related note.
+   completed a `PrimaryExpression` or a full `Expression`, report `ARA-PARSE-0101`.
+3. Otherwise report the specific expected-token code (`ARA-PARSE-0102` through
+   `ARA-PARSE-0106`, or `ARA-PARSE-0110` through `ARA-PARSE-0117`) when exactly
+   one such expectation applies.
+4. Otherwise report `ARA-PARSE-0100` with the expected token set as a related
+   note.
 
 ## 8. Error recovery
 
@@ -379,7 +381,7 @@ AST for later stages.
 
 A hand-written recursive-descent parser with:
 
-- one token of lookahead, plus the previous token to produce `0107` and `0108`;
+- one token of lookahead, plus the previous token to produce `ARA-PARSE-0107` and `ARA-PARSE-0108`;
 - one function per precedence level, or precedence climbing within the binary
   levels (either strategy accepts exactly this grammar; the choice is an
   implementation detail that must not change the accepted language);

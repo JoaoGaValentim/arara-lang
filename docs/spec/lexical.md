@@ -214,7 +214,7 @@ EOF
     and the following character. This includes `\'`, `\0`, `\b`, `\f`, and
     `\uXXXX`. Recovery: skip the backslash and the following character and
     continue the literal. A trailing `\` at end of file is `ARA-LEX-0201`
-    (unterminated literal), not `0202`, and lexing of the unit stops.
+    (unterminated literal), not `ARA-LEX-0202`, and lexing of the unit stops.
 45. There are no raw string literals, no string interpolation, no multi-line
     strings, and no character literals.
 46. The literal's value is the sequence of Unicode scalar values obtained after

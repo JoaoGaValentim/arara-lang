@@ -112,14 +112,11 @@ See `docs/adr/0001-jvm-target.md`.
 
 - A **compilation unit** is one `.ara` source file.
 - The file's base name (without `.ara`) is the name of the generated class. It
-  must match `[A-Za-z_][A-Za-z0-9_]*` and must not be a Java reserved word.
-  Java's restricted identifiers (`var`, `yield`, `record`, `sealed`, `permits`,
-  module words) are not keywords and are currently legal; see `OQ-10`.
-  Validity is checked by the compiler and reported as `ARA-SRC-0004`, not
-  assumed. The exact reserved-word list is the JLS keyword list for Java 21 plus
-  the literals `true`, `false`, and `null`. A name equal to `java` or to a
-  `java.lang` type simple name stays legal and emits valid bytecode but breaks
-  Java source on the same classpath; see `semantics.md` §1.5a and `OQ-11`.
+  must match `[A-Za-z_][A-Za-z0-9_]*`, must not be any of the 51 reserved or 17
+  contextual keywords of JLS 21 §3.9, must not be `true`, `false`, or `null`
+  (`ARA-SRC-0004`), and must not shadow `java` or a `java.lang` type in the
+  emitted subset (`ARA-SRC-0005`). The normative statement and the probe evidence
+  are in `semantics.md` §1.2a–§1.5a; `OQ-10` records the ratification question.
 - There are no package declarations in the initial subset. All classes are in the
   unnamed package.
 - Multiple compilation units may be compiled together. Function names share one
