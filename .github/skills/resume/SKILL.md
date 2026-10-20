@@ -77,7 +77,8 @@ Live branch / HEAD:
 Ledger branch / preceding commit:   relation: parent/equal/other
 Mainline snapshot:                  ancestor of main: yes/no
 Contract:                           FROZEN at <hash> / mismatch
-D002:                               NOT AUTHORIZED | <value>
+D002:                               <STATE.d002_authorization value>
+Implementation state:               <STATE.implementation_state; verify by listing the tree>
 Working tree:                       UNVERIFIED | <value>
 Discrepancies:                      none | <list>
 Unfinished work:                    none | <details>

@@ -5,10 +5,10 @@ only; no intentions, no forecasts.
 
 ```yaml
 # ── Milestone ───────────────────────────────────────────────────────────────
-active_directive: D001-R7 post-merge completion (PR #2 integrated; mainline record written); milestone D001
-active_milestone: D001 — Foundation
-milestone_status: ACCEPTED_AND_INTEGRATED
-milestone_authorization: D001-01 and D001-06 (docs/progress/DECISIONS.md)
+active_directive: D002 — Foundation handover, compiler frontend implementation, controlled integration
+active_milestone: D002 — Lexer and Parser
+milestone_status: IN_PROGRESS
+milestone_authorization: D002-01 (docs/progress/DECISIONS.md); D001 closed under D001-24
 acceptance_decision: D001-24 (D001 accepted; ledger reconciliation was outstanding then, completed under D001-R7)
 
 # ── Ratified contract ───────────────────────────────────────────────────────
@@ -30,12 +30,13 @@ gate_ratification: D001-11 (G9-A ratified; D001-G9 BLOCKED -> PASS)
 r6_authorization: D001-12 (R6 workflow; ratification delegated, language design not delegated)
 contract_ratification: D001-13 through D001-23 (OQ-3,4,5,6,7,8,10,11,12,13,14)
 r7_authorization: D001-25 (R7 reconciliation, ledger snapshot, PR #2 integration)
+d002_authorization: D002-01 (D002 execution; D001 residual closure, D002-A/B increments, conditional PR merge)
 
 # ── Mainline snapshot (historical observation, NOT a live HEAD pin) ─────────
-mainline_observed_at: 2026-10-20T21:50:24Z (D001-R7 post-merge verification)
-mainline_merge_commit: 992e84a53cf3cfae226e49c03fee076b86820e2c
-mainline_merge_parents: 5441a9f3a95db09563f5183c7cb8f68532e5a6bf, 37f1311e08df8b31798d0666a9bb5b2d73c67556
-mainline_tree: 8c1c70f94015d7a694722a7301ac789f4490da58
+mainline_observed_at: 2026-10-20T22:30:00Z (D002 handover baseline verification)
+mainline_merge_commit: a53b3905614600cceb2936ea8e2eaca9eb6b658a
+mainline_merge_parents: 992e84a53cf3cfae226e49c03fee076b86820e2c, 82b3b0d25d6df25405a8993af3a157c038ec31e1
+mainline_tree: 92328ac445d1126a7a9382703808c59830234550
 mainline_prior_snapshot: 5441a9f3a95db09563f5183c7cb8f68532e5a6bf (observed at D001-R6, superseded by this snapshot but still an ancestor)
 mainline_snapshot_rule: >
   This is the main revision observed during verification, not an assertion about
@@ -44,13 +45,14 @@ mainline_snapshot_rule: >
   where it is NOT an ancestor as a hard failure.
 
 # ── Ledger commit identity ──────────────────────────────────────────────────
-ledger_branch: docs/d001-r7-postmerge
-last_verified_commit: a9da659
+ledger_branch: docs/d001-residual-closure
+ledger_branch_note: first committed on this branch under Directive 002 §3; the preceding ledger commit is on docs/d001-r7-postmerge
+last_verified_commit: a53b3905614600cceb2936ea8e2eaca9eb6b658a
 ledger_commit_rule: >
   last_verified_commit is the commit preceding the commit that contains this
   ledger, on ledger_branch. It is expected to be the parent of that commit, not
   the branch tip and not main. See G9-A.
-audit_commit: docs/progress/audit/D001-R7.md (R7); previous D001-R6.md (R6), 230abd6 (R5), 2607608 (R4)
+audit_commit: docs/progress/audit/D001-R7.md (R7); previous D001-R6.md (R6), 230abd6 (R5), 2607608 (R4); D002 record pending
 
 # ── Live session state (discovered at recovery, never stored) ──────────────
 live_state_rule: >
@@ -63,10 +65,10 @@ live_state_rule: >
 # ── Environment and boundaries ──────────────────────────────────────────────
 remote: origin https://github.com/JoaoGaValentim/arara-lang.git (public; default branch main)
 agent_environment: GitHub Copilot primary (.github/); Kilo retained as fallback (D001-23)
-d002_authorization: NOT AUTHORIZED — requires a separate directive
-implementation_state: none — no compiler source, build file, test, or CI workflow exists
+d002_authorization: AUTHORIZED — D002-01, scope limited to D002-A and D002-B increments (D002-C is not yet complete)
+implementation_state: none — no compiler source, build file, test, or CI workflow exists yet
 working_tree_at_write: clean before this ledger commit; the ledger does not assert the tree is clean at read time
-
+```
 
 ## D001-R1 changed paths
 
@@ -537,7 +539,7 @@ actions. It correctly reported `working tree: UNVERIFIED` rather than guessing,
 because its allowlist has no terminal.
 
 It also found a real defect that this section corrects: `STATE.md` recorded
-`last_verified_commit: PENDING_POSTMERGE_COMMIT while HEAD was `2607608`, and `.git/packed-refs`
+`last_verified_commit: 32884b4` while HEAD was `2607608`, and `.git/packed-refs`
 was stale for the current branch. The first is the normal ledger lag of one
 commit that `commit_convention` describes and `G9-A` permits; the second is
 ordinary Git behaviour that the recovery procedure did not explain, causing it to
@@ -581,7 +583,12 @@ the directive requires a separate, minimal, reversible commit, and removing a
 working fallback is not part of the foundation-verification scope. `.kilo/` is
 untouched and still tracked.
 
-## Authorized scope
+## Authorized scope (D001 — closed; historical)
+
+> **Historical.** D001 closed on 2026-10-20 under `D001-24`. The scope below is
+> what D001 authorized and is preserved as the record of that milestone. Current
+> authorization is in `D002-01` and in the YAML block above. Do not read "no CI, no
+> tests" as a present-day prohibition.
 
 D001 only: governance, agent configuration, recovery mechanism, architecture,
 roadmap, ADRs, language specification drafts, conformance plan, repository
@@ -589,7 +596,13 @@ publication and branch protection, and formal reports. `D001-10` authorizes the
 D001-R5 operations, including the one-time bootstrap publication of `main` and a
 separate push of the migration branch. No merge and no D002 work.
 
-## Forbidden now
+## Forbidden during D001 (historical)
+
+> **Historical.** These prohibitions applied while D001 was the active milestone
+> and are retained because earlier reports cite them. D002 supersedes the build,
+> test, and CI items: `D002-01` authorizes exactly those artifacts for the lexer
+> and parser, and nothing more. The prohibition on D003 name resolution, typing,
+> IR, and bytecode emission still applies.
 
 - Any lexer, parser, type checker, IR, backend, or bytecode code.
 - `build.gradle(.kts)`, `settings.gradle(.kts)`, `pom.xml`, `gradlew`, or a
@@ -604,6 +617,20 @@ separate push of the migration branch. No merge and no D002 work.
 - Introducing any feature from `docs/charter.md` §4.
 - Marking `OQ-3`, `OQ-10`, `OQ-11`, or any other open item accepted because the
   infrastructure migration succeeded.
+
+## Forbidden now (D002)
+
+- D003 name resolution, type checking, or a typed IR.
+- D004 ASM or JVM class-file generation.
+- Java interoperability implementation, Kotlin transpilation, or new language
+  features.
+- Any change to the frozen `docs/spec/*`. A genuine contradiction is escalated,
+  never silently amended to make a test pass.
+- Tags, releases, compiler-binary publication, or Kilo retirement.
+- Destructive Git cleanup, force-push, history rewrite, or a direct push to
+  protected `main`.
+- Inserting placeholder implementations of a prohibited stage.
+- Starting D003 automatically after D002 closes.
 
 ## Files created in D001
 
@@ -850,18 +877,22 @@ decision naming the superseded rule; the decision index lists those targets.
 
 ## Next executable action
 
-D001 is `ACCEPTED` (`D001-24`). The next action is **owner-issued, not
-agent-initiated**:
+D001 is `ACCEPTED` and `CLOSED` (`D001-24`). D002 is authorized by `D002-01`. The
+current work unit is the **D001 documentation handover** (Directive 002 §3),
+followed by D002-A.
 
-1. Issue a D002 directive. D002 is not authorized by D001-R6 and no compiler code
-   may be written before that directive exists.
-2. Optionally authorize a narrowly scoped documentation-only follow-up branch to
-   reconcile this ledger for post-merge `main`, per `D001-R6.md` §I. Never commit
-   that reconciliation directly to protected `main`.
-3. `OQ-14` remains ratified as "retain Kilo"; retiring it still requires a new
+1. **Now:** complete the documentation-only handover on `docs/d001-residual-closure`
+   and integrate it by reviewed merge commit. It changes no specification file.
+2. **Then:** D002-A on `phase/d002-a-lexer` — build foundation (Gradle wrapper
+   pinned and checksum-verified, Java 21, JUnit Jupiter), CI, and the lexer with
+   its full `conformance-plan.md` §3 matrix. D002-A is not complete until CI runs
+   on the exact reviewed commit and the token dumps are deterministic.
+3. **Then:** D002-B parser and AST, only after D002-A's exit conditions are
+   verified and its merge is confirmed.
+4. `OQ-14` remains ratified as "retain Kilo"; retiring it still requires a new
    decision.
-4. D002's first task is to write a lexer against the frozen contract, and it will
-   need CI that actually executes tests: none exists today.
+5. Missing CI is **not** passing CI. Until `.github/workflows/` exists and runs on
+   a pull request, no gate may cite CI as evidence.
 
 Two D002 obligations were closed by Directive 001-R3 rather than carried forward:
 `ARA-SRC-0002` and `ARA-PARSE-0199` now have explicit obligations in

@@ -648,6 +648,58 @@ Format: `Dxxx-yy` where `xxx` is the directive number and `yy` is a sequence.
 
 ---
 
+## D002-01 — Directive 002: D001 residual closure and D002 execution
+
+- **Date:** 2026-10-20
+- **Decider:** Repository owner (`JoaoGaValentim`)
+- **Status:** ACTIVE
+- **Scope:** Authorizes, in order: (a) one minimal documentation-only pass closing
+  the residual D001 inconsistencies identified by independent review, integrated by
+  reviewed merge commit; (b) D002-A — build foundation, CI, and the lexer, with CLI
+  subcommand `lex`; (c) D002-B — parser and AST, with CLI subcommand `parse`,
+  conditional on D002-A's exit conditions being verified and its merge confirmed;
+  (d) conditional merge of completed D002 increments by merge commit.
+- **Scope limit — normative:** D002 implements the existing frozen contract and
+  does not redesign it. The four normative files MUST retain their `D001-13`
+  hashes:
+  - `docs/spec/lexical.md` — `70b0f8dd1a01d85391e2d9f75b240b2b60390e5c94092a56fc0d1d0293f2d8ea`
+  - `docs/spec/syntax.ebnf` — `2d4dcf73159033a8cdefa5a09eaff1344b7be586a5f5f78af1d9fa5c280a7f1a`
+  - `docs/spec/semantics.md` — `e2ac89c58a24d3d01c14755ada3b80c914ac6bafb5c16b7c50815533f623f106`
+  - `docs/spec/conformance-plan.md` — `2024d51c86e1b768ba712175c0f9a15adf65fbe1963e02f66d855fd20f5dd2e3`
+
+  A genuine contradiction requires escalation with the exact rule references and a
+  minimal proposed correction. It is never resolved by silently changing semantics
+  to make a test pass.
+- **Build policy:** Java 21; Gradle with a committed, pinned wrapper and a verified
+  distribution checksum; JUnit Jupiter; deterministic test execution; GitHub Actions
+  CI on pull requests and pushes to `main`. ASM, Kotlin sources or a Kotlin compiler
+  dependency, ANTLR/JavaCC/other parser generators, and packaging or release
+  automation are **not** authorized.
+- **Explicitly not authorized:** D003 name resolution or type checking; a typed IR;
+  D004 ASM or JVM class-file generation; Java interoperability implementation;
+  Kotlin transpilation; new language features; any change to the frozen D001
+  contract; tags or releases; compiler-binary publication; Kilo retirement;
+  destructive Git cleanup; direct pushes to protected `main`; starting D003 after
+  D002 closure; placeholder implementations of a prohibited stage.
+- **Merge conditions (all required, per increment):** exact scope match; correct
+  source and target branches; exact HEAD reviewed; required CI successful on that
+  revision; no blocking audit finding; frozen hashes match; protections satisfied;
+  no unrelated or unreviewed files; PR mergeable; merge commit preserving history.
+  A changed HEAD requires repeating the applicable verification.
+- **Evidence standard:** a missing CI workflow or a skipped required test is not
+  `PASS`. Every claim names the command, commit, and environment that supports it.
+- **Rationale:** D001 closed with a known documentation residue. Closing it before
+  implementation keeps the recovery ledger trustworthy as the denominator against
+  which D002 evidence will be judged. Separating the increments prevents a partly
+  implemented frontend from being reported as a milestone.
+- **Note:** this entry was recorded before the D002 implementation began, so the
+  authorization precedes the artifacts it authorizes.
+- **Evidence of authority:** Owner directive "ARARA — DIRECTIVE 002 — Foundation
+  Handover, Compiler Frontend Implementation and Controlled Integration",
+  2026-10-20, §0, §3, §4, §5, §6, §7, and §8.
+
+---
+
 ## Decision index
 
 Every option raised during D001 is now resolved by a recorded owner decision.
@@ -679,9 +731,10 @@ Directive authorizations recorded separately from option decisions:
 | 001-R6 | `D001-12` | Ratification delegation, integration, acceptance recording |
 | 001-R7 | `D001-25` | Acceptance-record reconciliation, ledger snapshot, PR #2 integration |
 | 001-R6 acceptance | `D001-24` | D001 formally accepted |
+| 002 | `D002-01` | D001 residual closure, D002-A/D002-B execution, conditional merge |
 
-Nothing in this table authorizes D002. Implementation begins only under a
-separate directive after D001 is recorded as accepted.
+Nothing in this table authorizes D003. D002 implements the lexer and parser only;
+name resolution, type checking, and code generation remain unauthorized.
 
 ### Amendments a later decision must name
 
