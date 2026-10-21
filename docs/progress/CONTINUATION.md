@@ -8,12 +8,13 @@ states what to do and what not to do, with no reliance on prior conversation.
 - **Active milestone:** D002 — Lexer and Parser. Authorized by `D002-01`.
 - **D001 status:** **ACCEPTED AND INTEGRATED.** Closed under `D001-24`. Do not
   reopen its architecture; its contract is frozen.
-- **D002 status:** in progress. **D002-A is complete** on `phase/d002-a-lexer`
-  (PR #5): build, CI, lexer, separator, and `arara lex`. It is not merged yet, so
-  D002-B has not started and must not start until the merge is verified.
+- **D002 status:** in progress. **D002-A is complete and merged** as
+  `6848745` (PR #5): build, CI, lexer, separator, and `arara lex`. D002-B has not
+  started. Its entry condition is now satisfied on the merge, not merely on the
+  branch.
 - **D002 increments:** D002-A (build, CI, lexer) is authorized and complete.
-  D002-B (parser, AST) is authorized **conditionally**, and its entry condition is
-  D002-A's merge being verified — a complete branch is not a merged branch.
+  D002-B (parser, AST) is authorized **conditionally**; its entry condition,
+  D002-A's merge being verified, is satisfied by `6848745`.
   D002-C is the closure evaluation of all eleven D002 gates.
 - **Contract:** `FROZEN` at the `D001-13` revision. The four hashes are in
   `docs/progress/audit/D001-R6.md` §B.1 and repeated in `STATE.md`. Verify them
@@ -90,10 +91,9 @@ failure. Report it; do not smooth it over.
    harness only. Compare the result against `STATE.md`.
 3. Resolve branch and HEAD from Git. Do not compare them against a hardcoded
    expectation.
-4. Then work the next authorized unit. If PR #5 is not yet merged, verify and
-   merge it first: confirm the exact head, that CI is green **on that head**, that
-   the four frozen hashes still match, and that no D003/D004 file appeared. Only
-   then start D002-B, whose subject is the parser and AST.
+4. Then work the next authorized unit: D002-B, the parser and AST. Read
+   `syntax.ebnf` first; the grammar is frozen and MUST NOT be edited to fit an
+   implementation. D002-G3, G6, G7, G10 and the `parse` half of G11 close there.
 5. If the owner reports a defect, fix only that defect, re-check the grammar with
    the checkers in `REPRODUCIBILITY.md` §9a, update `STATE.md`, and commit with
    `checkpoint:`.
