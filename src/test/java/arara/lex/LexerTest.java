@@ -393,6 +393,32 @@ class LexerTest {
     }
 
     @Test
+    @DisplayName("a backslash before a line break is still a raw line break, not an invalid escape")
+    void backslashBeforeLineBreak() {
+        // Rule 41: a string may not continue across lines "not even with a trailing
+        // backslash". Before this regression test existed, the backslash consumed the
+        // line break and reported ARA-LEX-0202 instead of ARA-LEX-0203, and the
+        // literal silently continued on the next line.
+        List<Diagnostic> found = diagnostics("\"ab\\\ncd\"");
+        assertEquals(DiagnosticCodes.LEX_RAW_LINE_BREAK_IN_STRING, found.get(0).code());
+        // The span covers exactly the line break, which sits at offset 4.
+        assertEquals(4, found.get(0).span().start());
+        assertEquals(5, found.get(0).span().end());
+        assertTrue(found.stream().noneMatch(d -> d.code().equals(DiagnosticCodes.LEX_INVALID_ESCAPE)),
+                "a trailing backslash must not be reported as an invalid escape");
+    }
+
+    @Test
+    @DisplayName("a backslash before a line break does not let the literal span the break")
+    void backslashBeforeLineBreakDoesNotContinueLiteral() {
+        List<Token> result = LexTestSupport.rawTokens("\"ab\\\ncd\"");
+        assertTrue(result.stream().noneMatch(t -> t.kind() == TokenKind.STRING_LITERAL),
+                "the partial literal must be discarded, not emitted across the break");
+        // Lexing resumes at the break, so a NEWLINE token must be present.
+        assertTrue(result.stream().anyMatch(t -> t.kind() == TokenKind.NEWLINE));
+    }
+
+    @Test
     @DisplayName("after a raw line break, lexing resumes at the break rather than aborting")
     void recoveryAfterRawNewline() {
         // The partial literal is discarded; lexing continues on the next line.

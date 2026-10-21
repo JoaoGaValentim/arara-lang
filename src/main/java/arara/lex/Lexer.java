@@ -157,6 +157,18 @@ public final class Lexer {
                     return true;
                 }
                 int next = text[pos + 1];
+                // Rule 41: a line break inside a string is ARA-LEX-0203 even when it
+                // follows a backslash. "It is not permitted to continue a string
+                // across lines, not even with a trailing '\'." The raw-break branch
+                // above cannot see this case because the backslash is consumed here,
+                // so it is checked before the escape is decoded.
+                if (next == '\n') {
+                    diagnostics.add(Diagnostic.of(DiagnosticCodes.LEX_RAW_LINE_BREAK_IN_STRING,
+                            new Span(pos + 1, pos + 2),
+                            "raw line break inside a string literal"));
+                    pos += 1;
+                    return false;
+                }
                 int decoded = switch (next) {
                     case 'n' -> '\n';
                     case 'r' -> '\r';
