@@ -1,0 +1,4 @@
+// a line comment
+/* a block comment */
+/** doc style */
+val x: Int = 1

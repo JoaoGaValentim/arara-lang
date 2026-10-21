@@ -100,19 +100,33 @@ deleted.
 
 Entry: D001 accepted by recorded owner decision.
 
-| # | Gate | Criterion | Status |
-| --- | --- | --- | --- |
-| D002-G1 | Token model | Token kinds, spans, and line/column semantics match `lexical.md` §1.4 and §3 | NOT_STARTED |
-| D002-G2 | Lexical conformance | All positive and negative cases in `conformance-plan.md` §3 pass | NOT_STARTED |
-| D002-G3 | Grammatical coverage | Every production in `syntax.ebnf` has a positive fixture and a negative fixture where meaningful | NOT_STARTED |
-| D002-G4 | Separation | Automatic separation cases in `lexical.md` §10 pass, including `ARA-PARSE-0107` and `ARA-PARSE-0108` | NOT_STARTED |
-| D002-G5 | Diagnostics | Every producible `ARA-LEX-*` and `ARA-PARSE-*` code is produced by at least one test with the specified span; `ARA-LEX-0102`, which the specification marks as reserved and never produced, is asserted absent instead | NOT_STARTED |
-| D002-G6 | Recovery | Recovery rules in `syntax.ebnf` §8 are implemented and tested: one diagnostic per defect, no cascade | NOT_STARTED |
-| D002-G7 | AST stability | AST dump is deterministic and suitable for goldens | NOT_STARTED |
-| D002-G8 | No leakage | No name resolution, typing, IR, or bytecode code exists | NOT_STARTED |
-| D002-G9 | Determinism | Identical input produces identical token and AST dumps across runs | NOT_STARTED |
-| D002-G10 | LL(1) regression | An automated FIRST/FOLLOW check over the committed grammar reports no selection conflict, and the grammar text is unchanged from D001 or a decision records the change | NOT_STARTED |
-| D002-G11 | CLI surface | `lex` and `parse` subcommands expose tokens and AST dumps without compiling, matching `architecture.md` §6 | NOT_STARTED |
+Status values are the closed set declared at the top of this file. A gate carries
+an evidence column only where evidence exists; an empty cell means no evidence has
+been recorded yet.
+
+| # | Gate | Criterion | Status | Evidence |
+| --- | --- | --- | --- | --- |
+| D002-G1 | Token model | Token kinds, spans, and line/column semantics match `lexical.md` §1.4 and §3 | PASS | `docs/progress/audit/D002-A.md` §E verifies §1.4 spans and positions through the CLI on the reviewed commit `c622d5c`: 1-based line/column, tab as one column, an astral character as one column (hexdump-confirmed 4-byte UTF-8), and half-open spans. `PositionTest` 9 tests. `Token` enforces in its constructor that every non-EOF token has a non-empty span and `EOF` an empty one, so a malformed token cannot exist |
+| D002-G2 | Lexical conformance | All positive and negative cases in `conformance-plan.md` §3 pass | PASS | All positive and negative rows of `conformance-plan.md` §3 pass: 223 tests, 0 failures, 0 skipped, counted from the JUnit XML at `c622d5c`. §E of the audit re-checks the boundary cases through the CLI rather than trusting the tests, including the §36 boundary (2147483648 legal, 2147483649 `ARA-LEX-0204`), the §11 spans for `0301`/`0201`/`0203`/`0401`, and 200,000 fuzz inputs with no exception or hang |
+| D002-G3 | Grammatical coverage | Every production in `syntax.ebnf` has a positive fixture and a negative fixture where meaningful | NOT_STARTED | none yet |
+| D002-G4 | Separation | Automatic separation cases in `lexical.md` §10 pass, including `ARA-PARSE-0107` and `ARA-PARSE-0108` | PASS | `lexical.md` §10 verified both by `SeparatorTest` (47 tests) and by direct CLI sweeps in `D002-A.md` §E: all 8 trigger tokens produce exactly one `SEMI`, all 17 non-triggers produce none, `SEMI` is not a trigger (`x;` + LF yields exactly one), depth never goes negative, `)` at depth 0 is preserved for `ARA-PARSE-0117`, and a run of newlines collapses to one. `ARA-PARSE-0107`/`0108` are lexer-observable only as the `SEMI` that causes them and are asserted in that form; the parser diagnostics belong to D002-B |
+| D002-G5 | Diagnostics | Every producible `ARA-LEX-*` and `ARA-PARSE-*` code is produced by at least one test with the specified span; `ARA-LEX-0102`, which the specification marks as reserved and never produced, is asserted absent instead | PASS | `DiagnosticCoverageTest` asserts the produced set equals the producible set **exactly**, not merely that it is non-empty: 12 documented lexical codes minus the reserved one. `ARA-LEX-0102` is asserted absent, as the specification requires, and a non-ASCII identifier candidate is asserted to report `ARA-LEX-0101` instead. Spans for `0201`, `0202`, `0203`, `0301`, `0401`, `0204`, `0205` were re-verified through the CLI in `D002-A.md` §E. `ARA-PARSE-*` codes have no producer yet |
+| D002-G6 | Recovery | Recovery rules in `syntax.ebnf` §8 are implemented and tested: one diagnostic per defect, no cascade | IN_PROGRESS | Lexer-side recovery is implemented and verified: a raw break inside a string discards the partial literal and resumes at the break (rules 41, and the backslash-before-break case found by review), an invalid escape skips the escape and continues (rule 44), an unterminated string stops the unit (rule 41), and independent defects each report once. **Not closable on this evidence:** `syntax.ebnf` §8 governs parser recovery, and no parser exists until D002-B |
+| D002-G7 | AST stability | AST dump is deterministic and suitable for goldens | NOT_STARTED | none yet |
+| D002-G8 | No leakage | No name resolution, typing, IR, or bytecode code exists | PASS | No `Resolver`, `TypeCheck`, `Ir`, `Emitter`, or `Bytecode` file exists in `src`; `org.objectweb.asm` appears in no source file; no ASM, Kotlin, or parser-generator dependency is declared. CI step 7 enforces both conditions on every run, so a regression fails the check rather than being noticed later |
+| D002-G9 | Determinism | Identical input produces identical token and AST dumps across runs | PASS | `TokenDumpTest` asserts byte-identical dumps across repeated runs, across interleaved unrelated lexing, across LF/CRLF/CR input, and with or without a BOM. `GoldenFixtureTest` asserts determinism over all 14 fixtures. CI step 6 re-runs the determinism tests on the exact reviewed commit |
+| D002-G10 | LL(1) regression | An automated FIRST/FOLLOW check over the committed grammar reports no selection conflict, and the grammar text is unchanged from D001 or a decision records the change | NOT_STARTED | none yet |
+| D002-G11 | CLI surface | `lex` and `parse` subcommands expose tokens and AST dumps without compiling, matching `architecture.md` §6 | IN_PROGRESS | `arara lex <file.ara>...` is complete and tested: tokens to stdout, diagnostics to stderr, exit 0 on success and 2 on diagnostics, and `check`/`compile`/`run` are **rejected as unimplemented rather than stubbed** so an absent stage cannot appear to succeed. `D002-G11` covers `lex` **and** `parse`; `parse` is D002-B, so the gate is not closed |
+
+**D002 self-assessment (D002-A only, `c622d5c`):** six gates are `PASS`
+(`G1`, `G2`, `G4`, `G5`, `G8`, `G9`), two are `IN_PROGRESS` (`G6`, `G11`), three
+are `NOT_STARTED` (`G3`, `G7`, `G10`), and none is `FAIL` or `BLOCKED`. The five
+open items are open because their subject — the parser and the AST — does not
+exist yet; they are not open because of a defect in the lexer.
+
+**D002 verdict: not yet assignable.** D002 closes only when all eleven gates
+satisfy their criterion. As of `c622d5c` the increment is `D002-A`, not D002.
+
 
 ---
 

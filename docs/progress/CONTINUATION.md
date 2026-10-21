@@ -8,11 +8,13 @@ states what to do and what not to do, with no reliance on prior conversation.
 - **Active milestone:** D002 — Lexer and Parser. Authorized by `D002-01`.
 - **D001 status:** **ACCEPTED AND INTEGRATED.** Closed under `D001-24`. Do not
   reopen its architecture; its contract is frozen.
-- **D002 status:** in progress. The current unit is the D001 documentation
-  handover (Directive 002 §3); D002-A has not started.
-- **D002 increments:** D002-A (build, CI, lexer) is authorized. D002-B (parser,
-  AST) is authorized **conditionally**, only after D002-A's exit conditions are
-  verified and its merge confirmed. D002-C is the closure evaluation.
+- **D002 status:** in progress. **D002-A is complete** on `phase/d002-a-lexer`
+  (PR #5): build, CI, lexer, separator, and `arara lex`. It is not merged yet, so
+  D002-B has not started and must not start until the merge is verified.
+- **D002 increments:** D002-A (build, CI, lexer) is authorized and complete.
+  D002-B (parser, AST) is authorized **conditionally**, and its entry condition is
+  D002-A's merge being verified — a complete branch is not a merged branch.
+  D002-C is the closure evaluation of all eleven D002 gates.
 - **Contract:** `FROZEN` at the `D001-13` revision. The four hashes are in
   `docs/progress/audit/D001-R6.md` §B.1 and repeated in `STATE.md`. Verify them
   before and after every implementation integration.
@@ -73,7 +75,11 @@ failure. Report it; do not smooth it over.
   record. `D001-R6.md` §B.1 holds the frozen hashes. `D001-R4.md` §8 is the
   corrections index for R3/R4. `REPRODUCIBILITY.md` §9d.3 holds the rerun `javac`
   experiment with its sum assertions; §9c.2 is marked invalid and retained.
-- Not present: `.github/workflows/`, any build file, any `src/` tree, any test.
+- Implementation (D002-A): `src/main/java/arara/{lex,source,diag,cli}`, tests under
+  `src/test/java/arara`, 14 fixtures under `tests/fixtures/lex`, build files, and
+  `.github/workflows/ci.yml`. 223 tests, 0 failures.
+- Still absent, by design: parser, AST, name resolution, typing, IR, bytecode.
+  `arara parse` exists only as a rejection that names D002-B.
 
 ## What to do next
 
@@ -84,10 +90,10 @@ failure. Report it; do not smooth it over.
    harness only. Compare the result against `STATE.md`.
 3. Resolve branch and HEAD from Git. Do not compare them against a hardcoded
    expectation.
-4. Then work the next authorized unit. For D002-A that means: build foundation with
-   a pinned, checksum-verified Gradle wrapper, CI that runs on the exact reviewed
-   commit, then the lexer. Read the frozen contract first; do not re-derive rules
-   from audit prose.
+4. Then work the next authorized unit. If PR #5 is not yet merged, verify and
+   merge it first: confirm the exact head, that CI is green **on that head**, that
+   the four frozen hashes still match, and that no D003/D004 file appeared. Only
+   then start D002-B, whose subject is the parser and AST.
 5. If the owner reports a defect, fix only that defect, re-check the grammar with
    the checkers in `REPRODUCIBILITY.md` §9a, update `STATE.md`, and commit with
    `checkpoint:`.
@@ -97,7 +103,8 @@ failure. Report it; do not smooth it over.
 - Do not modify `docs/spec/*`. A contradiction is escalated, never silently
   amended so a test passes.
 - Do not write name resolution, type checking, a typed IR, ASM, JVM class-file
-  generation, or a Java interop layer. Those are D003 and D004.
+  generation, or a Java interop layer. Those are D003 and D004. `compile` and
+  `run` must stay rejected, not stubbed.
 - Do not add ASM, Kotlin sources or a Kotlin compiler dependency, ANTLR/JavaCC or
   any parser generator, packaging, or release automation.
 - Do not invent syntactic sugar or a language feature from `docs/charter.md` §4.

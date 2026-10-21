@@ -1,0 +1,3 @@
+STRING_LITERAL(中文 🦜 parrot)@0:13
+SEMI()@13:14
+EOF()@14:14

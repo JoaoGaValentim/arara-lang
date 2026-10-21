@@ -1,0 +1,14 @@
+FUN(fun)@0:3
+VAL(val)@4:7
+VAR(var)@8:11
+IF(if)@12:14
+ELSE(else)@15:19
+RETURN(return)@20:26
+TRUE(true)@27:31
+FALSE(false)@32:37
+SEMI()@37:38
+INT(Int)@38:41
+BOOLEAN(Boolean)@42:49
+STRING(String)@50:56
+UNIT(Unit)@57:61
+EOF()@62:62

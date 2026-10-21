@@ -5,9 +5,9 @@ only; no intentions, no forecasts.
 
 ```yaml
 # ── Milestone ───────────────────────────────────────────────────────────────
-active_directive: D002 — Foundation handover, compiler frontend implementation, controlled integration
+active_directive: D002 — increment A complete; awaiting integration of PR #5
 active_milestone: D002 — Lexer and Parser
-milestone_status: IN_PROGRESS
+milestone_status: IN_PROGRESS (D002-A complete; D002-B not started)
 milestone_authorization: D002-01 (docs/progress/DECISIONS.md); D001 closed under D001-24
 acceptance_decision: D001-24 (D001 accepted; ledger reconciliation was outstanding then, completed under D001-R7)
 
@@ -33,11 +33,11 @@ r7_authorization: D001-25 (R7 reconciliation, ledger snapshot, PR #2 integration
 d002_authorization: D002-01 (D002 execution; D001 residual closure, D002-A/B increments, conditional PR merge)
 
 # ── Mainline snapshot (historical observation, NOT a live HEAD pin) ─────────
-mainline_observed_at: 2026-10-20T22:30:00Z (D002 handover baseline verification)
-mainline_merge_commit: a53b3905614600cceb2936ea8e2eaca9eb6b658a
-mainline_merge_parents: 992e84a53cf3cfae226e49c03fee076b86820e2c, 82b3b0d25d6df25405a8993af3a157c038ec31e1
-mainline_tree: 92328ac445d1126a7a9382703808c59830234550
-mainline_prior_snapshot: 5441a9f3a95db09563f5183c7cb8f68532e5a6bf (observed at D001-R6, superseded by this snapshot but still an ancestor)
+mainline_observed_at: 2026-10-21T00:00:00Z (D002-A baseline verification)
+mainline_merge_commit: 29ae665fa4d946a2a2e703f0270f535839401ea6
+mainline_merge_parents: a53b3905614600cceb2936ea8e2eaca9eb6b658a, cfd017c585f5af9a24b7d1df156d047ffc24e76e
+mainline_tree: 560e35ee39201ed30ab6e3b9594f3268a99bc490
+mainline_prior_snapshot: a53b390 (observed at D002 handover, superseded by this snapshot but still an ancestor); earlier 5441a9f (D001-R6), 992e84a (D001-R7)
 mainline_snapshot_rule: >
   This is the main revision observed during verification, not an assertion about
   the current tip of main. Later commits on main do not make it wrong. Compare it
@@ -45,14 +45,14 @@ mainline_snapshot_rule: >
   where it is NOT an ancestor as a hard failure.
 
 # ── Ledger commit identity ──────────────────────────────────────────────────
-ledger_branch: docs/d001-residual-closure
-ledger_branch_note: first committed on this branch under Directive 002 §3; the preceding ledger commit is on docs/d001-r7-postmerge
-last_verified_commit: 9e37eda49622f274dc3cf1e93c77b9a958ad7f5c
+ledger_branch: phase/d002-a-lexer
+ledger_branch_note: D002-A implementation branch; the D001 documentation ledger was last committed on docs/d001-residual-closure, merged as 29ae665
+last_verified_commit: c622d5c5d1c06a3406d6b8995291b3a1fd83a6e6
 ledger_commit_rule: >
   last_verified_commit is the commit preceding the commit that contains this
   ledger, on ledger_branch. It is expected to be the parent of that commit, not
   the branch tip and not main. See G9-A.
-audit_commit: docs/progress/audit/D001-R7.md (R7); previous D001-R6.md (R6), 230abd6 (R5), 2607608 (R4); D002 record pending
+audit_commit: docs/progress/audit/D002-A.md (D002-A); earlier D001-R7.md (R7), D001-R6.md (R6), 230abd6 (R5), 2607608 (R4)
 
 # ── Live session state (discovered at recovery, never stored) ──────────────
 live_state_rule: >
@@ -66,7 +66,7 @@ live_state_rule: >
 remote: origin https://github.com/JoaoGaValentim/arara-lang.git (public; default branch main)
 agent_environment: GitHub Copilot primary (.github/); Kilo retained as fallback (D001-23)
 d002_authorization: AUTHORIZED — D002-01, scope limited to D002-A and D002-B increments (D002-C is not yet complete)
-implementation_state: none — no compiler source, build file, test, or CI workflow exists yet
+milestone_increment: D002-A — build foundation, CI, and lexer (complete, not yet merged)
 working_tree_at_write: clean before this ledger commit; the ledger does not assert the tree is clean at read time
 ```
 
