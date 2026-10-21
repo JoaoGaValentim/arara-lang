@@ -5,7 +5,7 @@ only; no intentions, no forecasts.
 
 ```yaml
 # ── Milestone ───────────────────────────────────────────────────────────────
-active_directive: D002 — increment A complete; awaiting integration of PR #5
+active_directive: D002 — increment A integrated; increment B not started
 active_milestone: D002 — Lexer and Parser
 milestone_status: IN_PROGRESS (D002-A complete; D002-B not started)
 milestone_authorization: D002-01 (docs/progress/DECISIONS.md); D001 closed under D001-24
@@ -33,11 +33,11 @@ r7_authorization: D001-25 (R7 reconciliation, ledger snapshot, PR #2 integration
 d002_authorization: D002-01 (D002 execution; D001 residual closure, D002-A/B increments, conditional PR merge)
 
 # ── Mainline snapshot (historical observation, NOT a live HEAD pin) ─────────
-mainline_observed_at: 2026-10-21T00:00:00Z (D002-A baseline verification)
-mainline_merge_commit: 29ae665fa4d946a2a2e703f0270f535839401ea6
-mainline_merge_parents: a53b3905614600cceb2936ea8e2eaca9eb6b658a, cfd017c585f5af9a24b7d1df156d047ffc24e76e
-mainline_tree: 560e35ee39201ed30ab6e3b9594f3268a99bc490
-mainline_prior_snapshot: a53b390 (observed at D002 handover, superseded by this snapshot but still an ancestor); earlier 5441a9f (D001-R6), 992e84a (D001-R7)
+mainline_observed_at: 2026-10-21T00:28:00Z (D002-A post-merge verification)
+mainline_merge_commit: 68487452acc1362850fcc28d7efd1764c874a166
+mainline_merge_parents: 29ae665fa4d946a2a2e703f0270f535839401ea6, c87c6556c2e3c16fe69fc7fc3aa2389f9c08e22d
+mainline_tree: ce9067db71a7514c39ec08518f80f72fac3da533
+mainline_prior_snapshot: 29ae665 (D002-A baseline, PR #4 merge), still an ancestor; earlier a53b390 (D002 handover), 5441a9f (D001-R6), 992e84a (D001-R7)
 mainline_snapshot_rule: >
   This is the main revision observed during verification, not an assertion about
   the current tip of main. Later commits on main do not make it wrong. Compare it
@@ -45,9 +45,9 @@ mainline_snapshot_rule: >
   where it is NOT an ancestor as a hard failure.
 
 # ── Ledger commit identity ──────────────────────────────────────────────────
-ledger_branch: phase/d002-a-lexer
-ledger_branch_note: D002-A implementation branch; the D001 documentation ledger was last committed on docs/d001-residual-closure, merged as 29ae665
-last_verified_commit: c622d5c5d1c06a3406d6b8995291b3a1fd83a6e6
+ledger_branch: docs/d002-a-postmerge
+ledger_branch_note: post-merge record branch; the D002-A implementation was merged as 6848745 from phase/d002-a-lexer, whose tip is c87c655
+last_verified_commit: 68487452acc1362850fcc28d7efd1764c874a166
 ledger_commit_rule: >
   last_verified_commit is the commit preceding the commit that contains this
   ledger, on ledger_branch. It is expected to be the parent of that commit, not
@@ -66,7 +66,7 @@ live_state_rule: >
 remote: origin https://github.com/JoaoGaValentim/arara-lang.git (public; default branch main)
 agent_environment: GitHub Copilot primary (.github/); Kilo retained as fallback (D001-23)
 d002_authorization: AUTHORIZED — D002-01, scope limited to D002-A and D002-B increments (D002-C is not yet complete)
-milestone_increment: D002-A — build foundation, CI, and lexer (complete, not yet merged)
+milestone_increment: D002-A — build foundation, CI, and lexer (complete and MERGED as 6848745)
 working_tree_at_write: clean before this ledger commit; the ledger does not assert the tree is clean at read time
 ```
 
